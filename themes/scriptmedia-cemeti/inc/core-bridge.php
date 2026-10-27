@@ -2,10 +2,10 @@
 /**
  * Bridge to Scriptmedia Core.
  *
- * Optional. When Scriptmedia Core is active it can pick up the client
- * configuration arrays (CPT, taxonomies, options pages) through these filters.
- * The theme is standalone: with Core absent the filters are simply never called
- * and nothing breaks.
+ * Optional and off by default. The theme registers its own post types and
+ * taxonomies (inc/content-model.php). To let Scriptmedia Core register them
+ * instead, define CEMETI_USE_CORE_REGISTRAR as true in wp-config.php: the theme
+ * then stops registering and hands the arrays in config/ to Core via these filters.
  *
  * NOTE: the filter names below (scriptmedia_post_types, …) follow the pattern
  * described in the architecture brief but could not be checked against the real
@@ -48,6 +48,9 @@ function cemeti_config( $name ) {
  * Each filter appends or overrides entries; it never edits core directly.
  */
 function cemeti_register_core_config() {
+	if ( ! defined( 'CEMETI_USE_CORE_REGISTRAR' ) || ! CEMETI_USE_CORE_REGISTRAR ) {
+		return;
+	}
 	$map = array(
 		'scriptmedia_post_types'   => 'post-types',
 		'scriptmedia_taxonomies'   => 'taxonomies',

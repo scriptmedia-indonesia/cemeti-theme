@@ -1,7 +1,7 @@
 <?php
 /**
- * Cemeti options pages (Site Settings ID/EN), consumed by Scriptmedia Core (see inc/core-bridge.php).
- * Filled in M2.
+ * Reserved for Scriptmedia Core. Site Settings live in inc/settings.php
+ * (Settings → Cemeti), so this stays empty in standalone mode.
  *
  * @package Scriptmedia_Cemeti
  */

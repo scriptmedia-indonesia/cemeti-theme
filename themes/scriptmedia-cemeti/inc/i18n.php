@@ -84,6 +84,9 @@ function cemeti_ui_strings() {
 		'instagram'          => array( 'id' => 'Instagram', 'en' => 'Instagram' ),
 		'youtube'            => array( 'id' => 'Youtube', 'en' => 'Youtube' ),
 		'facebook'           => array( 'id' => 'Facebook', 'en' => 'Facebook' ),
+		'status_current'     => array( 'id' => 'Sedang berlangsung', 'en' => 'Current' ),
+		'status_upcoming'    => array( 'id' => 'Mendatang', 'en' => 'Upcoming' ),
+		'status_previous'    => array( 'id' => 'Sebelumnya', 'en' => 'Previous' ),
 	);
 }
 

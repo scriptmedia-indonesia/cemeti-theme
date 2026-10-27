@@ -17,7 +17,7 @@ Content must survive a theme switch, so CPTs and taxonomies are declared as conf
 | Feature | Core plugin | Parent | Child | Elementor | SCF | Polylang |
 |---|---|---|---|---|---|---|
 | CPTs / taxonomies | registrar | — | config arrays | archive/single templates optional | — | translatable |
-| Field groups | loader | — | `acf-json/` (cemeti_ prefix) | dynamic tags | storage | per-language values |
+| Field groups | loader | — | `config/fields.php` meta box (standalone) | dynamic tags | storage | per-language values |
 | Site Settings ID/EN | options pages | — | `cemeti_option()` | — | options | `id` / `en` option ids |
 | Status current/upcoming/previous | `cemeti_get_status` equivalents, cron | — | labels | — | date fields | — |
 | Related (max 4, two-way) | save hooks | — | `template-parts/related` | — | relationship | — |
@@ -27,15 +27,29 @@ Content must survive a theme switch, so CPTs and taxonomies are declared as conf
 | Search | shared query | — | `search.php`, overlay | — | — | language filter |
 | Redirects, SEO, security | all | — | — | — | — | — |
 
-## M1 status (this commit)
+## M1 status
 
-Implemented in the child theme: tokens, self-hosted fonts, header with sticky bar, overlay menu, search strip, What's on panel, footer, ID/EN switcher (Polylang-safe), `cemeti_option()` with language fallback, `cemeti_format_date_range()`, image sizes, versioned/deferred assets, font preload, core bridge with dependency notice.
+Implemented in the theme: tokens, self-hosted fonts, header with sticky bar, overlay menu, search strip, What's on panel, footer, ID/EN switcher (Polylang-safe), `cemeti_option()` with language fallback, `cemeti_format_date_range()`, image sizes, versioned/deferred assets, font preload.
 
-Not yet: content model, status logic, templates, forms, SEO, hardening. These are M2–M5.
+## M2 status (content model)
+
+| Piece | Where |
+|---|---|
+| Post types: `exhibition`, `residency`, `public_program`, `open_studio`, `open_call`, `journal` (URLs match the menu) | `config/post-types.php`, `inc/content-model.php` |
+| Taxonomies: Exhibition Type (Solo, Group), Residency Type (Reguler, Research), Journal Category (News, Essay, Curatorial Essay); default terms seeded once | `config/taxonomies.php` |
+| Fields as a "Details" meta box (no SCF needed): dates, artists, opening, venue, gallery, documentation, biographies (repeater), related, Open Call deadline + URL, Journal author | `config/fields.php`, `inc/fields.php`, `assets/js/admin-fields.js` |
+| Status current / upcoming / previous, computed at read time in the site timezone (`cemeti_get_status`, `cemeti_status_query`) | `inc/status.php` |
+| Related: max 4, two-way, unlinked on delete | `inc/relations.php` |
+| What's on feed: current Exhibition, Open Studio, Residency, cached and invalidated on save | `inc/whats-on.php` |
+| Polylang: all types and taxonomies registered as translatable | `inc/content-model.php` |
+
+Poster / cover = featured image. Dates are stored as `Ymd`; a one-day event gets end = start. Logic tests: `php tests/m2-logic.php`.
+
+Not yet: page templates for these types (M3), Open Call form handling and search (M4), SEO and hardening (M5).
 
 ## Open assumptions (must be verified)
 
-1. **Scriptmedia Core and parent theme were not available (theme is standalone for now)** when this repo was created. `inc/core-bridge.php` hooks `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.
+1. **Scriptmedia Core and parent theme were not available (theme is standalone for now)** when this repo was created. The theme registers the content model itself. `inc/core-bridge.php` only hands the `config/` arrays to Scriptmedia Core when `CEMETI_USE_CORE_REGISTRAR` is true, via `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.
 2. **Not tested in a live WordPress.** Only syntax checks and file checksums ran. Install and smoke-test before M2.
 3. **SCF vs ACF Pro.** The original Cemeti brief assumed ACF Pro; the architecture says SCF. Repeater, gallery, options pages and local JSON must be audited in SCF before M2. `cemeti_option()` already works with or without `get_field()`.
 4. **Polylang free** cannot translate slugs of CPT archives; if `/en/exhibition/` vs `/id/…` slugs differ, that is a limitation to document, not a feature to claim.
