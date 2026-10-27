@@ -1,0 +1,13 @@
+/*
+Theme Name:   Scriptmedia Cemeti
+Theme URI:    https://scriptmedia.id/
+Description:  Client child theme for Cemeti – Institut untuk Seni dan Masyarakat. Holds Cemeti visual identity, templates and configuration on top of the Scriptmedia parent theme and the Scriptmedia Core plugin.
+Author:       Scriptmedia
+Template:     scriptmedia
+Version:      0.1.0
+Requires at least: 6.6
+Requires PHP: 8.1
+License:      GPL-2.0-or-later
+Text Domain:  scriptmedia-cemeti
+*/
+/* Styles live in assets/css/ and are enqueued from inc/enqueue.php. */
