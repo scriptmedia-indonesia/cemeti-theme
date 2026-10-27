@@ -90,3 +90,14 @@ The design colours are used as drawn. The client must decide, per row, whether t
 - **Search wording.** Button reads "Cari" in Indonesian and "Search" in English; the PDF only shows the English wording.
 - **Mobile layouts** are not in the PDF (desktop frames, plus narrow frames only for pages 21, 23, 26, 27, 29, 30). Breakpoints 480 / 768 / 1024 px are our decision; the narrow detail frames guided the single-column behaviour.
 - **Placeholder data.** Footer address, hours and e-mail defaults come from the PDF and live only as fallbacks in `cemeti_option_defaults()`; Site Settings override them. Support Us text in the PDF is Lorem ipsum.
+
+## 6. Derived designs (M3)
+
+These have no page in the PDF and were derived from the design system. Confirm with the client:
+
+- **Contact Us**: blue script heading, page text, then name, address, hours, e-mail and route link from Site Settings.
+- **Search results**: Journal-style ruled rows (date, title, type or category).
+- **404**: yellow script heading, one sentence, a "Go to home" button.
+- **Open Call list**: Journal-style rows, blue heading.
+- **People grid** (About): the PDF only shows the "ADVISORY BOARD" and "TEAM" headings; a 4-column photo, name, role grid is assumed.
+- **Residency detail** and **Open Archive entry order**: no page in the PDF; follow the Exhibition detail pattern and alphabetical order.

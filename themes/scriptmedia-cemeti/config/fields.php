@@ -53,6 +53,7 @@ return array(
 			array( 'key' => 'venue_info', 'label' => 'Venue and hours', 'type' => 'textarea' ),
 			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images' ),
 			array( 'key' => 'gallery_caption', 'label' => 'Gallery caption', 'type' => 'text' ),
+			array( 'key' => 'booklet_url', 'label' => 'Booklet (PDF URL)', 'type' => 'url' ),
 		),
 		$documentation,
 		array( $biographies, $related )
@@ -60,6 +61,7 @@ return array(
 	'residency'      => array_merge(
 		$dates,
 		array(
+			array( 'key' => 'artists', 'label' => 'Residents (one per line)', 'type' => 'textarea' ),
 			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images' ),
 		),
 		array( $related )
@@ -88,5 +90,8 @@ return array(
 	'journal'        => array(
 		array( 'key' => 'author', 'label' => 'Author', 'type' => 'text' ),
 		$related,
+	),
+	'person'         => array(
+		array( 'key' => 'role', 'label' => 'Role', 'type' => 'text' ),
 	),
 );

@@ -24,7 +24,7 @@ function cemeti_asset_version( $relative ) {
  * Enqueue front-end styles and scripts.
  */
 function cemeti_enqueue_assets() {
-	$css = array( 'tokens', 'base', 'layout', 'components' );
+	$css = array( 'tokens', 'base', 'layout', 'components', 'pages' );
 	$prev = array();
 	foreach ( $css as $name ) {
 		$handle = 'cemeti-' . $name;
@@ -44,6 +44,11 @@ function cemeti_enqueue_assets() {
 			'strategy'  => 'defer',
 		)
 	);
+
+	if ( is_singular() ) {
+		$rel = 'assets/js/share.js';
+		wp_enqueue_script( 'cemeti-share', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'cemeti_enqueue_assets' );
 

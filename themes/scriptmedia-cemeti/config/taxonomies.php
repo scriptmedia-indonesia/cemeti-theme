@@ -35,4 +35,13 @@ return array(
 		'hierarchical' => false,
 		'terms'        => array( 'News', 'Essay', 'Curatorial Essay' ),
 	),
+	'person_group'     => array(
+		'singular'     => 'Group',
+		'plural'       => 'Groups',
+		'slug'         => 'person-group',
+		'post_types'   => array( 'person' ),
+		'hierarchical' => false,
+		'public'       => false,
+		'terms'        => array( 'Advisory Board', 'Team' ),
+	),
 );

@@ -47,6 +47,27 @@ Poster / cover = featured image. Dates are stored as `Ymd`; a one-day event gets
 
 Not yet: page templates for these types (M3), Open Call form handling and search (M4), SEO and hardening (M5).
 
+## M3 status (templates)
+
+| Page | Template | Notes |
+|---|---|---|
+| Home | `front-page.php` | Featured entry per program (current, else soonest upcoming, else latest previous) + 3 Journal rows |
+| Exhibition, Public Program, Open Studio archives | `archive.php` + `template-parts/card.php` | 4-col grid, 12 per page, newest start date first; `?type=solo\|group` filters Exhibition |
+| Residency archive | `archive-residency.php` | Reguler / Research intros are the **term descriptions** of Residency Type |
+| Journal, Open Call archives | `archive-journal.php`, `archive-open_call.php` | Ruled rows |
+| Exhibition, Public Program, Open Studio, Residency detail | `single.php` | Contents, Foreword, Gallery, Documentation, Biography, Booklet, Related, Share; each section only when filled |
+| Journal detail | `single-journal.php` | |
+| Open Call detail | `single-open_call.php` | Button hidden after the deadline |
+| About | `page-about.php` (slug `about`) | Advisory Board and Team come from the **People** type, grouped by Person Group |
+| Open Archive | `page-open-archive.php` (slug `open-archive`) | A–Z of Exhibition, Residency, Public Program, Open Studio titles, two columns |
+| Support Us | `page-support-us.php` (slug `support-us`) | Accordion rows are the **child pages** of Support Us |
+| Contact Us, Search, 404 | `page-contact-us.php`, `search.php`, `404.php` | Derived (not in the PDF) |
+| Any other page | `page.php` | |
+
+Editors must create pages with the slugs `about`, `open-archive`, `support-us`, `contact-us` and the four Support Us child pages. Share "More" appears only where the browser supports the Web Share API.
+
+Not yet: Open Call form handling and search tuning (M4), SEO and hardening (M5).
+
 ## Open assumptions (must be verified)
 
 1. **Scriptmedia Core and parent theme were not available (theme is standalone for now)** when this repo was created. The theme registers the content model itself. `inc/core-bridge.php` only hands the `config/` arrays to Scriptmedia Core when `CEMETI_USE_CORE_REGISTRAR` is true, via `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.

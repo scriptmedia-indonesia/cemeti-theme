@@ -57,26 +57,29 @@ function cemeti_register_content_model() {
 			isset( $args['post_types'] ) ? $args['post_types'] : array(),
 			array(
 				'labels'            => cemeti_labels( $args['singular'], $args['plural'] ),
-				'public'            => true,
+				'public'            => ! isset( $args['public'] ) || $args['public'],
+				'show_ui'           => true,
 				'hierarchical'      => ! empty( $args['hierarchical'] ),
 				'show_in_rest'      => true,
 				'show_admin_column' => true,
-				'rewrite'           => array( 'slug' => $args['slug'] ),
+				'rewrite'           => ( ! isset( $args['public'] ) || $args['public'] ) ? array( 'slug' => $args['slug'] ) : false,
 			)
 		);
 	}
 
 	foreach ( cemeti_config( 'post-types' ) as $post_type => $args ) {
+		$is_public = ! isset( $args['public'] ) || $args['public'];
 		register_post_type(
 			$post_type,
 			array(
 				'labels'       => cemeti_labels( $args['singular'], $args['plural'] ),
-				'public'       => true,
-				'has_archive'  => $args['slug'],
-				'rewrite'      => array( 'slug' => $args['slug'] ),
+				'public'       => $is_public,
+				'show_ui'      => true,
+				'has_archive'  => $is_public ? $args['slug'] : false,
+				'rewrite'      => $is_public ? array( 'slug' => $args['slug'] ) : false,
 				'show_in_rest' => true,
 				'menu_icon'    => isset( $args['icon'] ) ? $args['icon'] : 'dashicons-admin-post',
-				'supports'     => array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
+				'supports'     => isset( $args['supports'] ) ? $args['supports'] : array( 'title', 'editor', 'thumbnail', 'excerpt', 'revisions' ),
 				'taxonomies'   => isset( $args['taxonomies'] ) ? $args['taxonomies'] : array(),
 			)
 		);

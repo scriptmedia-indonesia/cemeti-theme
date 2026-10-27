@@ -50,4 +50,13 @@ return array(
 		'icon'       => 'dashicons-edit-page',
 		'taxonomies' => array( 'journal_category' ),
 	),
+	'person'         => array(
+		'singular'   => 'Person',
+		'plural'     => 'People',
+		'slug'       => 'person',
+		'icon'       => 'dashicons-groups',
+		'taxonomies' => array( 'person_group' ),
+		'public'     => false,
+		'supports'   => array( 'title', 'editor', 'thumbnail', 'page-attributes' ),
+	),
 );
