@@ -32,8 +32,8 @@ function cemeti_option_defaults() {
  * Read a Site Settings value for the active language, falling back to the
  * default language, then to the built-in default.
  *
- * Uses SCF/ACF get_field() when available; otherwise reads the plain option
- * "cemeti_settings_{lang}" so the theme still renders without a field plugin.
+ * Order per language: the theme's own Site Settings page (option
+ * "cemeti_settings_{lang}"), then SCF/ACF get_field() when available.
  *
  * @param string $key Option key.
  * @return string
@@ -42,13 +42,11 @@ function cemeti_option( $key ) {
 	$langs = array_unique( array( cemeti_current_lang(), cemeti_default_lang() ) );
 
 	foreach ( $langs as $lang ) {
-		$value = '';
-		if ( function_exists( 'get_field' ) ) {
+		$stored = get_option( 'cemeti_settings_' . $lang, array() );
+		$value  = is_array( $stored ) && isset( $stored[ $key ] ) && is_scalar( $stored[ $key ] ) ? (string) $stored[ $key ] : '';
+		if ( '' === trim( $value ) && function_exists( 'get_field' ) ) {
 			$field = get_field( 'cemeti_' . $key, 'cemeti_settings_' . $lang );
 			$value = is_scalar( $field ) ? (string) $field : '';
-		} else {
-			$stored = get_option( 'cemeti_settings_' . $lang, array() );
-			$value  = is_array( $stored ) && isset( $stored[ $key ] ) ? (string) $stored[ $key ] : '';
 		}
 		if ( '' !== trim( $value ) ) {
 			return $value;

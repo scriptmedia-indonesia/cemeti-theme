@@ -2,10 +2,10 @@
 /**
  * Bridge to Scriptmedia Core.
  *
- * Content model (CPT, taxonomies, field groups, options pages) belongs to the
- * Scriptmedia Core plugin, not to this theme. The child theme only supplies
- * client configuration arrays through filters, and shows an admin notice when
- * required dependencies are missing instead of failing.
+ * Optional. When Scriptmedia Core is active it can pick up the client
+ * configuration arrays (CPT, taxonomies, options pages) through these filters.
+ * The theme is standalone: with Core absent the filters are simply never called
+ * and nothing breaks.
  *
  * NOTE: the filter names below (scriptmedia_post_types, …) follow the pattern
  * described in the architecture brief but could not be checked against the real
@@ -63,33 +63,3 @@ function cemeti_register_core_config() {
 	}
 }
 add_action( 'after_setup_theme', 'cemeti_register_core_config', 20 );
-
-/**
- * Admin notice for missing dependencies.
- */
-function cemeti_dependency_notice() {
-	if ( ! current_user_can( 'activate_plugins' ) ) {
-		return;
-	}
-	$missing = array();
-	if ( ! cemeti_core_active() ) {
-		$missing[] = 'Scriptmedia Core';
-	}
-	if ( ! function_exists( 'get_field' ) ) {
-		$missing[] = 'Secure Custom Fields';
-	}
-	if ( ! $missing ) {
-		return;
-	}
-	printf(
-		'<div class="notice notice-warning"><p>%s</p></div>',
-		esc_html(
-			sprintf(
-				/* translators: %s: comma separated plugin names. */
-				__( 'Scriptmedia Cemeti needs these plugins for its content types and settings: %s. Public pages still render, but Cemeti content will be unavailable.', 'scriptmedia-cemeti' ),
-				implode( ', ', $missing )
-			)
-		)
-	);
-}
-add_action( 'admin_notices', 'cemeti_dependency_notice' );

@@ -1,5 +1,7 @@
 # Architecture — Cemeti on Scriptmedia
 
+> **Standalone mode.** No Scriptmedia parent theme or Core plugin could be found, so the theme currently ships standalone: no `Template:` header, its own Site Settings page (`inc/settings.php`, Settings → Cemeti), and `cemeti_option()` reads that first, then SCF/ACF if present. The layer table below is the target architecture; `inc/core-bridge.php` stays as an optional hook for Core.
+
 ## Layers
 
 | Layer | Package | Owns | Must not own |
@@ -33,8 +35,8 @@ Not yet: content model, status logic, templates, forms, SEO, hardening. These ar
 
 ## Open assumptions (must be verified)
 
-1. **Scriptmedia Core and parent theme were not available** when this repo was created. `inc/core-bridge.php` hooks `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.
-2. **Parent theme stub.** Verification ran with a one-line stub named `scriptmedia`, not the real parent. Parent fallback templates (`single.php`, `archive.php`, `page.php`) and menu/Elementor locations were therefore not exercised.
+1. **Scriptmedia Core and parent theme were not available (theme is standalone for now)** when this repo was created. `inc/core-bridge.php` hooks `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.
+2. **Not tested in a live WordPress.** Only syntax checks and file checksums ran. Install and smoke-test before M2.
 3. **SCF vs ACF Pro.** The original Cemeti brief assumed ACF Pro; the architecture says SCF. Repeater, gallery, options pages and local JSON must be audited in SCF before M2. `cemeti_option()` already works with or without `get_field()`.
 4. **Polylang free** cannot translate slugs of CPT archives; if `/en/exhibition/` vs `/id/…` slugs differ, that is a limitation to document, not a feature to claim.
 

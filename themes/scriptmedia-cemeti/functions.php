@@ -20,6 +20,7 @@ $cemeti_includes = array(
 	'setup',
 	'enqueue',
 	'navigation',
+	'settings',
 	'core-bridge',
 );
 
