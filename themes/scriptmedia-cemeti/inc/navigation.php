@@ -10,36 +10,57 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Default overlay menu, grouped in two columns as in the design.
- * Names stay in English in both languages. Filterable by child/site code.
+ * Default overlay menu, as in the design: two columns, each a list of groups.
+ * Groups are separated by one blank line. Names stay in English in both
+ * languages. Filterable by child/site code.
  *
- * Each entry: label, path, optional children.
+ * Each entry: label, path, optional children. A group may set 'bottom' => true
+ * to sit at the bottom of its column (Contact Us, above the address).
  *
  * @return array<string, array<int, array<string, mixed>>>
  */
 function cemeti_default_menu() {
 	$menu = array(
 		'left'  => array(
-			array( 'label' => 'Home', 'path' => '' ),
-			array( 'label' => 'About', 'path' => 'about' ),
 			array(
-				'label'    => 'Exhibition',
-				'path'     => 'exhibition',
-				'children' => array(
-					array( 'label' => 'Solo', 'path' => 'exhibition/?type=solo' ),
-					array( 'label' => 'Group', 'path' => 'exhibition/?type=group' ),
+				'items' => array(
+					array( 'label' => 'Home', 'path' => '' ),
+					array( 'label' => 'About', 'path' => 'about' ),
 				),
 			),
-			array( 'label' => 'Residency', 'path' => 'residency' ),
-			array( 'label' => 'Public Program', 'path' => 'public-program' ),
-			array( 'label' => 'Open Studio', 'path' => 'open-studio' ),
-			array( 'label' => 'Open Call', 'path' => 'open-call' ),
+			array(
+				'items' => array(
+					array(
+						'label'    => 'Exhibition',
+						'path'     => 'exhibition',
+						'children' => array(
+							array( 'label' => 'Solo', 'path' => 'exhibition/?type=solo' ),
+							array( 'label' => 'Group', 'path' => 'exhibition/?type=group' ),
+						),
+					),
+				),
+			),
+			array( 'items' => array( array( 'label' => 'Residency', 'path' => 'residency' ) ) ),
+			array(
+				'items' => array(
+					array( 'label' => 'Public Program', 'path' => 'public-program' ),
+					array( 'label' => 'Open Studio', 'path' => 'open-studio' ),
+				),
+			),
+			array( 'items' => array( array( 'label' => 'Open Call', 'path' => 'open-call' ) ) ),
 		),
 		'right' => array(
-			array( 'label' => 'Journal', 'path' => 'journal' ),
-			array( 'label' => 'Open Archive', 'path' => 'open-archive' ),
-			array( 'label' => 'Support Us', 'path' => 'support-us' ),
-			array( 'label' => 'Contact Us', 'path' => 'contact-us' ),
+			array(
+				'items' => array(
+					array( 'label' => 'Journal', 'path' => 'journal' ),
+					array( 'label' => 'Open Archive', 'path' => 'open-archive' ),
+				),
+			),
+			array( 'items' => array( array( 'label' => 'Support Us', 'path' => 'support-us' ) ) ),
+			array(
+				'bottom' => true,
+				'items'  => array( array( 'label' => 'Contact Us', 'path' => 'contact-us' ) ),
+			),
 		),
 	);
 
@@ -52,24 +73,43 @@ function cemeti_default_menu() {
 }
 
 /**
- * Render a list of menu entries.
+ * Is this menu path the page being viewed? Entries with a query string never match.
  *
- * @param array $items Menu entries.
+ * @param string $path Menu path.
+ * @return bool
  */
-function cemeti_render_menu_items( array $items ) {
-	echo '<ul class="cemeti-menu__list">';
-	foreach ( $items as $item ) {
-		echo '<li class="cemeti-menu__item"><a href="' . esc_url( cemeti_url( $item['path'] ) ) . '">' . esc_html( $item['label'] ) . '</a>';
-		if ( ! empty( $item['children'] ) ) {
-			echo '<ul class="cemeti-menu__sub">';
-			foreach ( $item['children'] as $child ) {
-				echo '<li><a href="' . esc_url( cemeti_url( $child['path'] ) ) . '">' . esc_html( $child['label'] ) . '</a></li>';
-			}
-			echo '</ul>';
-		}
-		echo '</li>';
+function cemeti_menu_is_current( $path ) {
+	if ( false !== strpos( $path, '?' ) ) {
+		return false;
 	}
-	echo '</ul>';
+	$request = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) : '';
+	$target  = (string) wp_parse_url( cemeti_url( $path ), PHP_URL_PATH );
+	return trim( $request, '/' ) === trim( $target, '/' );
+}
+
+/**
+ * Render the groups of one menu column.
+ *
+ * @param array $groups Menu groups.
+ */
+function cemeti_render_menu_items( array $groups ) {
+	foreach ( $groups as $group ) {
+		$class = 'cemeti-menu__list' . ( ! empty( $group['bottom'] ) ? ' cemeti-menu__list--bottom' : '' );
+		echo '<ul class="' . esc_attr( $class ) . '">';
+		foreach ( $group['items'] as $item ) {
+			$current = cemeti_menu_is_current( $item['path'] ) ? ' aria-current="page"' : '';
+			echo '<li class="cemeti-menu__item"><a href="' . esc_url( cemeti_url( $item['path'] ) ) . '"' . $current . '>' . esc_html( $item['label'] ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			if ( ! empty( $item['children'] ) ) {
+				echo '<ul class="cemeti-menu__sub">';
+				foreach ( $item['children'] as $child ) {
+					echo '<li><a href="' . esc_url( cemeti_url( $child['path'] ) ) . '">' . esc_html( $child['label'] ) . '</a></li>';
+				}
+				echo '</ul>';
+			}
+			echo '</li>';
+		}
+		echo '</ul>';
+	}
 }
 
 /**

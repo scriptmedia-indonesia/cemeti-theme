@@ -61,9 +61,9 @@
 
 	/* Space and layout */
 	--content-max: 80rem;
-	--gutter: clamp(1rem, 0.5rem + 2.5vw, 3.75rem);
+	--gutter: clamp(1rem, 5.55vw, 7rem);
 	--gap: clamp(0.75rem, 0.5rem + 1vw, 1rem);
-	--header-h: clamp(5rem, 4rem + 4vw, 8.75rem);
+	--header-h: clamp(5.5rem, 9.5vw, 9rem);
 	--rule: 3px solid var(--c-ink);
 
 	/* Motion */

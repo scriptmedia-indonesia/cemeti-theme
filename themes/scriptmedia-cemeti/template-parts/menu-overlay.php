@@ -24,7 +24,6 @@ $cemeti_address = cemeti_option( 'address' );
 			<?php if ( $cemeti_route ) : ?>
 				<a class="cemeti-menu__route" href="<?php echo esc_url( $cemeti_route ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( cemeti_t( 'plan_route' ) ); ?> &gt;&gt;</a>
 			<?php endif; ?>
-			<button type="button" class="cemeti-menu__whats-on" data-cemeti-toggle="whats-on" aria-controls="cemeti-whats-on" aria-expanded="false"><?php echo esc_html( cemeti_t( 'whats_on' ) ); ?></button>
 		</div>
 	</div>
 </nav>
