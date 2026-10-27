@@ -53,11 +53,11 @@ No page exists for Contact Us, Search results, 404 or Open Call application form
 
 Layout, measured on 1440 px frames: content width ≈ 1280 px (89 %) — wider than the brief's 1100–1200 px estimate, so `--content-max: 80rem`. Card gap ≈ 16 px. Header height ≈ 141 px with the logo ≈ 200 px wide and "Menu" bottom-left, ID/EN + search bottom-right, soft shadow under the bar. Cards: square image, cream-dark panel, salmon title (max 3 lines), bold date, 2 px dark bottom border. Journal rows: 3 px dark rules, date / title / category stacked. Footer: yellow, name 28 px semibold, address and hours ≈ 14 px, social links blue semibold.
 
-## 3. Typography decision (needs client sign-off)
+## 3. Typography (client decision)
 
-- **Script headings:** the PDF uses a bold, slanted brush script I could not identify (the PDF embeds outlines only). **Kaushan Script** (SIL OFL 1.1, self-hosted WOFF2, `font-display: swap`) is a stand-in. It is lighter and narrower than the PDF; the client should supply the real font file or approve a substitute.
-- **Body:** a grotesk resembling Neue Haas / Helvetica Now. **Hanken Grotesk** variable (SIL OFL 1.1) is used. Same caveat.
-- Licences: `assets/fonts/LICENSE-*.txt`.
+- **Title / script headings:** **Vampiro One** (SIL OFL 1.1), self-hosted WOFF2, `font-display: swap`.
+- **Sub title and body:** **Akzidenz-Grotesk Next** (Monotype, commercial). It is not bundled: the client must supply licensed web font files, then add an `@font-face` in `tokens.css` (the family name is already first in `--font-sans`). Until then **Hanken Grotesk** variable (SIL OFL 1.1) is the stand-in.
+- Licences of bundled fonts: `assets/fonts/LICENSE-*.txt`.
 
 ## 4. Contrast findings (WCAG 2.1 AA, ratios calculated, colours NOT changed)
 
@@ -86,7 +86,7 @@ The design colours are used as drawn. The client must decide, per row, whether t
 - **What's on trigger.** The PDF shows the What's on panel (p.16) but not how it opens. M1 adds a "What's on" button at the bottom of the menu overlay. *Assumed — confirm with client.* Content is fed by the `cemeti_whats_on_items` filter (filled in M2); the panel is empty until then.
 - **Menu overlay.** The PDF draws a black dropdown beneath the header, not a full-screen takeover; the dropdown is implemented as drawn. The ▼ icon flips to ▲ when open.
 - **Language switcher.** Without Polylang only "ID" renders, since an EN link would have no target.
-- **Logo.** `assets/img/logo-placeholder.png` is a crop of the raster in the PDF. Replace with the vector/SVG logo from the client. Cemeti logo also appears as a cream line-drawing watermark on What's on (p.16); not yet implemented because it needs the vector asset.
+- **Logo.** `assets/img/logo.webp` is the client-supplied raster logo (2000 × 853). Replace with the vector/SVG logo when available. Cemeti logo also appears as a cream line-drawing watermark on What's on (p.16); not yet implemented because it needs the vector asset.
 - **Search wording.** Button reads "Cari" in Indonesian and "Search" in English; the PDF only shows the English wording.
 - **Mobile layouts** are not in the PDF (desktop frames, plus narrow frames only for pages 21, 23, 26, 27, 29, 30). Breakpoints 480 / 768 / 1024 px are our decision; the narrow detail frames guided the single-column behaviour.
 - **Placeholder data.** Footer address, hours and e-mail defaults come from the PDF and live only as fallbacks in `cemeti_option_defaults()`; Site Settings override them. Support Us text in the PDF is Lorem ipsum.

@@ -51,7 +51,7 @@ add_action( 'wp_enqueue_scripts', 'cemeti_enqueue_assets' );
  * Preload the two critical fonts.
  */
 function cemeti_preload_fonts() {
-	$fonts = array( 'hanken-grotesk-latin-wght-normal.woff2', 'kaushan-script-latin-400-normal.woff2' );
+	$fonts = array( 'hanken-grotesk-latin-wght-normal.woff2', 'vampiro-one-latin-400-normal.woff2' );
 	foreach ( $fonts as $font ) {
 		printf(
 			'<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "\n",
