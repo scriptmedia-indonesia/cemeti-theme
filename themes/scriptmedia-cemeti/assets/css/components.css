@@ -1,0 +1,77 @@
+/* Reusable components. Page templates arrive in M3. */
+.cemeti-heading {
+	margin: 0 0 clamp(1rem, 0.5rem + 2vw, 2rem);
+	text-align: center;
+	font-family: var(--font-script);
+	font-weight: 400;
+	font-size: var(--fs-script-xl);
+	color: var(--heading-color);
+}
+
+.cemeti-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35em;
+	text-decoration: none;
+}
+.cemeti-back:hover { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* Script buttons: green "Previous …" and blue "Application Submission". */
+.cemeti-btn {
+	display: block;
+	padding: 0.45em 1em;
+	border: 0;
+	background: var(--c-green);
+	color: var(--c-white);
+	font-family: var(--font-script);
+	font-size: var(--fs-body);
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.cemeti-btn:hover,
+.cemeti-btn:focus-visible { background: var(--c-salmon); color: var(--c-ink); }
+.cemeti-btn--blue { background: var(--c-blue); }
+.cemeti-btn--blue:hover,
+.cemeti-btn--blue:focus-visible { background: var(--c-blue); color: var(--c-yellow); }
+
+/* Archive card. */
+.cemeti-card-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--gap);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.cemeti-card { background: var(--c-panel); border-bottom: 2px solid var(--c-ink); }
+.cemeti-card a { display: block; text-decoration: none; }
+.cemeti-card__image { aspect-ratio: 1; width: 100%; object-fit: cover; }
+.cemeti-card__body { padding: 1rem; }
+.cemeti-card__title {
+	margin: 0 0 1rem;
+	color: var(--c-salmon);
+	font-size: var(--fs-card-title);
+	font-weight: 500;
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+.cemeti-card__date { margin: 0; font-weight: 600; }
+.cemeti-card a:hover .cemeti-card__title,
+.cemeti-card a:focus-visible .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
+.cemeti-card a:hover .cemeti-card__image { opacity: 0.92; }
+
+@media (min-width: 480px) { .cemeti-card-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .cemeti-card-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Journal-style row list (Home, Journal archive, Search). */
+.cemeti-row-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule); }
+.cemeti-row { border-bottom: var(--rule); }
+.cemeti-row a { display: block; padding: 0.25rem var(--gutter) 0.35rem; text-decoration: none; }
+.cemeti-row__date { display: block; font-size: var(--fs-body); }
+.cemeti-row__title { display: block; font-size: var(--fs-title); font-weight: 600; line-height: 1.15; }
+.cemeti-row__cat { display: block; font-size: var(--fs-small); font-weight: 700; }
+.cemeti-row a:hover .cemeti-row__title { color: var(--c-salmon); }
