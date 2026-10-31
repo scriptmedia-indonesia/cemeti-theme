@@ -82,7 +82,17 @@ If an external form is preferred, fill "External application URL" on the Open Ca
 
 Page caching: the form carries a nonce and a time token. Exclude Open Call pages from full-page caches (or keep cache lifetime under 12 hours).
 
-Not yet: SEO and hardening (M5).
+## M5 status (SEO and hardening)
+
+| Piece | Where |
+|---|---|
+| Meta description (field "Search description", else excerpt, else text, else site description), Open Graph, Twitter card, document title "Page – Institution" | `inc/seo.php` |
+| JSON-LD: Organization (home), Event (Exhibition, Residency, Public Program, Open Studio), Article (Journal), BreadcrumbList; escaped so a title cannot close the script tag | `inc/seo.php` |
+| `noindex` for search results, 404 and form result pages; robots.txt hides `/?s=`; sitemap without the user list; silent when Yoast, Rank Math, SEOPress or AIOSEO is active | `inc/seo.php` |
+| Hardening: XML-RPC off, no generator/RSD/shortlink in the head, REST user list hidden from visitors, author archives redirect home, one generic login error, comments and pings off, no file editor, security headers (nosniff, frame SAMEORIGIN, referrer, permissions), Applications visible and editable by administrators only | `inc/security.php` |
+| Redirects for old URLs | `inc/redirects.php` (M2/migration) |
+
+Not covered: Content-Security-Policy, WAF, malware scanning (host level). See `LAUNCH-CHECKLIST.md`.
 
 ## Open assumptions (must be verified)
 

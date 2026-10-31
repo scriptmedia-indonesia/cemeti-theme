@@ -43,7 +43,7 @@ $related = array(
 	'help'       => 'Up to 4. Links are two-way: the other entry lists this one too.',
 );
 
-return array(
+$fields = array(
 	'exhibition'     => array_merge(
 		$dates,
 		array(
@@ -96,3 +96,10 @@ return array(
 		array( 'key' => 'role', 'label' => 'Role', 'type' => 'text' ),
 	),
 );
+
+// Search / sharing description, on every public type.
+foreach ( array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal' ) as $seo_type ) {
+	$fields[ $seo_type ][] = array( 'key' => 'seo_description', 'label' => 'Search description', 'type' => 'textarea', 'help' => 'Shown in search results and when shared. About 150 characters. Empty = taken from the text.' );
+}
+
+return $fields;

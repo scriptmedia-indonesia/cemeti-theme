@@ -18,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 function cemeti_settings_fields() {
 	return array(
 		'institution_name' => array( __( 'Institution name', 'scriptmedia-cemeti' ), 'text' ),
+		'site_description' => array( __( 'Site description (search results, sharing)', 'scriptmedia-cemeti' ), 'textarea' ),
 		'address'          => array( __( 'Address', 'scriptmedia-cemeti' ), 'textarea' ),
 		'opening_hours'    => array( __( 'Opening hours', 'scriptmedia-cemeti' ), 'textarea' ),
 		'email'            => array( __( 'Email', 'scriptmedia-cemeti' ), 'email' ),

@@ -7,4 +7,4 @@ Standalone WordPress theme `scriptmedia-cemeti` for **Cemeti – Institut untuk 
 - Docs: [`docs/CATEGORY-MAPPING.md`](docs/CATEGORY-MAPPING.md) (what the converter does with the old cemeti.art categories), [`docs/MIGRATION.md`](docs/MIGRATION.md) (moving the old category-based posts with Tools → Cemeti Converter), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/DESIGN-NOTES.md`](docs/DESIGN-NOTES.md).
 - Design source: `design/cemeti-design.pdf`.
 
-Status: **M1 (foundation), M2 (content model), M3 (templates) and M4 (applications, search) complete**; M5 pending. See `docs/ARCHITECTURE.md`.
+Status: **M1–M5 complete** (foundation, content model, templates, applications and search, SEO and hardening). Before launch follow [`docs/LAUNCH-CHECKLIST.md`](docs/LAUNCH-CHECKLIST.md). See `docs/ARCHITECTURE.md`.

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CEMETI_VERSION', '0.4.0' );
+define( 'CEMETI_VERSION', '0.5.0' );
 define( 'CEMETI_DIR', get_stylesheet_directory() );
 define( 'CEMETI_URI', get_stylesheet_directory_uri() );
 
@@ -34,6 +34,8 @@ $cemeti_includes = array(
 	'migration',
 	'applications',
 	'search',
+	'seo',
+	'security',
 );
 
 foreach ( $cemeti_includes as $cemeti_include ) {
