@@ -30,6 +30,7 @@ $cemeti_includes = array(
 	'templates',
 	'queries',
 	'redirects',
+	'migration-rules',
 	'migration',
 );
 

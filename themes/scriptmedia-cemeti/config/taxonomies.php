@@ -35,6 +35,13 @@ return array(
 		'hierarchical' => false,
 		'terms'        => array( 'News', 'Essay', 'Curatorial Essay' ),
 	),
+	'project'          => array(
+		'singular'     => 'Project',
+		'plural'       => 'Projects',
+		'slug'         => 'project',
+		'post_types'   => array( 'exhibition', 'residency', 'public_program', 'open_studio', 'journal' ),
+		'hierarchical' => false,
+	),
 	'person_group'     => array(
 		'singular'     => 'Group',
 		'plural'       => 'Groups',
