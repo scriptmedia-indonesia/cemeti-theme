@@ -3,7 +3,7 @@
 define( 'ABSPATH', '/' ); define( 'CEMETI_DIR', dirname( __DIR__ ) . '/themes/scriptmedia-cemeti' );
 $GLOBALS['db'] = array(); // id => [type, cats, meta, terms, date, title]
 function is_admin() { return false; }
-function add_action() {} function add_management_page() {}
+function add_action() {} function add_filter() {} function apply_filters( $t, $v ) { return $v; } function add_management_page() {}
 function sanitize_file_name( $s ) { return $s; }
 function wp_get_post_categories( $id, $a = array() ) { $c = $GLOBALS['db'][ $id ]['cats']; if ( isset( $a['fields'] ) ) { return array_map( function ( $x ) { return (object) array( 'slug' => $x, 'name' => ucfirst( $x ) ); }, $GLOBALS['db'][ $id ]['catslugs'] ?? array() ); } return $c; }
 function get_permalink( $id ) { return 'https://old.test/' . $GLOBALS['db'][ $id ]['slug'] . '/'; }

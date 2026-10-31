@@ -51,6 +51,19 @@ function cemeti_page_head( $title, $context = 'yellow', $back = true ) {
 }
 
 /**
+ * Heading of an archive page, as in the design: the singular name of the type
+ * ("Exhibition", "Residency"), or the term name on a taxonomy archive.
+ *
+ * @return string
+ */
+function cemeti_archive_heading() {
+	$type   = get_query_var( 'post_type' );
+	$type   = is_array( $type ) ? reset( $type ) : $type;
+	$object = $type ? get_post_type_object( $type ) : null;
+	return $object ? $object->labels->singular_name : single_term_title( '', false );
+}
+
+/**
  * Label shown above a title: the first term of the post's taxonomy, else the type name.
  *
  * @param WP_Post $post Post.

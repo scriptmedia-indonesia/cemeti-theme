@@ -1,6 +1,6 @@
-node_modules/
-vendor/
 *.zip
 .DS_Store
 .env
 /build/
+node_modules/
+vendor/

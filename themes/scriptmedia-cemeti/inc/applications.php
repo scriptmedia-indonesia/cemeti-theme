@@ -140,6 +140,18 @@ function cemeti_application_dir() {
 }
 
 /**
+ * Move one uploaded file into place. Filterable so tests can stand in for a real HTTP upload.
+ *
+ * @param string $from Temporary path from $_FILES.
+ * @param string $to   Destination path.
+ * @return bool
+ */
+function cemeti_move_upload( $from, $to ) {
+	$pre = apply_filters( 'cemeti_pre_move_upload', null, $from, $to );
+	return null !== $pre ? (bool) $pre : move_uploaded_file( $from, $to );
+}
+
+/**
  * Redirect back to the Open Call with a result code.
  *
  * @param int    $open_call_id Open Call post ID.
@@ -179,14 +191,15 @@ function cemeti_handle_application() {
 
 	// Text fields.
 	$name    = isset( $_POST['app_name'] ) ? trim( preg_replace( '/[\r\n]+/', ' ', sanitize_text_field( wp_unslash( $_POST['app_name'] ) ) ) ) : '';
-	$email   = isset( $_POST['app_email'] ) ? sanitize_email( wp_unslash( $_POST['app_email'] ) ) : '';
+	$typed   = isset( $_POST['app_email'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['app_email'] ) ) ) : '';
+	$email   = sanitize_email( $typed );
 	$city    = isset( $_POST['app_city'] ) ? sanitize_text_field( wp_unslash( $_POST['app_city'] ) ) : '';
 	$link    = isset( $_POST['app_link'] ) ? esc_url_raw( trim( wp_unslash( $_POST['app_link'] ) ), array( 'http', 'https' ) ) : '';
 	$message = isset( $_POST['app_message'] ) ? sanitize_textarea_field( wp_unslash( $_POST['app_message'] ) ) : '';
-	if ( '' === $name || '' === $email ) {
+	if ( '' === $name || '' === $typed ) {
 		cemeti_application_redirect( $open_call_id, 'required' );
 	}
-	if ( ! is_email( $email ) ) {
+	if ( '' === $email || ! is_email( $email ) ) {
 		cemeti_application_redirect( $open_call_id, 'email' );
 	}
 
@@ -218,7 +231,7 @@ function cemeti_handle_application() {
 	foreach ( $incoming as $key => $file ) {
 		$safe = sanitize_file_name( $file['name'] );
 		$rel  = gmdate( 'Ym' ) . '-' . wp_generate_password( 16, false ) . '-' . $safe;
-		if ( ! move_uploaded_file( $file['tmp_name'], $dir . '/' . $rel ) ) {
+		if ( ! cemeti_move_upload( $file['tmp_name'], $dir . '/' . $rel ) ) {
 			foreach ( $stored as $done ) {
 				wp_delete_file( $dir . '/' . $done['file'] );
 			}
@@ -362,6 +375,28 @@ function cemeti_application_no_new() {
 add_action( 'admin_menu', 'cemeti_application_no_new', 99 );
 
 /**
+ * Absolute path of a stored application file, or false when it is missing or outside the
+ * applications folder (so a tampered meta value cannot read other files).
+ *
+ * @param int    $app Application ID.
+ * @param string $doc Document key.
+ * @return string|false
+ */
+function cemeti_application_file_path( $app, $doc ) {
+	$files = get_post_meta( $app, 'app_files', true );
+	if ( ! is_array( $files ) || ! isset( $files[ $doc ]['file'] ) ) {
+		return false;
+	}
+	$dir  = cemeti_application_dir();
+	$root = '' !== $dir ? realpath( $dir ) : false;
+	$path = $root ? realpath( $dir . '/' . $files[ $doc ]['file'] ) : false;
+	if ( ! $path || 0 !== strpos( $path, $root . DIRECTORY_SEPARATOR ) || ! is_readable( $path ) ) {
+		return false;
+	}
+	return $path;
+}
+
+/**
  * Download an uploaded PDF (administrators only).
  */
 function cemeti_download_application() {
@@ -371,15 +406,11 @@ function cemeti_download_application() {
 	if ( ! current_user_can( 'manage_options' ) || 'application' !== get_post_type( $app ) ) {
 		wp_die( esc_html__( 'Not allowed.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
 	}
+	$path = cemeti_application_file_path( $app, $doc );
+	if ( false === $path ) {
+		wp_die( esc_html__( 'File not found.', 'scriptmedia-cemeti' ), '', array( 'response' => 404 ) );
+	}
 	$files = get_post_meta( $app, 'app_files', true );
-	if ( ! is_array( $files ) || ! isset( $files[ $doc ] ) ) {
-		wp_die( esc_html__( 'File not found.', 'scriptmedia-cemeti' ), '', array( 'response' => 404 ) );
-	}
-	$dir  = cemeti_application_dir();
-	$path = '' !== $dir ? realpath( $dir . '/' . $files[ $doc ]['file'] ) : false;
-	if ( ! $path || 0 !== strpos( $path, realpath( $dir ) . DIRECTORY_SEPARATOR ) || ! is_readable( $path ) ) {
-		wp_die( esc_html__( 'File not found.', 'scriptmedia-cemeti' ), '', array( 'response' => 404 ) );
-	}
 	nocache_headers();
 	header( 'Content-Type: application/pdf' );
 	header( 'Content-Disposition: attachment; filename="' . sanitize_file_name( $files[ $doc ]['name'] ) . '"' );
@@ -389,3 +420,22 @@ function cemeti_download_application() {
 	exit;
 }
 add_action( 'admin_post_cemeti_download', 'cemeti_download_application' );
+
+/**
+ * Deleting an application deletes its PDFs too (they hold personal data).
+ *
+ * @param int $post_id Post ID.
+ */
+function cemeti_delete_application_files( $post_id ) {
+	if ( 'application' !== get_post_type( $post_id ) ) {
+		return;
+	}
+	$files = get_post_meta( $post_id, 'app_files', true );
+	foreach ( array_keys( is_array( $files ) ? $files : array() ) as $doc ) {
+		$path = cemeti_application_file_path( $post_id, $doc );
+		if ( false !== $path ) {
+			wp_delete_file( $path );
+		}
+	}
+}
+add_action( 'before_delete_post', 'cemeti_delete_application_files' );

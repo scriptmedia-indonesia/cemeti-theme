@@ -2,7 +2,7 @@
 // Run: php tests/m2-logic.php  (stubs WordPress; checks sanitizing, status and two-way relations).
 define('ABSPATH','/'); define('CEMETI_DIR', dirname(__DIR__).'/themes/scriptmedia-cemeti'); define('CEMETI_VERSION','t');
 $GLOBALS['meta']=[]; $GLOBALS['types']=[]; $GLOBALS['today']='20260315';
-function add_action(){} function add_filter(){} function sanitize_file_name($s){return $s;}
+function add_action(){} function add_filter(){} function apply_filters($t,$v){return $v;} function sanitize_file_name($s){return $s;}
 function get_post_meta($i,$k,$s=false){return $GLOBALS['meta'][$i][$k]??'';}
 function update_post_meta($i,$k,$v){$GLOBALS['meta'][$i][$k]=$v;} function delete_post_meta($i,$k){unset($GLOBALS['meta'][$i][$k]);}
 function get_post_type($i){return $GLOBALS['types'][$i]??'exhibition';} function get_the_ID(){return 1;}

@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</button>
 
 		<a class="cemeti-logo" href="<?php echo esc_url( cemeti_home_url() ); ?>" aria-label="<?php echo esc_attr( cemeti_option( 'institution_name' ) ); ?>">
-			<img src="<?php echo esc_url( CEMETI_URI . '/assets/img/logo.webp' ); ?>" width="2000" height="853" alt="<?php echo esc_attr( cemeti_option( 'institution_name' ) ); ?>">
+			<img src="<?php echo esc_url( CEMETI_URI . '/assets/img/logo-480.webp' ); ?>" srcset="<?php echo esc_url( CEMETI_URI . '/assets/img/logo-480.webp' ); ?> 480w, <?php echo esc_url( CEMETI_URI . '/assets/img/logo-960.webp' ); ?> 960w" sizes="(min-width: 64rem) 14rem, 30vw" width="480" height="205" fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( 'institution_name' ) ); ?>">
 		</a>
 
 		<div class="cemeti-header__tools">

@@ -15,6 +15,7 @@ get_header();
 $cemeti_sections = array( 'exhibition', 'residency', 'public_program', 'open_studio' );
 ?>
 <div class="cemeti-container cemeti-home">
+	<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( 'institution_name' ) ); ?></h1>
 	<?php
 	foreach ( $cemeti_sections as $cemeti_type ) :
 		$cemeti_post = cemeti_featured_post( $cemeti_type );

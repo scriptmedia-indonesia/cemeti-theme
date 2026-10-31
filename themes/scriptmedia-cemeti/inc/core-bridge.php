@@ -20,16 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Is Scriptmedia Core active?
- *
- * @return bool
- */
-function cemeti_core_active() {
-	return defined( 'SCRIPTMEDIA_CORE_VERSION' ) || class_exists( '\\Scriptmedia\\Core\\Plugin' );
-}
-
-/**
- * Load a config array file from the child theme.
+ * Load a config array file from the theme's config/ folder.
  *
  * @param string $name File name without extension.
  * @return array
@@ -40,7 +31,16 @@ function cemeti_config( $name ) {
 		return array();
 	}
 	$config = include $file;
-	return is_array( $config ) ? $config : array();
+	$config = is_array( $config ) ? $config : array();
+
+	/**
+	 * Filters a config array (post-types, taxonomies, fields, migration-rules, …), so a
+	 * child theme or plugin can change it without editing this theme.
+	 *
+	 * @param array  $config Config array.
+	 * @param string $name   File name without extension.
+	 */
+	return apply_filters( 'cemeti_config', $config, $name );
 }
 
 /**

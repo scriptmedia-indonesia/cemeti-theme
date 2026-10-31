@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 ?>
 <div class="cemeti-container">
-	<?php cemeti_page_head( post_type_archive_title( '', false ) ? post_type_archive_title( '', false ) : single_term_title( '', false ) ); ?>
+	<?php cemeti_page_head( cemeti_archive_heading() ); ?>
 	<?php if ( have_posts() ) : ?>
 		<ul class="cemeti-card-grid">
 			<?php

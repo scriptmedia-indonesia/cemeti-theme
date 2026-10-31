@@ -106,6 +106,18 @@ function cemeti_seed_terms() {
 add_action( 'init', 'cemeti_seed_terms', 20 );
 
 /**
+ * Flush rewrite rules once after the theme is updated, so new types and slugs work
+ * without a visit to Settings → Permalinks.
+ */
+function cemeti_flush_after_update() {
+	if ( get_option( 'cemeti_rewrite_version' ) !== CEMETI_VERSION ) {
+		flush_rewrite_rules( false );
+		update_option( 'cemeti_rewrite_version', CEMETI_VERSION );
+	}
+}
+add_action( 'init', 'cemeti_flush_after_update', 99 );
+
+/**
  * Flush rewrite rules once when the theme is activated.
  */
 function cemeti_flush_on_switch() {

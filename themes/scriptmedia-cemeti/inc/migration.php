@@ -428,7 +428,7 @@ function cemeti_convert_save() {
 			'start_key'     => isset( $_POST['start_key'] ) ? sanitize_key( wp_unslash( $_POST['start_key'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			'end_key'       => isset( $_POST['end_key'] ) ? sanitize_key( wp_unslash( $_POST['end_key'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			'old_permalink' => isset( $_POST['old_permalink'] ) ? preg_replace( '/[^a-z%_\/-]/i', '', wp_unslash( $_POST['old_permalink'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
-			'old_host'      => isset( $_POST['old_host'] ) ? preg_replace( '/[^a-z0-9.-]/i', '', wp_unslash( $_POST['old_host'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
+			'old_host'      => isset( $_POST['old_host'] ) ? preg_replace( '/[^a-z0-9.-]/i', '', (string) strtok( preg_replace( '#^https?://#i', '', trim( wp_unslash( $_POST['old_host'] ) ) ), '/' ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 		),
 		false
 	);

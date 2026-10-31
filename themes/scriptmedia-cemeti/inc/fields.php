@@ -136,23 +136,24 @@ add_action( 'add_meta_boxes', 'cemeti_add_meta_boxes' );
  * @param string               $id    Input id.
  */
 function cemeti_render_input( array $def, $value, $name, $id ) {
+	$id_attr = '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '';
 	switch ( $def['type'] ) {
 		case 'textarea':
-			printf( '<textarea class="large-text" rows="3" id="%s" name="%s">%s</textarea>', esc_attr( $id ), esc_attr( $name ), esc_textarea( (string) $value ) );
+			printf( '<textarea class="large-text" rows="3"%s name="%s">%s</textarea>', $id_attr, esc_attr( $name ), esc_textarea( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
 		case 'date':
 			$display = preg_match( '/^(\d{4})(\d{2})(\d{2})$/', (string) $value, $m ) ? $m[1] . '-' . $m[2] . '-' . $m[3] : '';
-			printf( '<input type="date" id="%s" name="%s" value="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr( $display ) );
+			printf( '<input type="date"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( $display ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
 		case 'url':
-			printf( '<input type="url" class="regular-text" id="%s" name="%s" value="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr( (string) $value ) );
+			printf( '<input type="url" class="regular-text"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
 		case 'image':
 		case 'images':
 			$ids   = 'image' === $def['type'] ? array_filter( array( (int) $value ) ) : (array) $value;
 			$multi = 'images' === $def['type'] ? '1' : '0';
 			echo '<div class="cemeti-media" data-multiple="' . esc_attr( $multi ) . '">';
-			printf( '<input type="hidden" id="%s" name="%s" value="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr( implode( ',', $ids ) ) );
+			printf( '<input type="hidden"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( implode( ',', $ids ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			echo '<div class="cemeti-media__thumbs">';
 			foreach ( $ids as $attachment_id ) {
 				echo wp_get_attachment_image( (int) $attachment_id, array( 80, 80 ), false, array( 'data-id' => (int) $attachment_id ) );
@@ -163,7 +164,7 @@ function cemeti_render_input( array $def, $value, $name, $id ) {
 			echo '</div>';
 			break;
 		default:
-			printf( '<input type="text" class="regular-text" id="%s" name="%s" value="%s">', esc_attr( $id ), esc_attr( $name ), esc_attr( (string) $value ) );
+			printf( '<input type="text" class="regular-text"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 }
 
@@ -200,7 +201,8 @@ function cemeti_render_meta_box( $post ) {
 		$key   = $def['key'];
 		$id    = 'cemeti_field_' . $key;
 		$value = cemeti_get_field( $key, $post->ID );
-		echo '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label></th><td>';
+		$has_control = 'repeater' !== $def['type'];
+		echo '<tr><th scope="row">' . ( $has_control ? '<label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label>' : '<span>' . esc_html( $def['label'] ) . '</span>' ) . '</th><td>';
 
 		if ( 'relation' === $def['type'] ) {
 			printf( '<select multiple size="8" class="cemeti-relation" id="%s" name="cemeti_fields[%s][]" data-max="%d">', esc_attr( $id ), esc_attr( $key ), (int) $def['max'] );

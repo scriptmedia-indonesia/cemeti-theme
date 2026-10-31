@@ -1,0 +1,13 @@
+{
+  "name": "cemeti-theme-tests",
+  "private": true,
+  "description": "Development tooling only: browser tests for the Cemeti theme.",
+  "scripts": {
+    "test": "bash tests/run.sh",
+    "test:browser": "php tests/render-pages.php && node tests/browser/browser-qa.js",
+    "serve": "node tests/browser/serve.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

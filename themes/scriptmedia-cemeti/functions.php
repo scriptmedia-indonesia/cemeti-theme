@@ -9,7 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CEMETI_VERSION', '0.5.0' );
+// The version lives in style.css only; everything else reads it from here.
+define( 'CEMETI_VERSION', (string) wp_get_theme( get_stylesheet() )->get( 'Version' ) );
 define( 'CEMETI_DIR', get_stylesheet_directory() );
 define( 'CEMETI_URI', get_stylesheet_directory_uri() );
 

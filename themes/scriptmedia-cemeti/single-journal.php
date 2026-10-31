@@ -22,7 +22,7 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 		<?php if ( has_post_thumbnail() ) : ?>
 			<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
 		<?php endif; ?>
-		<header class="cemeti-single__head cemeti-single__head--left">
+		<header class="cemeti-single__head">
 			<h1 class="cemeti-single__title"><?php the_title(); ?></h1>
 			<?php if ( '' !== $cemeti_author ) : ?>
 				<p class="cemeti-single__people"><?php echo esc_html( $cemeti_author ); ?></p>

@@ -13,7 +13,7 @@ get_header();
 $cemeti_terms = get_terms( array( 'taxonomy' => 'residency_type', 'hide_empty' => false, 'orderby' => 'term_id' ) );
 ?>
 <div class="cemeti-container">
-	<?php cemeti_page_head( post_type_archive_title( '', false ) ); ?>
+	<?php cemeti_page_head( cemeti_archive_heading() ); ?>
 
 	<?php if ( ! is_wp_error( $cemeti_terms ) && $cemeti_terms ) : ?>
 		<div class="cemeti-residency-intro">
