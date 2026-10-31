@@ -21,6 +21,7 @@ function cemeti_settings_fields() {
 		'address'          => array( __( 'Address', 'scriptmedia-cemeti' ), 'textarea' ),
 		'opening_hours'    => array( __( 'Opening hours', 'scriptmedia-cemeti' ), 'textarea' ),
 		'email'            => array( __( 'Email', 'scriptmedia-cemeti' ), 'email' ),
+		'notify_email'     => array( __( 'Application notifications go to', 'scriptmedia-cemeti' ), 'email' ),
 		'instagram_url'    => array( __( 'Instagram URL', 'scriptmedia-cemeti' ), 'url' ),
 		'youtube_url'      => array( __( 'Youtube URL', 'scriptmedia-cemeti' ), 'url' ),
 		'facebook_url'     => array( __( 'Facebook URL', 'scriptmedia-cemeti' ), 'url' ),

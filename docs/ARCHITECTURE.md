@@ -68,6 +68,22 @@ Editors must create pages with the slugs `about`, `open-archive`, `support-us`, 
 
 Not yet: Open Call form handling and search tuning (M4), SEO and hardening (M5).
 
+## M4 status (applications and search)
+
+| Piece | Where |
+|---|---|
+| Built-in Open Call form: name, email, city, link, message and up to four PDFs (CV, Portfolio, Proposal, Motivation letter; per Open Call via the "Required documents" field) | `template-parts/open-call-form.php`, `inc/applications.php` |
+| Safeguards: nonce, hidden field, signed time token (3 s – 2 h), 5 tries per IP per hour, closed after the deadline, PDF only (extension and `%PDF-` header), 5 MB per file | `inc/applications.php` |
+| Storage: private **Application** entries (Applications menu); PDFs in `uploads/cemeti-applications/` (deny rule, random file names), downloaded only through an administrator-only handler | `inc/applications.php` |
+| E-mail: team notification (Settings → Cemeti → "Application notifications go to", default site admin) and confirmation to the applicant, in the site language | `inc/applications.php`, `inc/i18n.php` |
+| Search: also matches Artists, Speakers and Journal authors; title matches first, then newest | `inc/search.php`, `inc/queries.php` |
+
+If an external form is preferred, fill "External application URL" on the Open Call: the blue button then goes there and the built-in form is hidden.
+
+Page caching: the form carries a nonce and a time token. Exclude Open Call pages from full-page caches (or keep cache lifetime under 12 hours).
+
+Not yet: SEO and hardening (M5).
+
 ## Open assumptions (must be verified)
 
 1. **Scriptmedia Core and parent theme were not available (theme is standalone for now)** when this repo was created. The theme registers the content model itself. `inc/core-bridge.php` only hands the `config/` arrays to Scriptmedia Core when `CEMETI_USE_CORE_REGISTRAR` is true, via `scriptmedia_post_types`, `scriptmedia_taxonomies` and `scriptmedia_options_pages`; these names are placeholders for the pattern in the architecture brief and need to be replaced with the real filters (or the registrar API) before M2.

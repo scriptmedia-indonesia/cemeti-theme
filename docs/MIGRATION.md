@@ -12,7 +12,12 @@ maps one to the other for all posts in a few clicks.
    then on the new site *Tools → Import → WordPress*. (Or install this theme on a copy of
    the old site and convert there.) Media and categories come with the export.
 3. Activate this theme and open **Tools → Cemeti Converter**.
-4. **Map categories.** For each old category pick what it becomes. Examples:
+4. **Choose the mode.** For the old cemeti.art site use **Cemeti rules** (default): the sorting is already
+   built from its export, see `docs/CATEGORY-MAPPING.md` for what it does and the decisions to confirm.
+   Install and activate **Polylang** (Indonesian and English) first so each post gets its language, convert,
+   then press **Link English/Indonesian translations**. Set the old permalink pattern
+   (`%year%/%monthnum%/%day%/%postname%` for cemeti.art) so the 301 redirects match the old URLs.
+   For any other site use **Manual** and map categories yourself. Examples:
 
    | Old category | Becomes | Term |
    |---|---|---|
@@ -23,8 +28,8 @@ maps one to the other for all posts in a few clicks.
    | Uncategorized | Skip | |
 
    A post in several categories takes the first mapped category in the table order.
-5. **Event dates.** If the old site kept dates in a custom field, enter its key
-   (start, and optionally end). Otherwise the post's publish date is used. Formats like
+5. **Event dates.** In Cemeti rules mode dates are read from the text. In Manual mode, if the old site kept
+   dates in a custom field, enter its key (start, and optionally end); otherwise the post's publish date is used. Formats like
    `20260306`, `2026-03-06` and `6 March 2026` are read.
 6. **Preview** shows counts per type, three sample titles each, posts that would be
    skipped and posts without a readable date. Nothing changes yet.

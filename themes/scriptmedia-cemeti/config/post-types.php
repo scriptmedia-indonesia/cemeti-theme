@@ -59,4 +59,12 @@ return array(
 		'public'     => false,
 		'supports'   => array( 'title', 'editor', 'thumbnail', 'page-attributes' ),
 	),
+	'application'    => array(
+		'singular' => 'Application',
+		'plural'   => 'Applications',
+		'slug'     => 'application',
+		'icon'     => 'dashicons-clipboard',
+		'public'   => false,
+		'supports' => array( 'title' ),
+	),
 );

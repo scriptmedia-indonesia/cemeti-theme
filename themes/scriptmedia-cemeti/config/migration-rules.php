@@ -22,6 +22,11 @@ return array(
 	'lang_id'    => array( 'pameran', 'diskusi', 'esai', 'lokakarya', 'program-publik', 'kabar-proyek', 'kabar-teman-rimpang', 'rimpang-nusantara', 'indonesia', 'acara', 'program', 'pengumuman', 'pertunjukan', 'presentasi', 'presentasi-khusus', 'katalog', 'buklet', 'pengantar-proyek', 'pengantar-program', 'pengantar-subprogram', 'pengantar', 'kabar-program', 'kabar', 'pameran-tunggal', 'pameran-kelompok', 'simposium', 'pemutaran', 'residensi', 'residensi-reguler', 'residensi-independen', 'artikel', 'publikasi', 'eksperimen', 'draft-2-berbagi', 'draft-1-proposisi', 'proyek-mustahil' ),
 	'lang_en'    => array( 'exhibition', 'discussion', 'essay', 'workshop', 'public-program', 'rhizomatic-archipelago', 'rimpangs-stories', 'english', 'event', 'programme', 'announcement', 'performance', 'public-presentation', 'special-presentation', 'catalog', 'booklet', 'programme-introduction', 'project-introduction', 'program-updates', 'project-updates', 'news', 'group-exhibition', 'solo-exhibition', 'symposium', 'screening', 'residency', 'regular-residency', 'independent-residency', 'article', 'publication', 'open-studio-programme', '2nd-draft-berbagi', '1st-draft-propositions' ),
 
+	// Event-type categories (talks, workshops, screenings, performances, symposia). With the flag on they
+	// become Public Program entries instead of Journal; set it to false to keep them in the Journal.
+	'events_as_public_program' => true,
+	'event_cats' => array( 'diskusi', 'discussion', 'lokakarya', 'workshop', 'pertunjukan', 'performance', 'pemutaran', 'screening', 'simposium', 'symposium', 'presentasi', 'public-presentation', 'presentasi-khusus', 'special-presentation' ),
+
 	// Content type rules, in priority order. 'cats' are slugs, 'title' an optional regex on the title.
 	'types'      => array(
 		array( 'type' => 'open_call', 'title' => '/open call|panggilan terbuka|lamaran terbuka/i' ),
@@ -32,6 +37,7 @@ return array(
 		array( 'type' => 'public_program', 'cats' => array( 'program-publik', 'public-program', 'belajar-dari-yang-dekat', 'learning-nearby' ) ),
 		array( 'type' => 'residency', 'term' => 'Reguler', 'cats' => array( 'residensi-reguler', 'regular-residency' ) ),
 		array( 'type' => 'residency', 'cat_regex' => '/^(residensi|residency)/' ),
+		array( 'type' => 'public_program', 'cats_from' => 'event_cats', 'flag' => 'events_as_public_program' ),
 	),
 
 	// Journal (default type): category term by old category.

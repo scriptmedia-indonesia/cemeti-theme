@@ -85,7 +85,8 @@ return array(
 	),
 	'open_call'      => array(
 		array( 'key' => 'deadline', 'label' => 'Deadline', 'type' => 'date' ),
-		array( 'key' => 'application_url', 'label' => 'Application Submission URL', 'type' => 'url', 'help' => 'Target of the blue "Application Submission" button.' ),
+		array( 'key' => 'application_url', 'label' => 'External application URL (optional)', 'type' => 'url', 'help' => 'Leave empty to use the built-in form below the text. If set, the blue button goes to this address instead.' ),
+		array( 'key' => 'documents', 'label' => 'Required documents', 'type' => 'text', 'help' => 'Comma separated: cv, portfolio, proposal, motivation. Empty = all four. Use "none" for a form without uploads.' ),
 	),
 	'journal'        => array(
 		array( 'key' => 'author', 'label' => 'Author', 'type' => 'text' ),

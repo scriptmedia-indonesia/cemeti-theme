@@ -143,3 +143,21 @@
 /* ---- Contact, 404 ---- */
 .cemeti-contact { font-style: normal; max-width: 46rem; margin: 1.5rem auto 0; font-size: var(--fs-small); }
 .cemeti-notfound { text-align: center; }
+
+/* ---- Open Call application form ---- */
+.cemeti-apply { max-width: 40rem; margin: clamp(2rem, 1rem + 4vw, 4rem) auto 0; scroll-margin-top: calc(var(--header-h) + 1rem); }
+.cemeti-apply__form p { margin: 0 0 1rem; }
+.cemeti-apply__form label { display: block; margin-bottom: 0.25rem; font-weight: 600; }
+.cemeti-apply__form small { font-weight: 400; color: var(--c-muted); }
+.cemeti-apply__form input[type="text"],
+.cemeti-apply__form input[type="email"],
+.cemeti-apply__form input[type="url"],
+.cemeti-apply__form textarea {
+	width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--c-ink); border-radius: 0;
+	background: var(--c-white); color: var(--c-ink); font: inherit;
+}
+.cemeti-apply__form input[type="file"] { width: 100%; font: inherit; }
+.cemeti-apply__trap { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+.cemeti-apply__notice { padding: 0.6rem 0.8rem; border: 1px solid var(--c-ink); }
+.cemeti-apply__notice--ok { border-color: var(--c-green); }
+.cemeti-apply__notice--error { border-color: var(--c-salmon); }

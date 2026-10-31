@@ -121,7 +121,13 @@ add_action( 'after_switch_theme', 'cemeti_flush_on_switch' );
  * @return array
  */
 function cemeti_polylang_post_types( $types ) {
-	return array_merge( $types, array_fill_keys( array_keys( cemeti_config( 'post-types' ) ), 'cemeti' ) );
+	$translatable = array();
+	foreach ( cemeti_config( 'post-types' ) as $type => $args ) {
+		if ( 'application' !== $type ) { // Applications are private records, not content.
+			$translatable[ $type ] = 'cemeti';
+		}
+	}
+	return array_merge( $types, $translatable );
 }
 add_filter( 'pll_get_post_types', 'cemeti_polylang_post_types' );
 

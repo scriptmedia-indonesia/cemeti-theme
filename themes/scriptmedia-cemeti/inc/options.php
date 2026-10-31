@@ -21,6 +21,7 @@ function cemeti_option_defaults() {
 		'address'          => "Jl. DI Panjaitan No.41, Mantrijeron, Kec. Mantrijeron\nKota Yogyakarta, Daerah Istimewa Yogyakarta 55143",
 		'opening_hours'    => "Selasa – Sabtu\n10:00 – 17:00",
 		'email'            => 'info@cemeti.art',
+		'notify_email'     => '',
 		'instagram_url'    => '',
 		'youtube_url'      => '',
 		'facebook_url'     => '',

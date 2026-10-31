@@ -68,6 +68,12 @@ function cemeti_rules_classify( array $post ) {
 
 	$matched = false;
 	foreach ( $rules['types'] as $rule ) {
+		if ( ! empty( $rule['flag'] ) && empty( $rules[ $rule['flag'] ] ) ) {
+			continue;
+		}
+		if ( ! empty( $rule['cats_from'] ) ) {
+			$rule['cats'] = $rules[ $rule['cats_from'] ];
+		}
 		$hit = ! empty( $rule['cats'] ) && array_intersect( $rule['cats'], $keys );
 		if ( ! $hit && ! empty( $rule['title'] ) ) {
 			$hit = (bool) preg_match( $rule['title'], $post['title'] );
