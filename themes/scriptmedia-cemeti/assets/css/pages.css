@@ -5,7 +5,7 @@
 	display: grid;
 	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
-	margin-bottom: clamp(1rem, 0.5rem + 2vw, 2rem);
+	margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);   /* heading bottom to first row: 40 px in Figma */
 }
 .cemeti-page-head .cemeti-heading { grid-column: 2; margin: 0; }
 .cemeti-page-head .cemeti-back { grid-column: 3; justify-self: end; }
@@ -23,7 +23,7 @@
 
 /* ---- Pagination ---- */
 .pagination { margin-top: 2rem; }
-.pagination .nav-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; font-weight: 600; }
+.pagination .nav-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; font-weight: 500; }
 .pagination a { text-decoration: none; }
 .pagination a:hover { color: var(--c-salmon); text-decoration: underline; }
 .pagination .current { text-decoration: underline; text-underline-offset: 0.2em; }
@@ -33,36 +33,43 @@
 .cemeti-residency-intro {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 1.5rem 3rem;
-	max-width: 58rem;
-	margin: 0 auto clamp(1.5rem, 1rem + 2vw, 2.5rem);
-	font-size: var(--fs-small);
+	gap: 1rem;
+	margin: 0 0 clamp(1.5rem, 1rem + 2vw, 2.5rem);
+	font-size: var(--fs-single);
+	font-weight: 500;
+	line-height: 1.4167;
 }
 .cemeti-residency-intro h2 { text-align: center; font-size: var(--fs-script-lg); margin-bottom: 0.4em; }
 .cemeti-residency-intro h2 a { text-decoration: none; }
 .cemeti-residency-intro h2 a:hover { text-decoration: underline; }
-@media (min-width: 48rem) { .cemeti-residency-intro { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 48rem) { .cemeti-residency-intro { grid-template-columns: 32.5% 1fr; } }
 
-/* ---- Home ---- */
-.cemeti-home__section { margin-bottom: clamp(2rem, 1rem + 4vw, 4rem); }
-.cemeti-home .cemeti-heading { margin-bottom: 1rem; }
+/* ---- Home (Figma): header 64 px script; poster 272 x 340 + 52 px gap + text; green button 272 x 31 under the
+   poster; 40 px between a button and the next heading; residency picture 416 x 333 + 16 px gap. ---- */
+.cemeti-home__section { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
+.cemeti-home .cemeti-heading { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
 .cemeti-home__item {
 	display: grid;
-	grid-template-columns: minmax(7rem, 15rem) 1fr;
-	gap: 1rem clamp(1rem, 0.5rem + 2vw, 2.5rem);
+	grid-template-columns: minmax(7rem, 17rem) 1fr;
+	gap: 1rem clamp(1rem, 0.5rem + 3.6vw, 3.25rem);
 	align-items: start;
 }
-.cemeti-home__poster .cemeti-btn { margin-top: 0.4rem; font-size: 0.8125rem; padding: 0.25em 0.5em; }
-.cemeti-home__title { margin: 0 0 0.75em; font-size: var(--fs-title); font-weight: 500; line-height: 1.2; }
+.cemeti-home__section--residency .cemeti-home__item { grid-template-columns: minmax(7rem, 26rem) 1fr; gap: 1rem; }
+.cemeti-home__poster .cemeti-btn { margin-top: 0.75rem; max-width: 17rem; }
+.cemeti-home__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-home__section--residency .cemeti-home__poster img { aspect-ratio: 5 / 4; }
+.cemeti-home__title { margin: 0; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; }
 .cemeti-home__title a { text-decoration: none; }
 .cemeti-home__title a:hover { color: var(--c-salmon); }
-.cemeti-home__people { margin: 0 0 1.25em; font-size: var(--fs-title); line-height: 1.2; }
-.cemeti-home__date { margin: 0; font-size: var(--fs-title); font-weight: 500; }
-.cemeti-home__current { font-style: italic; margin: 1rem 0 0; }
-.cemeti-home__section--journal .cemeti-row-list { margin-bottom: 0.5rem; }
+.cemeti-home__people { margin: 0 0 0.83em; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; }
+.cemeti-home__date { margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 1.2; }
+.cemeti-home__text > p:not([class]) { font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-home__current { margin: 1.4167em 0 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-home__section--journal .cemeti-row-list { margin-bottom: 0.75rem; }
 .cemeti-home__section--journal { margin-inline: calc(-1 * var(--gutter)); }
 .cemeti-home__section--journal .cemeti-heading,
 .cemeti-home__section--journal > .cemeti-btn { margin-inline: var(--gutter); }
+.cemeti-home__section--journal > .cemeti-btn { max-width: 17rem; }
 @media (max-width: 40rem) { .cemeti-home__item { grid-template-columns: 1fr; } .cemeti-home__poster { max-width: 15rem; } }
 
 /* ---- Detail pages ----
@@ -132,24 +139,31 @@
 .cemeti-share__btn:hover { background: var(--c-ink); color: var(--c-cream); }
 
 /* Open Call */
-.cemeti-opencall { display: grid; grid-template-columns: 1fr; gap: 1.5rem 2rem; align-items: start; }
-.cemeti-opencall__text .cemeti-single__title { font-size: var(--fs-title); }
-.cemeti-opencall__text .cemeti-single__body { margin-inline: 0; max-width: none; }
-@media (min-width: 48rem) { .cemeti-opencall { grid-template-columns: minmax(12rem, 17rem) 1fr; } }
+/* Figma: picture 416 x 520, text 848 wide 16 px to its right; title 48, text 24 (Medium); blue button 272 wide
+   level with the bottom of the picture. */
+.cemeti-opencall { display: grid; grid-template-columns: 1fr; gap: 1.5rem 1rem; align-items: stretch; }
+.cemeti-opencall__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-opencall__text { display: flex; flex-direction: column; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-opencall__text .cemeti-single__title { max-width: none; margin: 0 0 0.83em; font-size: var(--fs-xl); }
+.cemeti-opencall__text .cemeti-single__body { max-width: none; margin-inline: 0; }
+.cemeti-opencall__text .cemeti-btn { margin-top: auto; max-width: 17rem; }
+@media (min-width: 48rem) { .cemeti-opencall { grid-template-columns: 32.5% 1fr; } }
 
 /* ---- About ---- */
 .cemeti-people { margin-top: clamp(2rem, 1rem + 4vw, 4rem); }
-.cemeti-people__heading { margin: 0 0 1.5rem; text-align: center; font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem); font-weight: 700; text-transform: uppercase; }
+.cemeti-people__heading { margin: 0 0 1.5rem; text-align: center; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; text-transform: uppercase; }
 .cemeti-people__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem var(--gap); }
 .cemeti-people__grid img { width: 100%; aspect-ratio: 1; object-fit: cover; margin-bottom: 0.5rem; }
 .cemeti-people__grid strong,
-.cemeti-people__grid span { display: block; font-size: var(--fs-small); }
+.cemeti-people__grid span { display: block; font-size: var(--fs-card-title); }
 @media (min-width: 48rem) { .cemeti-people__grid { grid-template-columns: repeat(4, 1fr); } }
 
 /* ---- Open Archive A–Z ---- */
-.cemeti-az { display: grid; grid-template-columns: 1fr; gap: 0 3rem; margin-top: 2rem; }
-.cemeti-az__letter { margin: 1rem 0 0.25rem; font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem); font-weight: 700; }
-.cemeti-az ul { list-style: none; margin: 0; padding: 0 0 0 1rem; font-size: var(--fs-small); }
+/* Figma: two columns 18 px apart; letter 48 Medium, entries 24 indented 33 px, 30 px apart. */
+.cemeti-az { display: grid; grid-template-columns: 1fr; gap: 0 1.125rem; margin-top: 2rem; }
+.cemeti-az__letter { margin: 1.25rem 0 0.5rem; font-size: var(--fs-xl); font-weight: 500; line-height: 1; }
+.cemeti-az ul { list-style: none; margin: 0; padding: 0 0 0 2.0625rem; font-size: var(--fs-single); line-height: 1.25; }
+.cemeti-az li { margin-bottom: 0.25em; }
 .cemeti-az a { text-decoration: none; }
 .cemeti-az a:hover { color: var(--c-salmon); text-decoration: underline; }
 @media (min-width: 40rem) { .cemeti-az { grid-template-columns: 1fr 1fr; } }
@@ -158,12 +172,12 @@
 .cemeti-accordion { margin-top: 2rem; border-top: var(--rule); }
 .cemeti-accordion__row { border-bottom: var(--rule); }
 .cemeti-accordion__row summary {
-	padding: 0.2rem var(--gutter); list-style: none; cursor: pointer;
-	font-size: clamp(1.25rem, 1rem + 1.2vw, 2rem); font-weight: 500; text-transform: uppercase;
+	padding: 0.6rem var(--gutter); list-style: none; cursor: pointer;
+	font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; text-transform: uppercase;
 }
 .cemeti-accordion__row summary::-webkit-details-marker { display: none; }
 .cemeti-accordion__row summary:hover { color: var(--c-blue); }
-.cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-small); }
+.cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
 
 /* ---- Contact, 404 ---- */
 .cemeti-contact { font-style: normal; max-width: 46rem; margin: 1.5rem auto 0; font-size: var(--fs-small); }
@@ -172,7 +186,7 @@
 /* ---- Open Call application form ---- */
 .cemeti-apply { max-width: 40rem; margin: clamp(2rem, 1rem + 4vw, 4rem) auto 0; scroll-margin-top: calc(var(--header-h) + 1rem); }
 .cemeti-apply__form p { margin: 0 0 1rem; }
-.cemeti-apply__form label { display: block; margin-bottom: 0.25rem; font-weight: 600; }
+.cemeti-apply__form label { display: block; margin-bottom: 0.25rem; font-weight: 500; }
 .cemeti-apply__form small { font-weight: 400; color: var(--c-muted); }
 .cemeti-apply__form input[type="text"],
 .cemeti-apply__form input[type="email"],

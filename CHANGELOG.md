@@ -3,6 +3,16 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.7.0
+
+- Whole site matched to the Figma file: header (140 px, logo 200 px, Menu/language 24 Medium, shadow), footer (254 px,
+  211 px text block, 22/12 px type), page headings (64 px), archive cards (308 x 386 with the title block over the
+  poster, 16 px gaps), Home sections (272 x 340 poster, 48/40 px text, 272 x 31 buttons, residency 416 x 333),
+  journal rows (24/40/24), Open Call (416 x 520 picture, 48 px title, 24 px text), Open Archive and Support sizes.
+- Medium (500) is now the "semi-bold" weight everywhere (was 600/700, which fell back to Bold).
+- Buttons use the cream text colour of the design.
+- Browser tests check these numbers at 1440 px (`figma:` and `figma home:` checks).
+
 ## 0.6.1
 
 - Exhibition detail page measured from the Figma file (frame EXHIBITION ARTICLE TEMPLATE): title 64, dates and names 40,

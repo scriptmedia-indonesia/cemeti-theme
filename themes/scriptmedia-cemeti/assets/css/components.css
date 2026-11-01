@@ -5,13 +5,15 @@
 	font-family: var(--font-script);
 	font-weight: 400;
 	font-size: var(--fs-script-xl);
+	line-height: 0.85;
 	color: var(--heading-color);
 }
 
 .cemeti-back {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.35em;
+	gap: 4px;
+	font-size: var(--fs-body);   /* 18 */
 	text-decoration: none;
 }
 .cemeti-back:hover { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.2em; }
@@ -19,12 +21,13 @@
 /* Script buttons: green "Previous …" and blue "Application Submission". */
 .cemeti-btn {
 	display: block;
-	padding: 0.45em 1em;
+	padding: 0.625rem;           /* Figma: 272 x 31, Vampiro 16, cream text */
 	border: 0;
 	background: var(--c-green);
-	color: var(--c-white);
+	color: var(--c-cream);
 	font-family: var(--font-script);
-	font-size: var(--fs-body);
+	font-size: 1rem;
+	line-height: 0.65;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
@@ -36,30 +39,39 @@
 .cemeti-btn--blue:hover,
 .cemeti-btn--blue:focus-visible { background: var(--c-blue); color: var(--c-yellow); }
 
-/* Archive card. */
+/* Archive card (Figma): 308 x 386 poster (4:5); the title block sits over the bottom of the poster,
+   panel #f2e8db, padding 12, gap 24; title 18 salmon, date 16, both Medium. Four per row, 16 px apart. */
 .cemeti-card-grid {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: var(--gap);
+	gap: 1.25rem var(--gap);
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
-.cemeti-card { background: var(--c-panel); border-bottom: 2px solid var(--c-ink); }
-.cemeti-card a { display: block; text-decoration: none; }
-.cemeti-card__image { aspect-ratio: 1; width: 100%; object-fit: cover; }
-.cemeti-card__body { padding: 1rem; }
-.cemeti-card__title {
-	margin: 0 0 1rem;
-	color: var(--c-salmon);
-	font-size: var(--fs-card-title);
+.cemeti-card { position: relative; }
+.cemeti-card a { display: block; position: relative; aspect-ratio: 308 / 386; overflow: hidden; text-decoration: none; }
+.cemeti-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cemeti-card__body {
+	position: absolute;
+	inset: auto 0 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 0.75rem;
+	background: var(--c-panel);
 	font-weight: 500;
+}
+.cemeti-card__title {
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
+	color: var(--c-salmon);
+	font-size: var(--fs-card-title);
+	line-height: 1.2;
 }
-.cemeti-card__date { margin: 0; font-weight: 600; }
+.cemeti-card__date { font-size: var(--fs-card-date); line-height: 1.2; }
 .cemeti-card a:hover .cemeti-card__title,
 .cemeti-card a:focus-visible .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
 .cemeti-card a:hover .cemeti-card__image { opacity: 0.92; }
@@ -70,8 +82,9 @@
 /* Journal-style row list (Home, Journal archive, Search). */
 .cemeti-row-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule); }
 .cemeti-row { border-bottom: var(--rule); }
-.cemeti-row a { display: block; padding: 0.25rem var(--gutter) 0.35rem; text-decoration: none; }
-.cemeti-row__date { display: block; font-size: var(--fs-body); }
-.cemeti-row__title { display: block; font-size: var(--fs-title); font-weight: 600; line-height: 1.15; }
-.cemeti-row__cat { display: block; font-size: var(--fs-small); font-weight: 700; }
+.cemeti-row a { display: block; padding: 0.625rem var(--gutter) 0.875rem; text-decoration: none; }
+/* Figma: date 24, title 40 Medium, category 24, 10 px between them. */
+.cemeti-row__date { display: block; font-size: var(--fs-single); line-height: 1.2; }
+.cemeti-row__title { display: block; margin: 0.25em 0; font-size: var(--fs-title); font-weight: 500; line-height: 1.15; }
+.cemeti-row__cat { display: block; font-size: var(--fs-single); font-weight: 500; line-height: 1.2; }
 .cemeti-row a:hover .cemeti-row__title { color: var(--c-salmon); }

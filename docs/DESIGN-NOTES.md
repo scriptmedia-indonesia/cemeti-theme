@@ -125,3 +125,26 @@ The theme reaches these values at a 1440 px viewport; below that the sizes shrin
 Jeruk Bali is #f16154 in Figma (the PDF showed #f16254); the theme now uses the Figma value.
 Not copied: the related list is a horizontal carousel with fades in Figma (6 cards, 324 px wide); the theme shows up to 4 in a grid.
 Other frames in the file (Open Studio, Public Program, Journal templates, cards, Home, Open Call) have not been measured yet.
+
+
+## Figma values: chrome, cards, Home, Open Call (1440 px frames, read from the file)
+
+Calibration used for text boxes: Figma trims text to its cap height (0.72 of the font size), so a 34 px tall name is 48 px type, 45 px = 64 px, 17 px = 24 px, 11 px = 16 px, 13 px = 18 px.
+
+| Part | Figma | Theme |
+|---|---|---|
+| Header | 140 px high, shadow 0 4 2 rgba(0,0,0,.2); logo 200 px wide, 36 px from the top, centred; Menu 24 Medium at x=80; ID/EN 24 Medium (EN #9a9a9a); search icon 17 px at right 80 | `--header-h`, layout.css |
+| Page heading | Vampiro One 64, centred, 40 px below the header, 40 px above the first row; "Back" 18 Regular at the right edge | `--fs-script-xl`, `.cemeti-page-head` |
+| Archive card | 308 x 386 (4:5), 16 px / 20 px gaps, four per row; title block (panel #f2e8db, padding 12, gap 24) over the bottom of the poster; title 18 Medium salmon (max 3 lines), date 16 Medium | `.cemeti-card` |
+| Footer | 254 px yellow band; text block 211 px wide at x=501 (name 22 Medium, address/hours/e-mail 12); social links 97 px wide, 15 px to the right, 22 Medium blue, 24 px apart | `.cemeti-footer` |
+| Buttons | 272 x 31, padding 10, Vampiro One 16, cream text; green (Previous ...), blue (Application Submission) | `.cemeti-btn` |
+| Home highlight | poster 272 x 340, text 52 px to its right: title and names 48 Medium, date 40 Medium; button 12 px under the poster; 40 px from a button to the next heading | `.cemeti-home__*` |
+| Home residency | picture 416 x 333, text 16 px to its right | |
+| Journal row | date 24, title 40 Medium, category 24; rule between rows spanning the full width | `.cemeti-row` |
+| Open Call | picture 416 x 520, text 848 wide 16 px to its right: title 48 Medium, text 24 Medium, blue button 272 wide level with the picture's bottom | `.cemeti-opencall` |
+| Open Archive A-Z | two columns 18 px apart; letter 48, entries 24 indented 33 px, 30 px apart | `.cemeti-az` |
+| Support rows | label 48 uppercase, 82 px pitch, full-width rules | `.cemeti-accordion` |
+
+Cream text on the green button is 3.21:1 (below AA); it is the design colour pair and is listed as known.
+
+Not read from Figma yet (the Figma plan's tool-call limit was reached): text sizes of the Journal page and article, About, Support, Open Archive, the Public Program and Open Studio article templates, the menu overlay and the search strip. Their geometry (positions, widths) is in the file and was applied; their type sizes follow the calibration above.

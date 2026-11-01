@@ -12,7 +12,7 @@
 	top: 0;
 	z-index: 100;
 	background: var(--c-cream);
-	box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
+	box-shadow: 0 4px 2px rgb(0 0 0 / 0.2);
 }
 .cemeti-header__bar {
 	position: relative;
@@ -20,10 +20,11 @@
 	grid-template-columns: 1fr auto 1fr;
 	align-items: end;
 	min-height: var(--header-h);
-	padding: 0.5rem var(--gutter) 0.75rem;
+	/* Figma: logo 36 px from the top, Menu / language baseline 18 px from the bottom (140 px header). */
+	padding: calc(var(--header-h) * 0.257) var(--gutter) calc(var(--header-h) * 0.128);
 }
 .cemeti-logo { justify-self: center; align-self: start; display: block; }
-.cemeti-logo img { width: clamp(7.5rem, 5.5rem + 8vw, 14rem); }
+.cemeti-logo img { width: clamp(7.5rem, 13.9vw, 12.5rem); }  /* 200 at 1440 */
 
 .cemeti-menu-toggle,
 .cemeti-search-toggle {
@@ -41,8 +42,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.4em;
-	font-size: clamp(1rem, 0.9rem + 0.6vw, 1.5rem);
-	font-weight: 600;
+	font-size: clamp(1rem, 0.6rem + 1.25vw, 1.5rem);
+	font-weight: 500;
 }
 .cemeti-menu-toggle__icon {
 	width: 0; height: 0;
@@ -57,12 +58,12 @@
 	justify-self: end;
 	display: inline-flex;
 	align-items: center;
-	gap: 0.9em;
-	font-size: clamp(1rem, 0.9rem + 0.6vw, 1.5rem);
-	font-weight: 600;
+	gap: 1rem;
+	font-size: clamp(1rem, 0.6rem + 1.25vw, 1.5rem);
+	font-weight: 500;
 }
 /* Padding with an equal negative margin: a 24px+ target without moving anything (WCAG 2.2, 2.5.8). */
-.cemeti-lang a { display: inline-block; padding: 0.4rem 0.4rem; margin: -0.4rem -0.4rem; text-decoration: none; color: var(--c-muted); }
+.cemeti-lang a { display: inline-block; padding: 0.4rem 0.4rem; margin: -0.4rem -0.4rem; text-decoration: none; color: #9a9a9a; }
 .cemeti-lang a[aria-current] { color: var(--c-ink); }
 .cemeti-lang a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
 .cemeti-lang__sep { color: var(--c-ink); }
@@ -110,7 +111,7 @@
 	padding: 0;
 	font: inherit;
 	font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
-	font-weight: 700;
+	font-weight: 500;
 	text-transform: uppercase;
 	cursor: pointer;
 }
@@ -154,11 +155,11 @@
 .cemeti-menu .cemeti-menu__list,
 .cemeti-menu .cemeti-menu__sub { list-style: none; margin: 0; padding: 0; }
 .cemeti-menu .cemeti-menu__list { margin-bottom: 1.5rem; }
-.cemeti-menu__item { font-size: 1.25rem; font-weight: 600; line-height: 1.5rem; }
+.cemeti-menu__item { font-size: 1.25rem; font-weight: 500; line-height: 1.5rem; }
 .cemeti-menu .cemeti-menu__sub { padding-left: 1.05rem; }
 .cemeti-menu .cemeti-menu__list--bottom { margin-top: auto; margin-bottom: 0.6rem; }
-.cemeti-menu__address { margin: 0 0 0.4rem; font-size: 0.8125rem; font-weight: 600; line-height: 1.15; }
-.cemeti-menu__route { font-size: 1.25rem; font-weight: 600; line-height: 1.5rem; }
+.cemeti-menu__address { margin: 0 0 0.4rem; font-size: 0.8125rem; font-weight: 500; line-height: 1.15; }
+.cemeti-menu__route { font-size: 1.25rem; font-weight: 500; line-height: 1.5rem; }
 .cemeti-menu__col > :last-child { margin-bottom: 0; }
 
 /* Stagger: items fade in one after another while the menu opens. */
@@ -199,22 +200,24 @@
 .cemeti-whats-on__list a:hover { text-decoration: underline; }
 .cemeti-whats-on__list span { display: block; }
 
-/* ---- Footer: yellow band, narrow two-column block placed at ~35% as in the design ---- */
-.cemeti-footer { background: var(--c-yellow); color: var(--c-black); padding: 1.5rem var(--gutter) 1.75rem; }
+/* ---- Footer (Figma, 1440 px): 254 px yellow band; text block 211 px wide at x=501, social links 97 px wide 15 px to its right ---- */
+.cemeti-footer { box-sizing: border-box; background: var(--c-yellow); color: var(--c-black); padding: 1.4375rem var(--gutter) 1rem; min-height: 15.875rem; }
 .cemeti-footer__inner {
 	display: grid;
-	grid-template-columns: minmax(0, 10.9rem) auto;
-	gap: 1rem 1.7rem;
+	grid-template-columns: minmax(0, 13.1875rem) auto;
+	gap: 1rem 0.9375rem;
 	align-items: start;
 }
-.cemeti-footer p { margin: 0 0 1rem; }
-.cemeti-footer__name { font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
-.cemeti-footer__address { font-style: normal; font-size: 0.6875rem; line-height: 1.2; margin-bottom: 1rem; }
+.cemeti-footer p { margin: 0 0 0.9rem; }
+.cemeti-footer p:last-child, .cemeti-footer address:last-child { margin-bottom: 0; }
+.cemeti-footer__name { font-size: 1.375rem; font-weight: 500; line-height: 1.15; }
+.cemeti-footer__address { font-style: normal; font-size: 0.75rem; line-height: 1.2; margin-bottom: 0.9rem; }
+.cemeti-footer p.cemeti-footer__hours { margin-bottom: 0; }
 .cemeti-footer__hours,
-.cemeti-footer__info p:not(.cemeti-footer__name) { font-size: 0.6875rem; line-height: 1.2; }
+.cemeti-footer__info p:not(.cemeti-footer__name) { font-size: 0.75rem; line-height: 1.2; }
 .cemeti-footer__info a { color: inherit; text-decoration: underline; }
-.cemeti-footer__social { list-style: none; margin: 0; padding: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.15; }
-.cemeti-footer__social li { margin-bottom: 0.75rem; }
+.cemeti-footer__social { list-style: none; margin: 0; padding: 0; font-size: 1.375rem; font-weight: 500; line-height: 1.15; }
+.cemeti-footer__social li { margin-bottom: 1.5rem; }
 .cemeti-footer__social a { color: var(--c-blue); text-decoration: none; }
 .cemeti-footer__social a:hover { text-decoration: underline; }
 

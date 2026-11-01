@@ -351,6 +351,52 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
+	{
+		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );
+		const px = ( selector, prop, index = 0 ) => page.evaluate( ( [ sel, p, i ] ) => parseFloat( getComputedStyle( document.querySelectorAll( sel )[ i ] )[ p ] ), [ selector, prop, index ] );
+		const box = ( selector, index = 0 ) => page.locator( selector ).nth( index ).boundingBox();
+		const header = await box( '.cemeti-header' );
+		ok( Math.abs( header.height - 140 ) < 2, `figma: header is 140px high (${ Math.round( header.height ) })` );
+		const logo = await box( '.cemeti-logo img' );
+		ok( Math.abs( logo.width - 200 ) < 2 && Math.abs( logo.y - 36 ) < 2 && Math.abs( ( logo.x + logo.width / 2 ) - 720 ) < 2, `figma: logo 200 wide, 36px from the top, centred (${ Math.round( logo.width ) } at y ${ Math.round( logo.y ) })` );
+		const menu = await box( '.cemeti-menu-toggle' );
+		ok( Math.abs( menu.x - 80 ) < 10 && 24 === await px( '.cemeti-menu-toggle', 'fontSize' ) && 500 === await px( '.cemeti-menu-toggle', 'fontWeight' ), 'figma: Menu 24px Medium at x=80' );
+		ok( 24 === await px( '.cemeti-lang a', 'fontSize' ), 'figma: language switch 24px' );
+		ok( await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-header' ) ).boxShadow.includes( '4px 2px' ) ), 'figma: header shadow 0 4 2' );
+		const h = await box( '.cemeti-page-head .cemeti-heading' );
+		ok( 64 === await px( '.cemeti-page-head .cemeti-heading', 'fontSize' ) && Math.abs( ( h.x + h.width / 2 ) - 720 ) < 2, 'figma: page heading 64px script, centred' );
+		const c0 = await box( '.cemeti-card', 0 );
+		const c1 = await box( '.cemeti-card', 1 );
+		ok( Math.abs( c0.width - 308 ) < 2 && Math.abs( c0.height - 386 ) < 2 && Math.abs( c0.x - 80 ) < 2, `figma: card 308 x 386 at x=80 (${ Math.round( c0.width ) } x ${ Math.round( c0.height ) })` );
+		ok( Math.abs( ( c1.x - c0.x - c0.width ) - 16 ) < 2, 'figma: 16px between cards' );
+		ok( 18 === await px( '.cemeti-card__title', 'fontSize' ) && 16 === await px( '.cemeti-card__date', 'fontSize' ) && 500 === await px( '.cemeti-card__title', 'fontWeight' ), 'figma: card title 18 / date 16, Medium' );
+		const body = await box( '.cemeti-card__body', 0 );
+		ok( Math.abs( ( body.y + body.height ) - ( c0.y + c0.height ) ) < 2 && body.height < 130, 'figma: title block sits on the bottom of the poster' );
+		ok( 'rgb(242, 232, 219)' === await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-card__body' ) ).backgroundColor ), 'figma: title block colour #f2e8db' );
+		const f = await box( '.cemeti-footer' );
+		ok( Math.abs( f.height - 254 ) < 4, `figma: footer 254px high (${ Math.round( f.height ) })` );
+		ok( 22 === await px( '.cemeti-footer__name', 'fontSize' ) && 22 === await px( '.cemeti-footer__social', 'fontSize' ) && 12 === await px( '.cemeti-footer__address', 'fontSize' ), 'figma: footer 22 / 22 / 12px' );
+		const info = await box( '.cemeti-footer__info' );
+		ok( Math.abs( info.x - 501 ) < 3 && Math.abs( info.width - 211 ) < 3, `figma: footer text block 211px wide at x=501 (${ Math.round( info.x ) }, ${ Math.round( info.width ) })` );
+		await ctx.close();
+		const home = await open( browser, 'home', 1440, 900, { reducedMotion: 'reduce' } );
+		const hp = home.page;
+		const hpx = ( selector, prop ) => hp.evaluate( ( [ sel, p ] ) => parseFloat( getComputedStyle( document.querySelector( sel ) )[ p ] ), [ selector, prop ] );
+		const poster = await hp.locator( '.cemeti-home__section--exhibition .cemeti-home__poster img' ).boundingBox();
+		const text = await hp.locator( '.cemeti-home__section--exhibition .cemeti-home__text' ).boundingBox();
+		ok( Math.abs( poster.width - 272 ) < 2 && Math.abs( poster.height - 340 ) < 2 && Math.abs( poster.x - 80 ) < 2, `figma home: poster 272 x 340 at x=80 (${ Math.round( poster.width ) } x ${ Math.round( poster.height ) })` );
+		ok( Math.abs( text.x - 404 ) < 3, `figma home: text starts at x=404 (${ Math.round( text.x ) })` );
+		ok( 48 === await hpx( '.cemeti-home__title', 'fontSize' ) && 48 === await hpx( '.cemeti-home__people', 'fontSize' ) && 40 === await hpx( '.cemeti-home__date', 'fontSize' ), 'figma home: title and names 48, date 40' );
+		const btn = await hp.locator( '.cemeti-home__section--exhibition .cemeti-btn' ).boundingBox();
+		ok( Math.abs( btn.width - 272 ) < 2 && Math.abs( btn.height - 31 ) < 3, `figma home: green button 272 x 31 (${ Math.round( btn.width ) } x ${ Math.round( btn.height ) })` );
+		ok( 16 === await hpx( '.cemeti-home__section--exhibition .cemeti-btn', 'fontSize' ), 'figma home: button text 16px script' );
+		ok( 24 === await hpx( '.cemeti-row__date', 'fontSize' ) && 40 === await hpx( '.cemeti-row__title', 'fontSize' ) && 24 === await hpx( '.cemeti-row__cat', 'fontSize' ), 'figma home: journal date 24, title 40, category 24' );
+		const res = await hp.locator( '.cemeti-home__section--residency .cemeti-home__poster img' ).boundingBox();
+		ok( Math.abs( res.width - 416 ) < 2 && Math.abs( res.height - 333 ) < 3, `figma home: residency picture 416 x 333 (${ Math.round( res.width ) } x ${ Math.round( res.height ) })` );
+		await home.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );
@@ -421,7 +467,7 @@ async function open( browser, name, width, height, extra = {} ) {
 		}
 		await ctx.close();
 	}
-	const known = [ 'rgb(241, 97, 84) on rgb(242, 232, 219)', 'rgb(246, 209, 65) on rgb(255, 248, 239)', 'rgb(138, 138, 141) on rgb(255, 248, 239)', 'rgb(28, 117, 188) on rgb(246, 209, 65)', 'rgb(241, 97, 84) on rgb(255, 248, 239)', 'rgb(255, 255, 255) on rgb(0, 161, 75)', 'rgb(74, 74, 77) on rgb(241, 97, 84)', 'rgb(246, 209, 65) on rgb(28, 117, 188)', 'rgb(0, 0, 0) on rgb(0, 0, 0)' ];
+	const known = [ 'rgb(241, 97, 84) on rgb(242, 232, 219)', 'rgb(246, 209, 65) on rgb(255, 248, 239)', 'rgb(138, 138, 141) on rgb(255, 248, 239)', 'rgb(28, 117, 188) on rgb(246, 209, 65)', 'rgb(241, 97, 84) on rgb(255, 248, 239)', 'rgb(255, 255, 255) on rgb(0, 161, 75)', 'rgb(255, 248, 239) on rgb(0, 161, 75)', 'rgb(74, 74, 77) on rgb(241, 97, 84)', 'rgb(246, 209, 65) on rgb(28, 117, 188)', 'rgb(0, 0, 0) on rgb(0, 0, 0)' ];
 	for ( const [ k, v ] of Object.entries( contrast ) ) {
 		const documented = known.some( ( x ) => k.startsWith( x ) );
 		notes.push( `${ documented ? 'known ' : 'NEW   ' } contrast ${ v.ratio }:1  ${ k }  ×${ v.n } (${ v.sample }; ${ [ ...new Set( v.pages ) ].join( ', ' ) })` );
