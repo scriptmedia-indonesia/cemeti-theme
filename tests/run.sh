@@ -19,7 +19,7 @@ for f in themes/scriptmedia-cemeti/assets/js/*.js tests/browser/*.js; do node --
 [ $js_bad -eq 0 ] && ok "all JS files parse"
 
 echo "Tests (simulated WordPress, no database needed)"
-for t in static-checks m2-logic m3-logic m4-logic m5-logic migration-logic render-pages flows-content flows-apply flows-migration flows-polylang; do
+for t in static-checks m2-logic m3-logic m4-logic m5-logic migration-logic render-pages flows-content flows-apply flows-migration flows-polylang flows-pages; do
   out=$(php "tests/$t.php" 2>&1); code=$?
   last=$(printf '%s' "$out" | tail -1)
   if [ $code -eq 0 ]; then ok "$t: $last"; else bad "$t: $last"; printf '%s\n' "$out" | grep -E 'FAIL|ERROR|Fatal|thrown' | head -8 | sed 's/^/        /'; fi

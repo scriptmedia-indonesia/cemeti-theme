@@ -397,6 +397,26 @@ async function open( browser, name, width, height, extra = {} ) {
 		await home.ctx.close();
 	}
 
+	/* ---- 7g. Fixed pages: contact block follows the reading column; Support Us text is 848 wide; rows are 48px caps. */
+	{
+		const c = await open( browser, 'page-contact-us', 1440, 900, { reducedMotion: 'reduce' } );
+		const a = await c.page.locator( '.cemeti-contact' ).boundingBox();
+		const b = await c.page.locator( '.cemeti-single__body' ).boundingBox();
+		ok( Math.abs( a.x - b.x ) < 2, 'contact: the address block lines up with the page text (' + Math.round( a.x ) + ' vs ' + Math.round( b.x ) + ')' );
+		await c.ctx.close();
+		const sp = await open( browser, 'page-support-us', 1440, 900, { reducedMotion: 'reduce' } );
+		const sb = await sp.page.locator( '.cemeti-single__body' ).boundingBox();
+		ok( Math.abs( sb.width - 848 ) < 3 && Math.abs( sb.x - 296 ) < 3, `figma: Support Us text 848 wide at x=296 (${ Math.round( sb.width ) } at ${ Math.round( sb.x ) })` );
+		ok( 48 === await sp.page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-accordion__row summary' ) ).fontSize ) ), 'figma: Support Us rows 48px' );
+		const rows = await sp.page.locator( '.cemeti-accordion__row' ).evaluateAll( ( r ) => r.map( ( x ) => x.getBoundingClientRect().height ) );
+		ok( rows.length === 4 && rows.every( ( h ) => Math.abs( h - 82 ) < 6 ), 'figma: Support Us rows about 82px apart (' + rows.map( Math.round ).join( ',' ) + ')' );
+		await sp.ctx.close();
+		const ar = await open( browser, 'page-open-archive', 1440, 900, { reducedMotion: 'reduce' } );
+		const l = await ar.page.locator( '.cemeti-az__col' ).nth( 1 ).boundingBox();
+		ok( Math.abs( l.x - 729 ) < 3, `figma: Open Archive right column starts at x=729 (${ Math.round( l.x ) })` );
+		await ar.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

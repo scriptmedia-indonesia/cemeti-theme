@@ -15,7 +15,8 @@ Everything here is a manual step in WordPress or at the host. The theme cannot d
 
 ## 3. Content
 - [ ] Move the old posts with **Tools → Cemeti Converter** (see `MIGRATION.md`, `CATEGORY-MAPPING.md`); run it on a copy first.
-- [ ] Create pages with the slugs `about`, `open-archive`, `support-us` (+ four child pages), `contact-us`.
+- [ ] The pages About, Open Archive, Support Us (+ four rows) and Contact Us are created when the theme is activated
+      (both languages with Polylang). If the Dashboard shows "Create them", press it. Then write their texts under Pages.
 - [ ] About: add People (Advisory Board, Team).
 - [ ] Residency Type: write the Reguler and Research introductions in the term descriptions.
 - [ ] Set Solo/Group on exhibitions, Reguler/Research on residencies.
@@ -23,7 +24,7 @@ Everything here is a manual step in WordPress or at the host. The theme cannot d
 - [ ] Press "Link translations" (Polylang) and check twins on five entries.
 
 ## 4. Assets and decisions from the client
-- [ ] Akzidenz-Grotesk Next web font files (licensed). Add the `@font-face` in `assets/css/tokens.css`.
+- [x] Akzidenz-Grotesk Next web font files: bundled (client licence).
 - [ ] Vector logo (SVG) to replace `assets/img/logo.webp`; cream line-drawing watermark for What's on.
 - [ ] Colour contrast: the design colours fail WCAG AA in several pairs (`DESIGN-NOTES.md`, section 4). Client decides per row.
 - [ ] Where the What's on panel opens from (the PDF does not show it).

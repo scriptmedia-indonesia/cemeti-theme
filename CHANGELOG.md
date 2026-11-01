@@ -3,6 +3,16 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.7.1
+
+- Fixed: About, Open Archive, Support Us and Contact Us gave "page not found" on a fresh install, because the
+  templates only apply to pages with those slugs and nothing created the pages. They are now created on
+  activation (one per language with Polylang, linked as translations, Support Us with its four rows), an
+  administrator notice with a "Create them" button appears if one is missing, and the page keeps its template
+  even if the slug changes.
+- Contact Us block follows the reading column; Support Us text 848 wide and About picture 848 x 602 as in Figma.
+- Tests: `flows-pages.php` (creation, no duplicates, edits kept, notice, permissions, template, rendering, Polylang).
+
 ## 0.7.0
 
 - Whole site matched to the Figma file: header (140 px, logo 200 px, Menu/language 24 Medium, shadow), footer (254 px,

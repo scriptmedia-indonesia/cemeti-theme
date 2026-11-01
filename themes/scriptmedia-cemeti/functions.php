@@ -29,6 +29,7 @@ $cemeti_includes = array(
 	'status',
 	'whats-on',
 	'templates',
+	'pages',
 	'queries',
 	'redirects',
 	'migration-rules',

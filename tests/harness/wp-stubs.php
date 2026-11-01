@@ -255,6 +255,13 @@ class WP_Query {
 			if ( isset( $a['post_parent'] ) && (int) $p['post_parent'] !== (int) $a['post_parent'] ) {
 				continue;
 			}
+			if ( ! empty( $a['name'] ) && $p['post_name'] !== $a['name'] ) {
+				continue;
+			}
+			// Polylang's "lang" query variable (the Polylang flow tests keep a language per post in $GLOBALS['pll']).
+			if ( ! empty( $a['lang'] ) && isset( $GLOBALS['pll'] ) && ( isset( $GLOBALS['pll']['lang'][ $id ] ) ? $GLOBALS['pll']['lang'][ $id ] : '' ) !== $a['lang'] ) {
+				continue;
+			}
 			if ( ! empty( $a['category__in'] ) ) {
 				$have = isset( CemetiWP::$rel[ $id ]['category'] ) ? CemetiWP::$rel[ $id ]['category'] : array();
 				if ( ! array_intersect( $a['category__in'], $have ) ) {
@@ -637,7 +644,10 @@ function remove_menu_page() {}
 function wp_add_inline_style() {}
 function wp_enqueue_media() {}
 function get_current_screen() {
-	return isset( CemetiWP::$ctx['screen'] ) ? (object) array( 'post_type' => CemetiWP::$ctx['screen'] ) : null;
+	if ( isset( CemetiWP::$ctx['screen_id'] ) ) {
+		return (object) array( 'post_type' => '', 'id' => CemetiWP::$ctx['screen_id'] );
+	}
+	return isset( CemetiWP::$ctx['screen'] ) ? (object) array( 'post_type' => CemetiWP::$ctx['screen'], 'id' => '' ) : null;
 }
 function load_child_theme_textdomain() {}
 function register_nav_menus() {}
@@ -920,6 +930,30 @@ function wp_get_attachment_url( $id ) {
 }
 function esc_attr__( $s ) {
 	return esc_attr( $s );
+}
+function delete_transient( $k ) {
+	unset( CemetiWP::$transients[ $k ] );
+	return true;
+}
+function wp_update_post( $a ) {
+	if ( isset( CemetiWP::$posts[ $a['ID'] ] ) ) {
+		CemetiWP::$posts[ $a['ID'] ] = array_merge( CemetiWP::$posts[ $a['ID'] ], $a );
+	}
+	return $a['ID'];
+}
+function locate_template( $names ) {
+	foreach ( (array) $names as $n ) {
+		if ( file_exists( CEMETI_THEME_DIR . '/' . $n ) ) {
+			return CEMETI_THEME_DIR . '/' . $n;
+		}
+	}
+	return '';
+}
+function get_queried_object_id() {
+	return isset( $GLOBALS['post'] ) && $GLOBALS['post'] ? $GLOBALS['post']->ID : 0;
+}
+function _n( $single, $plural, $n ) {
+	return 1 === (int) $n ? $single : $plural;
 }
 function wp_get_attachment_image( $id, $size = 'thumbnail', $icon = false, $attr = array() ) {
 	$attr = array_merge( array( 'src' => 'http://cemeti.test/img/' . $id . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg', 'alt' => 'Image ' . $id ), $attr );

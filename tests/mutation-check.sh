@@ -62,6 +62,8 @@ mutate "security: REST user list exposed"          $T/inc/security.php "unset( \
 mutate "converter: language not stored"            $T/inc/migration.php "update_post_meta( \$post_id, '_cemeti_lang', \$info['lang'] );" "" flows-migration flows-polylang
 mutate "converter: date range reversed"            $T/inc/migration-rules.php "\$end < \$start ? array( \$start, \$start ) : array( \$start, \$end );" "array( \$end, \$start );" flows-migration migration-logic
 mutate "i18n: a string lacks English"              $T/inc/i18n.php "'close'              => array( 'id' => 'Tutup', 'en' => 'Close' )," "'close'              => array( 'id' => 'Tutup', 'en' => '' )," static-checks
+mutate "pages: not created on activation"         $T/inc/pages.php "add_action( 'after_switch_theme', 'cemeti_create_pages_on_switch', 20 );" "" flows-pages
+mutate "pages: existing page overwritten"         $T/inc/pages.php "if ( ! \$parent ) {" "if ( true ) {" flows-pages
 mutate "home: the <h1> removed"                    $T/front-page.php '<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( '"'"'institution_name'"'"' ) ); ?></h1>' "" render-pages
 mutate "header: logo without alt text"             $T/header.php 'fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( '"'"'institution_name'"'"' ) ); ?>">' 'fetchpriority="high">' render-pages
 if node -e "require('playwright')" >/dev/null 2>&1; then

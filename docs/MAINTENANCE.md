@@ -31,6 +31,7 @@ docs/                  you are here
 | `applications.php` | Open Call form handler, uploads, e-mails, admin side |
 | `search.php`, `seo.php`, `security.php` | people-aware search; meta/JSON-LD/robots; hardening and headers |
 | `redirects.php`, `migration*.php` | old-site redirects; the converter and its rules |
+| `pages.php` | creates the fixed pages (About, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
 | `core-bridge.php` | `cemeti_config()` loader + optional hand-over to Scriptmedia Core |
 
 Rules the code follows: every function is prefixed `cemeti_`; every file starts with the `ABSPATH` guard;
@@ -145,6 +146,7 @@ PY
 
 | Symptom | Look at |
 |---|---|
+| About / Open Archive / Support Us / Contact Us give 404 | the page does not exist: Dashboard shows a "Create them" button, or Settings → Cemeti; with Polylang each language needs its own copy (the button makes both) |
 | A content type URL gives 404 | Settings → Permalinks → Save. The theme also flushes once per version (`cemeti_rewrite_version` option) |
 | "What's on" is empty | no entry is *current* today (check dates; the day is computed in the site timezone); the list is cached until content is saved |
 | Archive shows entries in a strange order | they sort by start date; an entry without a date sorts last — fill the dates |

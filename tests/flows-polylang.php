@@ -17,6 +17,7 @@ function pll_the_languages( $args = array() ) {
 }
 function pll_set_post_language( $id, $lang ) { $GLOBALS['pll']['lang'][ $id ] = $lang; }
 function pll_save_post_translations( $arr ) { $GLOBALS['pll']['groups'][] = $arr; }
+function pll_languages_list() { return array( 'id', 'en' ); }
 
 qa_boot();
 $ids = qa_seed();
@@ -89,4 +90,20 @@ $group = $GLOBALS['pll']['groups'][0] ?? array();
 ksort( $group );
 ok( 1 === $n && 1 === count( $GLOBALS['pll']['groups'] ) && array( 'en' => $b, 'id' => $a ) === $group, 'converter: the twins are linked as translations (Indonesian ↔ English)' );
 ok( 'exhibition' === get_post_type( $a ) && 'exhibition' === get_post_type( $b ), 'converter: both twins became exhibitions' );
+// ---- fixed pages: one copy per language, same slug, linked as translations
+qa_reset_data();
+$GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();
+do_action( 'after_switch_theme' );
+$pages = array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } );
+ok( 16 === count( $pages ), 'Polylang: 8 pages in each of two languages (' . count( $pages ) . ')' );
+$about = array_keys( array_filter( $pages, static function ( $p ) { return 'about' === $p['post_name']; } ) );
+ok( 2 === count( $about ) && array( 'en', 'id' ) === ( function ( $ids ) { $l = array_map( static function ( $i ) { return $GLOBALS['pll']['lang'][ $i ]; }, $ids ); sort( $l ); return $l; } )( $about ), 'Polylang: "about" exists in id and en with the same slug' );
+ok( 8 === count( $GLOBALS['pll']['groups'] ), 'Polylang: each page is linked to its translation (' . count( $GLOBALS['pll']['groups'] ) . ' groups)' );
+$support_ids = array_keys( array_filter( $pages, static function ( $p ) { return 'support-us' === $p['post_name']; } ) );
+$kids = array_filter( $pages, static function ( $p ) { return 'collaboration' === $p['post_name']; } );
+foreach ( $kids as $kid_id => $kid ) {
+	ok( (int) $GLOBALS['pll']['lang'][ $kid_id ] === (int) $GLOBALS['pll']['lang'][ $kid['post_parent'] ] || $GLOBALS['pll']['lang'][ $kid_id ] === $GLOBALS['pll']['lang'][ $kid['post_parent'] ], 'Polylang: a Support Us row sits under the Support Us page of its own language' );
+}
+ok( 0 === cemeti_create_missing_pages() && 16 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
+
 qa_done();
