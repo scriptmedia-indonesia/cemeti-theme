@@ -3,6 +3,18 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.6.0
+
+- Detail page re-measured from the design: 12-column grid (reading column = columns 2-11, poster from column 4,
+  about 520 px wide), larger title/date/names/text, "Daftar Isi" on its own line with the links separated by bars.
+- The contents bar is a working anchor menu: the section being read is marked (`toc.js`), "back to contents" returns.
+- Admin "Details" box is dynamic and grouped under headings: Artists as one row per name (Enter adds a row),
+  photos added/reordered/removed one by one, biography blocks (several artists) with "Add from Artists",
+  move up/down and remove, and the Booklet as a PDF from the media library (a link stays as the fallback).
+  Existing content keeps working (artists remain stored as lines; `booklet_url` is still read).
+- Poster image size raised to 1200 px wide (regenerate thumbnails for old uploads if needed).
+- Tests: contents anchors, layout measurements, and the whole editing screen are tested in a real browser.
+
 ## 0.5.2
 
 - Akzidenz-Grotesk Next (client-supplied) is now bundled and used for all body text; Hanken Grotesk is only a fallback.

@@ -905,6 +905,22 @@ function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr =
 function the_post_thumbnail( $size = 'post-thumbnail', $attr = array() ) {
 	echo get_the_post_thumbnail( null, $size, $attr ); // phpcs:ignore
 }
+/** Attachments: ids 900-999 are PDFs (booklet.pdf style names), everything else is a JPEG. */
+function get_post_mime_type( $id ) {
+	return $id >= 900 && $id <= 999 ? 'application/pdf' : ( $id > 0 ? 'image/jpeg' : false );
+}
+function get_attached_file( $id ) {
+	return $id >= 900 && $id <= 999 ? '/var/www/uploads/booklet-' . $id . '.pdf' : '/var/www/uploads/photo-' . $id . '.jpg';
+}
+function wp_basename( $path ) {
+	return basename( (string) $path );
+}
+function wp_get_attachment_url( $id ) {
+	return $id > 0 ? 'http://cemeti.test/uploads/' . basename( get_attached_file( $id ) ) : false;
+}
+function esc_attr__( $s ) {
+	return esc_attr( $s );
+}
 function wp_get_attachment_image( $id, $size = 'thumbnail', $icon = false, $attr = array() ) {
 	$attr = array_merge( array( 'src' => 'http://cemeti.test/img/' . $id . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg', 'alt' => 'Image ' . $id ), $attr );
 	$html = '<img';

@@ -40,7 +40,7 @@ function cemeti_field_def( $post_type, $key ) {
 /**
  * Read a field value.
  *
- * Dates come back as Ymd, images as an int, images as int[], relations as int[],
+ * Dates come back as Ymd, image/file as an attachment id (int), images as int[], relations as int[],
  * repeaters as an array of rows, everything else as a string.
  *
  * @param string   $key     Field key.
@@ -56,7 +56,7 @@ function cemeti_get_field( $key, $post_id = null ) {
 	if ( in_array( $type, array( 'images', 'relation', 'repeater' ), true ) ) {
 		return is_array( $value ) ? $value : array();
 	}
-	if ( 'image' === $type ) {
+	if ( in_array( $type, array( 'image', 'file' ), true ) ) {
 		return (int) $value;
 	}
 	return is_scalar( $value ) ? (string) $value : '';
@@ -73,6 +73,15 @@ function cemeti_sanitize_field( array $def, $value ) {
 	switch ( $def['type'] ) {
 		case 'textarea':
 			return is_scalar( $value ) ? sanitize_textarea_field( (string) $value ) : '';
+		case 'list':
+			// One entry per row in the admin; stored as lines so every reader keeps working with plain text.
+			$lines = is_array( $value ) ? $value : preg_split( '/\R/', is_scalar( $value ) ? (string) $value : '' );
+			$lines = array_map( 'sanitize_text_field', array_filter( $lines, 'is_scalar' ) );
+			return implode( "\n", array_slice( array_values( array_unique( array_filter( $lines, 'strlen' ) ) ), 0, 40 ) );
+		case 'file':
+			// A PDF from the media library, stored as its attachment id.
+			$id = is_scalar( $value ) ? absint( $value ) : 0;
+			return $id && 'application/pdf' === get_post_mime_type( $id ) ? $id : 0;
 		case 'date':
 			$value = is_scalar( $value ) ? str_replace( '-', '', trim( (string) $value ) ) : '';
 			return preg_match( '/^(\d{4})(\d{2})(\d{2})$/', $value, $m ) && checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ? $value : '';
@@ -128,6 +137,21 @@ function cemeti_add_meta_boxes() {
 add_action( 'add_meta_boxes', 'cemeti_add_meta_boxes' );
 
 /**
+ * Move up / move down / remove buttons shared by list rows, photos and repeater blocks.
+ *
+ * @param bool $move Include the move buttons.
+ * @return string HTML (labels are escaped here).
+ */
+function cemeti_row_buttons( $move = true ) {
+	$html = '';
+	if ( $move ) {
+		$html .= '<button type="button" class="button-link cemeti-row__up" aria-label="' . esc_attr__( 'Move up', 'scriptmedia-cemeti' ) . '">&#8593;</button> ';
+		$html .= '<button type="button" class="button-link cemeti-row__down" aria-label="' . esc_attr__( 'Move down', 'scriptmedia-cemeti' ) . '">&#8595;</button> ';
+	}
+	return $html . '<button type="button" class="button-link cemeti-row__remove" aria-label="' . esc_attr__( 'Remove', 'scriptmedia-cemeti' ) . '">&#215;</button>';
+}
+
+/**
  * Render one input.
  *
  * @param array<string, mixed> $def   Field definition.
@@ -139,7 +163,7 @@ function cemeti_render_input( array $def, $value, $name, $id ) {
 	$id_attr = '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '';
 	switch ( $def['type'] ) {
 		case 'textarea':
-			printf( '<textarea class="large-text" rows="3"%s name="%s">%s</textarea>', $id_attr, esc_attr( $name ), esc_textarea( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+			printf( '<textarea class="large-text" rows="%d"%s name="%s">%s</textarea>', isset( $def['rows'] ) ? (int) $def['rows'] : 3, $id_attr, esc_attr( $name ), esc_textarea( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
 		case 'date':
 			$display = preg_match( '/^(\d{4})(\d{2})(\d{2})$/', (string) $value, $m ) ? $m[1] . '-' . $m[2] . '-' . $m[3] : '';
@@ -148,19 +172,51 @@ function cemeti_render_input( array $def, $value, $name, $id ) {
 		case 'url':
 			printf( '<input type="url" class="regular-text"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
+		case 'list':
+			$lines = '' === (string) $value ? array() : preg_split( '/\R/', (string) $value );
+			$row   = static function ( $line ) use ( $name, $def ) {
+				printf(
+					'<div class="cemeti-list__row"><input type="text" class="regular-text" aria-label="%s" name="%s[]" value="%s"> %s</div>',
+					esc_attr( $def['label'] ),
+					esc_attr( $name ),
+					esc_attr( (string) $line ),
+					cemeti_row_buttons() // phpcs:ignore WordPress.Security.EscapeOutput
+				);
+			};
+			echo '<div class="cemeti-list"' . ( '' !== $id ? ' id="' . esc_attr( $id ) . '"' : '' ) . '><div class="cemeti-list__rows">';
+			foreach ( $lines as $line ) {
+				$row( $line );
+			}
+			echo '</div><template class="cemeti-list__template">';
+			$row( '' );
+			echo '</template><button type="button" class="button cemeti-list__add">' . esc_html__( 'Add', 'scriptmedia-cemeti' ) . '</button></div>';
+			break;
+		case 'file':
+			$file_id = (int) $value;
+			$label   = $file_id ? wp_basename( (string) get_attached_file( $file_id ) ) : '';
+			echo '<div class="cemeti-file" role="group" aria-label="' . esc_attr( $def['label'] ) . '">';
+			printf( '<input type="hidden"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( (string) ( $file_id ? $file_id : '' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+			echo '<span class="cemeti-file__name">' . esc_html( $label ) . '</span> ';
+			echo '<button type="button" class="button cemeti-file__pick">' . esc_html__( 'Choose PDF', 'scriptmedia-cemeti' ) . '</button> ';
+			echo '<button type="button" class="button-link cemeti-file__clear">' . esc_html__( 'Remove', 'scriptmedia-cemeti' ) . '</button>';
+			echo '</div>';
+			break;
 		case 'image':
 		case 'images':
 			$ids   = 'image' === $def['type'] ? array_filter( array( (int) $value ) ) : (array) $value;
 			$multi = 'images' === $def['type'] ? '1' : '0';
-			echo '<div class="cemeti-media" data-multiple="' . esc_attr( $multi ) . '">';
+			echo '<div class="cemeti-media" role="group" aria-label="' . esc_attr( $def['label'] ) . '" data-multiple="' . esc_attr( $multi ) . '">';
 			printf( '<input type="hidden"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( implode( ',', $ids ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			echo '<div class="cemeti-media__thumbs">';
 			foreach ( $ids as $attachment_id ) {
-				echo wp_get_attachment_image( (int) $attachment_id, array( 80, 80 ), false, array( 'data-id' => (int) $attachment_id ) );
+				echo '<span class="cemeti-media__item" data-id="' . (int) $attachment_id . '">';
+				echo wp_get_attachment_image( (int) $attachment_id, array( 80, 80 ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+				echo cemeti_row_buttons( 'images' === $def['type'] ); // phpcs:ignore WordPress.Security.EscapeOutput
+				echo '</span>';
 			}
 			echo '</div>';
-			echo '<button type="button" class="button cemeti-media__pick">' . esc_html__( 'Choose', 'scriptmedia-cemeti' ) . '</button> ';
-			echo '<button type="button" class="button-link cemeti-media__clear">' . esc_html__( 'Clear', 'scriptmedia-cemeti' ) . '</button>';
+			echo '<button type="button" class="button cemeti-media__pick">' . esc_html( 'images' === $def['type'] ? __( 'Add photos', 'scriptmedia-cemeti' ) : __( 'Choose', 'scriptmedia-cemeti' ) ) . '</button> ';
+			echo '<button type="button" class="button-link cemeti-media__clear">' . esc_html( 'images' === $def['type'] ? __( 'Remove all', 'scriptmedia-cemeti' ) : __( 'Remove', 'scriptmedia-cemeti' ) ) . '</button>';
 			echo '</div>';
 			break;
 		default:
@@ -196,12 +252,16 @@ function cemeti_relation_choices( array $def, $exclude ) {
  */
 function cemeti_render_meta_box( $post ) {
 	wp_nonce_field( 'cemeti_save_fields', 'cemeti_fields_nonce' );
+	echo '<p class="description cemeti-fields__intro">' . esc_html__( 'Title: the box at the top. Foreword (Kata Pengantar): the main text editor. Poster: Featured image. Everything else is below; a section that is left empty does not appear on the page or in its table of contents.', 'scriptmedia-cemeti' ) . '</p>';
 	echo '<table class="form-table cemeti-fields" role="presentation">';
 	foreach ( cemeti_field_defs( $post->post_type ) as $def ) {
+		if ( ! empty( $def['section'] ) ) {
+			echo '<tr class="cemeti-fields__section"><th colspan="2"><h3>' . esc_html( $def['section'] ) . '</h3></th></tr>';
+		}
 		$key   = $def['key'];
 		$id    = 'cemeti_field_' . $key;
 		$value = cemeti_get_field( $key, $post->ID );
-		$has_control = 'repeater' !== $def['type'];
+		$has_control = ! in_array( $def['type'], array( 'repeater', 'list', 'images', 'file', 'image' ), true );
 		echo '<tr><th scope="row">' . ( $has_control ? '<label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label>' : '<span>' . esc_html( $def['label'] ) . '</span>' ) . '</th><td>';
 
 		if ( 'relation' === $def['type'] ) {
@@ -238,28 +298,39 @@ function cemeti_render_meta_box( $post ) {
  * @param array                $rows Stored rows.
  */
 function cemeti_render_repeater( array $def, array $rows ) {
-	$base = 'cemeti_fields[' . $def['key'] . ']';
-	$row  = static function ( $index, $values ) use ( $def, $base ) {
-		echo '<div class="cemeti-repeater__row">';
+	$base  = 'cemeti_fields[' . $def['key'] . ']';
+	$item  = isset( $def['item'] ) ? $def['item'] : __( 'Item', 'scriptmedia-cemeti' );
+	$by    = isset( $def['title_by'] ) ? $def['title_by'] : '';
+	$block = static function ( $index, $number, $values ) use ( $def, $base, $item, $by ) {
+		$name = '' !== $by && isset( $values[ $by ] ) ? (string) $values[ $by ] : '';
+		echo '<div class="cemeti-repeater__row" data-label="' . esc_attr( $item ) . '">';
+		echo '<div class="cemeti-repeater__bar"><strong class="cemeti-repeater__title">' . esc_html( $item . ' ' . $number . ( '' !== $name ? ' — ' . $name : '' ) ) . '</strong> ' . cemeti_row_buttons() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput
 		foreach ( $def['sub'] as $sub ) {
 			$value = isset( $values[ $sub['key'] ] ) ? $values[ $sub['key'] ] : '';
-			echo '<p><label>' . esc_html( $sub['label'] ) . '<br>';
-			cemeti_render_input( $sub, $value, $base . '[' . $index . '][' . $sub['key'] . ']', '' );
-			echo '</label></p>';
+			$media = in_array( $sub['type'], array( 'image', 'images', 'file' ), true );
+			$id    = $media ? '' : 'cemeti_field_' . $def['key'] . '_' . $index . '_' . $sub['key'];
+			echo '<div class="cemeti-repeater__field" data-field="' . esc_attr( $sub['key'] ) . '">';
+			echo $media ? '<span class="cemeti-repeater__label">' : '<label class="cemeti-repeater__label" for="' . esc_attr( $id ) . '">'; // phpcs:ignore WordPress.Security.EscapeOutput
+			echo esc_html( $sub['label'] ) . ( $media ? '</span>' : '</label>' ) . '<br>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			cemeti_render_input( $sub, $value, $base . '[' . $index . '][' . $sub['key'] . ']', $id );
+			echo '</div>';
 		}
-		echo '<button type="button" class="button-link-delete cemeti-repeater__remove">' . esc_html__( 'Remove', 'scriptmedia-cemeti' ) . '</button></div>';
+		echo '</div>';
 	};
 
-	echo '<div class="cemeti-repeater" data-next="' . (int) count( $rows ) . '">';
+	echo '<div class="cemeti-repeater" data-next="' . (int) count( $rows ) . '"' . ( ! empty( $def['from'] ) ? ' data-from="cemeti_fields[' . esc_attr( $def['from'] ) . ']"' : '' ) . ' data-by="' . esc_attr( $by ) . '">';
 	echo '<div class="cemeti-repeater__rows">';
 	foreach ( array_values( $rows ) as $index => $values ) {
-		$row( $index, $values );
+		$block( $index, $index + 1, $values );
 	}
 	echo '</div>';
 	echo '<template class="cemeti-repeater__template">';
-	$row( '__INDEX__', array() );
+	$block( '__INDEX__', '__NUMBER__', array() );
 	echo '</template>';
-	echo '<button type="button" class="button cemeti-repeater__add">' . esc_html__( 'Add', 'scriptmedia-cemeti' ) . '</button>';
+	echo '<button type="button" class="button cemeti-repeater__add">' . esc_html( sprintf( /* translators: %s: item name, e.g. Artist */ __( 'Add %s', 'scriptmedia-cemeti' ), $item ) ) . '</button> ';
+	if ( ! empty( $def['from'] ) ) {
+		echo '<button type="button" class="button cemeti-repeater__from">' . esc_html__( 'Add from Artists', 'scriptmedia-cemeti' ) . '</button>';
+	}
 	echo '</div>';
 }
 
@@ -323,6 +394,7 @@ function cemeti_admin_assets( $hook ) {
 	wp_enqueue_media();
 	$rel = 'assets/js/admin-fields.js';
 	wp_enqueue_script( 'cemeti-admin-fields', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), true );
-	wp_add_inline_style( 'wp-admin', '.cemeti-media__thumbs img{margin:0 6px 6px 0;vertical-align:top}.cemeti-repeater__row{margin:0 0 12px;padding:8px 12px;border:1px solid #c3c4c7;background:#fff}.cemeti-fields th{width:200px}' );
+	$css = 'assets/css/admin.css';
+	wp_enqueue_style( 'cemeti-admin', CEMETI_URI . '/' . $css, array(), cemeti_asset_version( $css ) );
 }
 add_action( 'admin_enqueue_scripts', 'cemeti_admin_assets' );

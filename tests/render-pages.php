@@ -66,10 +66,27 @@ foreach ( array( 'id="foreword"', 'id="gallery"', 'id="documentation"', 'id="bio
 }
 ok( false !== strpos( $h, 'Agung Kurniawan<br />' ) && false !== strpos( $h, 'Nindityo Adipurnomo' ), 'single exhibition: artists, one per line' );
 ok( false !== strpos( $h, 'id="toc"' ), 'single exhibition: table of contents' );
+preg_match_all( '/<nav class="cemeti-toc".*?<\/nav>/s', $h, $toc );
+preg_match_all( '/href="#([a-z-]+)"/', $toc[0][0] ?? '', $anchors );
+ok( array( 'foreword', 'gallery', 'documentation', 'biography', 'booklet' ) === $anchors[1], 'contents: one link per section, in page order (' . implode( ',', $anchors[1] ) . ')' );
+foreach ( $anchors[1] as $anchor ) {
+	ok( 1 === substr_count( $h, 'id="' . $anchor . '"' ), "contents: link #$anchor has exactly one target" );
+}
+ok( false !== strpos( $h, 'aria-labelledby="toc-label"' ) && false !== strpos( $h, 'Daftar Isi' ), 'contents: labelled navigation, "Daftar Isi"' );
+ok( false !== strpos( $h, 'href="http://cemeti.test/uploads/booklet-901.pdf"' ), 'booklet: the chosen PDF wins over the external link' );
 ok( false !== strpos( $h, 'Pembukaan' ) || false !== strpos( $h, 'Opening' ), 'single exhibition: opening label' );
 ok( false !== strpos( $h, 'rel="noopener noreferrer"' ) && false !== strpos( $h, 'wa.me' ), 'single exhibition: share links open safely' );
 $h = page( 'single-exhibition-bare', 'single.php', array( 'singular' => true ), array( 'post' => $ids['ex_nodate'], 'path' => '/exhibition/beastly/' ) );
 ok( false === strpos( $h, 'id="toc"' ) && false === strpos( $h, 'id="gallery"' ) && false === strpos( $h, 'id="biography"' ), 'single exhibition without fields: no empty sections or contents' );
+
+// ---- Admin "Details" box, for the browser tests of the editing screen (tests/browser/browser-qa.js)
+do_action( 'add_meta_boxes' );
+ob_start();
+call_user_func( CemetiWP::$meta_boxes['exhibition']['cemeti_details'], CemetiWP::obj( $ids['ex_current'] ) );
+$box = ob_get_clean();
+$css = file_get_contents( dirname( __DIR__ ) . '/themes/scriptmedia-cemeti/assets/css/admin.css' );
+file_put_contents( "$out/admin-exhibition.html", '<!doctype html><html lang="en"><meta charset="utf-8"><title>Edit exhibition</title><style>body{font:13px sans-serif;margin:20px}' . $css . '</style><body><h1>Edit</h1><form id="post" onsubmit="return false"><h2>Details</h2>' . $box . '</form><script src="../../tests/browser/admin-stub.js"></script><script src="../../themes/scriptmedia-cemeti/assets/js/admin-fields.js"></script></body></html>' );
+
 page( 'single-public-program', 'single.php', array( 'singular' => true ), array( 'post' => $ids['pp_past'], 'path' => '/public-program/x/' ) );
 page( 'single-open-studio', 'single.php', array( 'singular' => true ), array( 'post' => $ids['os_current'], 'path' => '/open-studio/x/' ) );
 page( 'single-residency', 'single.php', array( 'singular' => true ), array( 'post' => $ids['res_current'], 'path' => '/residency/x/' ) );

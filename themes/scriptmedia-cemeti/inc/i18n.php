@@ -84,7 +84,7 @@ function cemeti_ui_strings() {
 		'instagram'          => array( 'id' => 'Instagram', 'en' => 'Instagram' ),
 		'youtube'            => array( 'id' => 'Youtube', 'en' => 'Youtube' ),
 		'facebook'           => array( 'id' => 'Facebook', 'en' => 'Facebook' ),
-		'toc'                => array( 'id' => 'Daftar isi', 'en' => 'Contents' ),
+		'toc'                => array( 'id' => 'Daftar Isi', 'en' => 'Contents' ),
 		'foreword'           => array( 'id' => 'Kata Pengantar', 'en' => 'Foreword' ),
 		'gallery'            => array( 'id' => 'Galeri', 'en' => 'Gallery' ),
 		'documentation'      => array( 'id' => 'Dokumentasi', 'en' => 'Documentation' ),

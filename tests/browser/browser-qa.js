@@ -232,6 +232,113 @@ async function open( browser, name, width, height, extra = {} ) {
 		await phone.ctx.close();
 	}
 
+	/* ---- 7d. Detail page: contents bar is an anchor menu; layout follows the 12-column design. */
+	{
+		const { page, ctx } = await open( browser, 'single-exhibition', 1440, 900, { reducedMotion: 'reduce' } );
+		const links = await page.locator( '.cemeti-toc__links a' ).evaluateAll( ( as ) => as.map( ( a ) => a.getAttribute( 'href' ) ) );
+		ok( links.length >= 4, 'contents: links for the sections that exist (' + links.join( ' ' ) + ')' );
+		const label = await page.locator( '.cemeti-toc__label' ).boundingBox();
+		const first = await page.locator( '.cemeti-toc__links a' ).first().boundingBox();
+		ok( first.y > label.y + label.height - 2, 'contents: "Daftar Isi" sits on its own line above the links' );
+		const seps = await page.locator( '.cemeti-toc__links a' ).evaluateAll( ( as ) => as.slice( 1 ).every( ( a ) => parseFloat( getComputedStyle( a ).borderLeftWidth ) === 1 ) );
+		ok( seps, 'contents: links are separated by vertical bars' );
+		const col = await page.locator( '.cemeti-single__head' ).boundingBox();
+		const cont = await page.locator( '.cemeti-single .cemeti-container' ).boundingBox();
+		ok( Math.abs( col.width / cont.width - 10 / 12 ) < 0.01, 'layout: reading column is 10 of 12 columns (' + ( col.width / cont.width ).toFixed(3) + ')' );
+		ok( Math.abs( ( col.x - cont.x ) / cont.width - 1 / 12 ) < 0.01, 'layout: reading column starts at column 2' );
+		const poster = await page.locator( '.cemeti-single__poster' ).boundingBox();
+		ok( ! poster || ( Math.abs( ( poster.x - cont.x ) / cont.width - 0.25 ) < 0.01 && poster.width > 480 && poster.width < 560 ), 'layout: poster starts at column 4 and is about 520px wide (' + ( poster ? Math.round( poster.width ) : 'none' ) + ')' );
+		ok( await page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-single__title' ) ).fontSize ) > 44 ), 'layout: title is large (design ~52px)' );
+		for ( const href of links ) {
+			await page.locator( '.cemeti-toc__links a[href="' + href + '"]' ).click();
+			await page.waitForTimeout( 150 );
+			const top = await page.evaluate( ( id ) => document.getElementById( id ).getBoundingClientRect().top, href.slice( 1 ) );
+			ok( top >= -2 && top < 420, `contents: ${ href } scrolls its section into view (top ${ Math.round( top ) }px)` );
+			ok( 'true' === await page.locator( '.cemeti-toc__links a[href="' + href + '"]' ).getAttribute( 'aria-current' ), `contents: ${ href } is marked as current` );
+		}
+		await page.locator( '.cemeti-toc-back a' ).first().click();
+		await page.waitForTimeout( 150 );
+		ok( await page.evaluate( () => document.getElementById( 'toc' ).getBoundingClientRect().top > -2 ), 'contents: "back to contents" returns to the bar' );
+		await ctx.close();
+		const phone = await open( browser, 'single-exhibition', 360, 740 );
+		const poster2 = await phone.page.locator( '.cemeti-single__poster' ).boundingBox();
+		const head2 = await phone.page.locator( '.cemeti-single__head' ).boundingBox();
+		ok( ! poster2 || Math.abs( ( poster2.x + poster2.width / 2 ) - ( head2.x + head2.width / 2 ) ) < 3, 'phone: poster is centred in the column' );
+		await phone.ctx.close();
+	}
+
+	/* ---- 7e. Editing screen: dynamic artists, photos, biographies, booklet (fixture from tests/render-pages.php). */
+	{
+		const { page, ctx } = await open( browser, 'admin-exhibition', 1200, 900 );
+		const formData = () => page.evaluate( () => [ ...new FormData( document.getElementById( 'post' ) ).entries() ] );
+		const values = async ( prefix ) => ( await formData() ).filter( ( [ k ] ) => k.startsWith( prefix ) ).map( ( [ , v ] ) => v );
+		page.on( 'dialog', ( d ) => d.accept() );
+
+		// Names: add with the button and with Enter, reorder, remove.
+		const startNames = ( await values( 'cemeti_fields[artists]' ) ).length;
+		ok( startNames === 2, 'admin: stored artists appear as one row each (' + startNames + ')' );
+		await page.locator( '.cemeti-list__add' ).click();
+		await page.keyboard.type( 'Third Artist' );
+		await page.keyboard.press( 'Enter' );
+		await page.keyboard.type( 'Fourth Artist' );
+		ok( ( await values( 'cemeti_fields[artists]' ) ).join( '|' ).endsWith( 'Third Artist|Fourth Artist' ), 'admin: "Add" and Enter add name rows without saving the post' );
+		await page.locator( '.cemeti-list__row' ).nth( 3 ).locator( '.cemeti-row__up' ).click();
+		ok( ( await values( 'cemeti_fields[artists]' ) ).slice( 2 ).join( '|' ) === 'Fourth Artist|Third Artist', 'admin: a name moves up and the submitted order follows' );
+		await page.locator( '.cemeti-list__row' ).nth( 2 ).locator( '.cemeti-row__remove' ).click();
+		ok( ( await values( 'cemeti_fields[artists]' ) ).length === 3, 'admin: a name row can be removed' );
+
+		// Biographies: "Add from Artists" adds only missing names; blocks reorder; titles follow.
+		const before = await page.locator( '.cemeti-repeater__row' ).count();
+		await page.locator( '.cemeti-repeater__from' ).click();
+		const afterFrom = await page.locator( '.cemeti-repeater__row' ).count();
+		await page.locator( '.cemeti-repeater__from' ).click();
+		ok( afterFrom > before && afterFrom === await page.locator( '.cemeti-repeater__row' ).count(), `admin: "Add from Artists" adds blocks for new names once (${ before } -> ${ afterFrom })` );
+		const names = await page.locator( '.cemeti-repeater__field[data-field="name"] input' ).evaluateAll( ( is ) => is.map( ( i ) => i.value ) );
+		ok( new Set( names.map( ( n ) => n.toLowerCase() ) ).size === names.length, 'admin: no biography block is duplicated (' + names.join( ', ' ) + ')' );
+		await page.locator( '.cemeti-repeater__row' ).last().locator( '.cemeti-row__up' ).first().click();
+		const titles = await page.locator( '.cemeti-repeater__title' ).allTextContents();
+		ok( titles.every( ( t, i ) => t.startsWith( 'Artist ' + ( i + 1 ) ) ), 'admin: block titles are renumbered after moving (' + titles.join( ' / ' ) + ')' );
+		ok( ( await values( 'cemeti_fields[biographies]' ) ).length > 0 && ( await formData() ).filter( ( [ k ] ) => /biographies\]\[\d+\]\[name\]/.test( k ) ).map( ( [ , v ] ) => v ).join() === names.slice( 0, -2 ).concat( [ names[ names.length - 1 ], names[ names.length - 2 ] ] ).join(), 'admin: the form submits blocks in the order shown' );
+		const ids = await page.locator( '.cemeti-repeater__field input[id]' ).evaluateAll( ( is ) => is.map( ( i ) => i.id ) );
+		ok( new Set( ids ).size === ids.length && ! ids.some( ( i ) => i.includes( '__' ) ), 'admin: every field id is unique and no template placeholder leaks' );
+		const unlabeled = await page.locator( '.cemeti-repeater__field input[type=text], .cemeti-repeater__field textarea' ).evaluateAll( ( is ) => is.filter( ( i ) => ! document.querySelector( 'label[for="' + i.id + '"]' ) ).length );
+		ok( unlabeled === 0, 'admin: every biography field has a label' );
+		const added = await page.locator( '.cemeti-repeater__add' ).click().then( () => page.locator( '.cemeti-repeater__row' ).count() );
+		ok( added === afterFrom + 1, 'admin: "Add Artist" adds one empty block' );
+		await page.locator( '.cemeti-repeater__row' ).last().locator( '.cemeti-row__remove' ).first().click();
+		ok( await page.locator( '.cemeti-repeater__row' ).count() === afterFrom, 'admin: an empty block is removed without asking' );
+
+		// Photos: add keeps the existing ones, order can change, single remove, clear.
+		const gal = page.locator( '.cemeti-media[data-multiple="1"]' ).first();
+		const hidden = () => gal.locator( 'input[type=hidden]' ).inputValue();
+		const had = ( await hidden() ).split( ',' ).filter( Boolean );
+		await page.evaluate( () => { window.__picks.push( [ { id: 9001, url: 'x.jpg' }, { id: 9002, url: 'y.jpg' } ] ); } );
+		await gal.locator( '.cemeti-media__pick' ).click();
+		const added2 = ( await hidden() ).split( ',' );
+		ok( added2.length === had.length + 2 && had.every( ( id, i ) => added2[ i ] === id ), 'admin: choosing photos adds to the existing ones, in order' );
+		await page.evaluate( () => { window.__picks.push( [ { id: 9001, url: 'x.jpg' } ] ); } );
+		await gal.locator( '.cemeti-media__pick' ).click();
+		ok( ( await hidden() ).split( ',' ).length === added2.length, 'admin: a photo already in the gallery is not added twice' );
+		await gal.locator( '.cemeti-media__item' ).last().locator( '.cemeti-row__up' ).click();
+		const reordered = ( await hidden() ).split( ',' );
+		ok( reordered[ reordered.length - 2 ] === '9002' && reordered[ reordered.length - 1 ] === '9001', 'admin: a photo moves and the saved order follows (' + reordered.join( ',' ) + ')' );
+		await gal.locator( '.cemeti-media__item' ).last().locator( '.cemeti-row__remove' ).click();
+		ok( ! ( await hidden() ).includes( '9001' ), 'admin: one photo can be removed' );
+		await gal.locator( '.cemeti-media__clear' ).click();
+		ok( ( await hidden() ) === '' && await gal.locator( '.cemeti-media__item' ).count() === 0, 'admin: "Remove all" empties the gallery' );
+
+		// Booklet PDF.
+		const file = page.locator( '.cemeti-file' );
+		ok( ( await file.locator( '.cemeti-file__name' ).textContent() ).endsWith( '.pdf' ), 'admin: the chosen booklet shows its file name' );
+		await page.evaluate( () => { window.__picks.push( [ { id: 902, filename: 'new-booklet.pdf' } ] ); } );
+		await file.locator( '.cemeti-file__pick' ).click();
+		ok( await file.locator( 'input[type=hidden]' ).inputValue() === '902' && ( await file.locator( '.cemeti-file__name' ).textContent() ) === 'new-booklet.pdf', 'admin: choosing a PDF stores its id and shows the name' );
+		await file.locator( '.cemeti-file__clear' ).click();
+		ok( await file.locator( 'input[type=hidden]' ).inputValue() === '', 'admin: the booklet can be removed' );
+		ok( ( await page.locator( '.cemeti-fields__section h3' ).allTextContents() ).join( '|' ).includes( 'Biographies' ), 'admin: fields are grouped under section headings' );
+		await ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

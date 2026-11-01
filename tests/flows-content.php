@@ -32,6 +32,20 @@ ok( preg_match( '/^\d+\.\d+\.\d+$/', CEMETI_VERSION ) === 1, 'version read from 
 $pll = apply_filters( 'pll_get_post_types', array() );
 ok( isset( $pll['exhibition'] ) && ! isset( $pll['application'] ), 'Polylang: content is translatable, applications are not' );
 
+/* ------------------------------------------------------------- field types: list, file */
+$list = array( 'type' => 'list' );
+ok( "Maharani Mancanagara\nSuvi Wahyudianto" === cemeti_sanitize_field( $list, array( 'Maharani Mancanagara', '', '  ', 'Suvi Wahyudianto', 'Maharani Mancanagara' ) ), 'list: blank rows and repeats dropped, order kept' );
+ok( "A\nB" === cemeti_sanitize_field( $list, "A\r\n\r\nB" ), 'list: old newline text still accepted' );
+ok( false === strpos( cemeti_sanitize_field( $list, array( '<b>x</b>' ) ), '<' ), 'list: markup stripped' );
+ok( 40 === count( explode( "\n", cemeti_sanitize_field( $list, array_map( static function ( $n ) { return "n$n"; }, range( 1, 80 ) ) ) ) ), 'list: at most 40 names' );
+$file = array( 'type' => 'file' );
+ok( 901 === cemeti_sanitize_field( $file, '901' ), 'file: a PDF attachment is kept' );
+ok( 0 === cemeti_sanitize_field( $file, '5' ), 'file: an image is refused' );
+ok( 0 === cemeti_sanitize_field( $file, array( '901' ) ) && 0 === cemeti_sanitize_field( $file, 'x' ), 'file: junk refused' );
+$bios = cemeti_field_def( 'exhibition', 'biographies' );
+$rows = cemeti_sanitize_field( $bios, array( 7 => array( 'name' => 'Zed', 'photo' => '5', 'bio' => 'Z' ), 2 => array( 'name' => 'Abe', 'photo' => '', 'bio' => "Line1\nLine2" ) ) );
+ok( 'Zed' === $rows[0]['name'] && 'Abe' === $rows[1]['name'] && array( 0, 1 ) === array_keys( $rows ), 'repeater: rows keep the order they were submitted in' );
+
 /* ------------------------------------------------------------- fields */
 $ids = qa_seed();
 do_action( 'add_meta_boxes' );
@@ -42,7 +56,7 @@ foreach ( array_keys( cemeti_config( 'fields' ) ) as $type ) {
 	call_user_func( CemetiWP::$meta_boxes[ $type ]['cemeti_details'], CemetiWP::obj( $sample ) );
 	$html = ob_get_clean();
 	ok( false !== strpos( $html, 'cemeti_fields_nonce' ) && false !== strpos( $html, 'name="cemeti_fields[' ), "meta box renders for $type" );
-	$problems = qa_check_html( '<html><body><h1>x</h1>' . $html . '</body></html>' );
+	$problems = qa_check_html( '<html><body><h1>x</h1><h2>Details</h2>' . $html . '</body></html>' );
 	$problems = array_filter( $problems, static function ( $p ) { return 0 !== strpos( $p, 'form control without a label' ) && false === strpos( $p, 'img without alt' ); } );
 	ok( ! $problems, "meta box markup for $type is well formed: " . implode( '; ', $problems ) );
 }
@@ -50,7 +64,7 @@ foreach ( array_keys( cemeti_config( 'fields' ) ) as $type ) {
 ob_start();
 call_user_func( CemetiWP::$meta_boxes['exhibition']['cemeti_details'], CemetiWP::obj( $ids['ex_current'] ) );
 $box = ob_get_clean();
-ok( 3 === substr_count( $box, '<div class="cemeti-repeater__row">' ), 'repeater: two stored rows plus one hidden template' );
+ok( 3 === substr_count( $box, '<div class="cemeti-repeater__row"' ), 'repeater: two stored rows plus one hidden template' );
 ok( false !== strpos( $box, '__INDEX__' ), 'repeater: template placeholder present' );
 ok( false === strpos( $box, 'value="20260306"' ) && false !== strpos( $box, 'value="2026-03-06"' ), 'date field shows Y-m-d' );
 

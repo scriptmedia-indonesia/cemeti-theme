@@ -202,6 +202,18 @@ function cemeti_back_to_toc( $show ) {
 }
 
 /**
+ * Address of the booklet: the chosen PDF, else the external link, else ''.
+ *
+ * @param int $post_id Post ID.
+ * @return string
+ */
+function cemeti_booklet_url( $post_id ) {
+	$file = (int) cemeti_get_field( 'booklet', $post_id );
+	$url  = $file ? (string) wp_get_attachment_url( $file ) : '';
+	return '' !== $url ? $url : (string) cemeti_get_field( 'booklet_url', $post_id );
+}
+
+/**
  * Photo grid with caption.
  *
  * @param int[]  $ids     Attachment IDs.

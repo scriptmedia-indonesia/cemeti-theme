@@ -20,7 +20,7 @@ $cemeti_artists = (string) cemeti_get_field( 'artists', $cemeti_id );
 $cemeti_gallery = cemeti_get_field( 'gallery', $cemeti_id );
 $cemeti_docs    = cemeti_get_field( 'documentation', $cemeti_id );
 $cemeti_bios    = cemeti_get_field( 'biographies', $cemeti_id );
-$cemeti_booklet = (string) cemeti_get_field( 'booklet_url', $cemeti_id );
+$cemeti_booklet = cemeti_booklet_url( $cemeti_id );
 $cemeti_related = cemeti_get_related( $cemeti_id );
 $cemeti_content = trim( get_the_content() );
 
@@ -47,11 +47,13 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 	<div class="cemeti-container">
 		<div class="cemeti-single__nav">
 			<?php if ( $cemeti_has_toc ) : ?>
-				<nav class="cemeti-toc" id="toc" aria-label="<?php echo esc_attr( cemeti_t( 'toc' ) ); ?>">
-					<span><?php echo esc_html( cemeti_t( 'toc' ) ); ?></span>
-					<?php foreach ( $cemeti_toc as $cemeti_key => $cemeti_anchor ) : ?>
-						<a href="#<?php echo esc_attr( $cemeti_anchor ); ?>"><?php echo esc_html( cemeti_t( $cemeti_key ) ); ?></a>
-					<?php endforeach; ?>
+				<nav class="cemeti-toc" id="toc" aria-labelledby="toc-label">
+					<span class="cemeti-toc__label" id="toc-label"><?php echo esc_html( cemeti_t( 'toc' ) ); ?></span>
+					<span class="cemeti-toc__links">
+						<?php foreach ( $cemeti_toc as $cemeti_key => $cemeti_anchor ) : ?>
+							<a href="#<?php echo esc_attr( $cemeti_anchor ); ?>"><?php echo esc_html( cemeti_t( $cemeti_key ) ); ?></a>
+						<?php endforeach; ?>
+					</span>
 				</nav>
 			<?php endif; ?>
 			<a class="cemeti-back" href="<?php echo esc_url( cemeti_back_url() ); ?>"><span aria-hidden="true">←</span> <?php echo esc_html( cemeti_t( 'back' ) ); ?></a>

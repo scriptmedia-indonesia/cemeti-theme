@@ -31,7 +31,7 @@ function cemeti_setup() {
 
 	// Square card, poster and hero sizes from the design brief.
 	add_image_size( 'cemeti-card', 600, 600, true );
-	add_image_size( 'cemeti-poster', 800, 0, false );
+	add_image_size( 'cemeti-poster', 1200, 0, false );
 	add_image_size( 'cemeti-hero', 1600, 0, false );
 }
 add_action( 'after_setup_theme', 'cemeti_setup' );

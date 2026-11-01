@@ -46,9 +46,18 @@ Placeholders (`%s`) must be the same in both languages (the static check verifie
 **Change a menu entry**: `inc/navigation.php → cemeti_default_menu()`, or filter `cemeti_default_menu`.
 Paths must be a content-type URL (`config/post-types.php`) or one of the pages listed in the static check.
 
-**Add or change a field** on a content type: `config/fields.php` (types: text, textarea, date, url, image,
-images, relation, repeater). It appears in the "Details" box and is stored as post meta `cemeti_<key>`.
-Read it with `cemeti_get_field( 'key', $post_id )`. Show it in the template (`single.php` etc.).
+**Add or change a field** on a content type: `config/fields.php` (types: text, textarea, list, date, url, image,
+images, file, relation, repeater). It appears in the "Details" box and is stored as post meta `cemeti_<key>`.
+`'section' => 'Heading'` on a field starts a new heading in the box. `list` = one input per name (stored as lines),
+`images` = photos you can add, reorder and remove, `file` = a PDF from the media library, `repeater` = blocks that
+can be added, reordered and removed (`item`, `title_by`, and `from` for the "Add from Artists" button).
+Read a value with `cemeti_get_field( 'key', $post_id )`. Show it in the template (`single.php` etc.).
+
+**What an editor fills in for an Exhibition** (Exhibitions → Add New): Title (top box) · Foreword = the main editor ·
+Poster = Featured image · Details box: dates, Artists (one row each), opening/program/venue, Gallery, Documentation,
+Biographies (one block per artist; "Add from Artists" creates the blocks), Booklet (PDF or link), Related. A section
+left empty is not shown on the page and is not in "Daftar Isi". The contents bar is built from the sections that exist
+and works as anchors; `assets/js/toc.js` marks the section being read.
 
 **Add a content type**: add it to `config/post-types.php` (key ≤ 20 chars, a URL `slug`), its fields to
 `config/fields.php`, a menu entry, and a template (`single-<type>.php` or reuse `single.php`). Rewrite rules

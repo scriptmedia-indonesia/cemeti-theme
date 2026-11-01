@@ -98,6 +98,7 @@ function qa_seed() {
 				'cemeti_documentation_caption' => 'Dokumentasi pembukaan',
 				'cemeti_biographies'         => array( array( 'name' => 'Agung Kurniawan', 'photo' => 701, 'bio' => "Lahir di Jember.\n\nTinggal di Yogyakarta." ), array( 'name' => 'Nindityo', 'photo' => 0, 'bio' => 'Seniman.' ) ),
 				'cemeti_booklet_url'         => 'https://example.org/booklet.pdf',
+				'cemeti_booklet'             => 901,
 				'cemeti_seo_description'     => 'Pameran kelompok tentang keluarga dan ingatan.',
 			),
 		)

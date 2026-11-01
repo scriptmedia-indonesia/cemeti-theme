@@ -46,6 +46,8 @@ function cemeti_enqueue_assets() {
 	);
 
 	if ( is_singular() ) {
+		$rel = 'assets/js/toc.js';
+		wp_enqueue_script( 'cemeti-toc', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 		$rel = 'assets/js/share.js';
 		wp_enqueue_script( 'cemeti-share', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}

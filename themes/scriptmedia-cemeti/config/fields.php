@@ -3,7 +3,9 @@
  * Cemeti fields per post type, rendered as a "Details" meta box (inc/fields.php).
  * Poster / cover image is the featured image; body text is the editor.
  *
- * Field types: text, textarea, date, url, image, images, relation, repeater.
+ * Field types: text, textarea, list (one line per entry, stored newline-separated), date, url, image,
+ * images, file (a PDF from the media library), relation, repeater. A 'section' key on a field starts a new
+ * heading in the "Details" box.
  * Dates are stored as Ymd. 'relation' is two-way and limited to 4 entries.
  *
  * @package Scriptmedia_Cemeti
@@ -14,23 +16,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $dates = array(
-	array( 'key' => 'start_date', 'label' => 'Start date', 'type' => 'date' ),
+	array( 'key' => 'start_date', 'label' => 'Start date', 'type' => 'date', 'section' => 'Dates' ),
 	array( 'key' => 'end_date', 'label' => 'End date', 'type' => 'date', 'help' => 'Leave empty for a one-day event.' ),
 );
 
 $documentation = array(
-	array( 'key' => 'documentation', 'label' => 'Documentation (photos)', 'type' => 'images' ),
+	array( 'key' => 'documentation', 'label' => 'Documentation (photos)', 'type' => 'images', 'section' => 'Documentation', 'help' => 'Shown as "Dokumentasi" on the page. Add photos in the order they should appear.' ),
 	array( 'key' => 'documentation_caption', 'label' => 'Documentation caption', 'type' => 'text' ),
 );
 
 $biographies = array(
-	'key'   => 'biographies',
-	'label' => 'Biographies',
-	'type'  => 'repeater',
-	'sub'   => array(
+	'key'      => 'biographies',
+	'label'    => 'Biographies',
+	'type'     => 'repeater',
+	'section'  => 'Biographies',
+	'item'     => 'Artist',
+	'title_by' => 'name',
+	'from'     => 'artists',
+	'help'     => 'One block per artist, in the order shown on the page.',
+	'sub'      => array(
 		array( 'key' => 'name', 'label' => 'Name', 'type' => 'text' ),
 		array( 'key' => 'photo', 'label' => 'Photo', 'type' => 'image' ),
-		array( 'key' => 'bio', 'label' => 'Biography', 'type' => 'textarea' ),
+		array( 'key' => 'bio', 'label' => 'Biography', 'type' => 'textarea', 'rows' => 8 ),
 	),
 );
 
@@ -38,6 +45,7 @@ $related = array(
 	'key'        => 'related',
 	'label'      => 'Related publications',
 	'type'       => 'relation',
+	'section'    => 'Related publications',
 	'max'        => 4,
 	'post_types' => array( 'exhibition', 'public_program', 'open_studio', 'residency', 'journal' ),
 	'help'       => 'Up to 4. Links are two-way: the other entry lists this one too.',
@@ -47,29 +55,33 @@ $fields = array(
 	'exhibition'     => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'artists', 'label' => 'Artists (one per line)', 'type' => 'textarea' ),
+			array( 'key' => 'artists', 'label' => 'Artists', 'type' => 'list', 'section' => 'Artists and information', 'help' => 'One name per row. Shown under the dates. Use "Add from Artists" in Biographies to create their biography blocks.' ),
 			array( 'key' => 'opening', 'label' => 'Opening', 'type' => 'text', 'help' => 'e.g. 21 November 2025 | 13.00 WIB' ),
 			array( 'key' => 'public_program_info', 'label' => 'Public program info', 'type' => 'textarea' ),
 			array( 'key' => 'venue_info', 'label' => 'Venue and hours', 'type' => 'textarea' ),
-			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images' ),
+			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery', 'help' => 'Shown as "Galeri" on the page, two photos per row.' ),
 			array( 'key' => 'gallery_caption', 'label' => 'Gallery caption', 'type' => 'text' ),
-			array( 'key' => 'booklet_url', 'label' => 'Booklet (PDF URL)', 'type' => 'url' ),
 		),
 		$documentation,
-		array( $biographies, $related )
+		array(
+			$biographies,
+			array( 'key' => 'booklet', 'label' => 'Booklet (PDF)', 'type' => 'file', 'section' => 'Booklet', 'help' => 'Upload or choose a PDF from the media library. Shown as "Buklet" on the page.' ),
+			array( 'key' => 'booklet_url', 'label' => 'or link to a booklet elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+			$related,
+		)
 	),
 	'residency'      => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'artists', 'label' => 'Residents (one per line)', 'type' => 'textarea' ),
-			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images' ),
+			array( 'key' => 'artists', 'label' => 'Residents', 'type' => 'list', 'section' => 'Residents', 'help' => 'One name per row.' ),
+			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery' ),
 		),
 		array( $related )
 	),
 	'public_program' => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'time_text', 'label' => 'Time', 'type' => 'text', 'help' => 'e.g. 15.00 – 17.00 WIB' ),
+			array( 'key' => 'time_text', 'label' => 'Time', 'type' => 'text', 'section' => 'Information', 'help' => 'e.g. 15.00 – 17.00 WIB' ),
 			array( 'key' => 'speakers', 'label' => 'Speakers', 'type' => 'text' ),
 		),
 		$documentation,
@@ -78,7 +90,7 @@ $fields = array(
 	'open_studio'    => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'artists', 'label' => 'Artists (one per line)', 'type' => 'textarea' ),
+			array( 'key' => 'artists', 'label' => 'Artists', 'type' => 'list', 'section' => 'Artists', 'help' => 'One name per row.' ),
 		),
 		$documentation,
 		array( $biographies, $related )
@@ -99,7 +111,7 @@ $fields = array(
 
 // Search / sharing description, on every public type.
 foreach ( array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal' ) as $seo_type ) {
-	$fields[ $seo_type ][] = array( 'key' => 'seo_description', 'label' => 'Search description', 'type' => 'textarea', 'help' => 'Shown in search results and when shared. About 150 characters. Empty = taken from the text.' );
+	$fields[ $seo_type ][] = array( 'key' => 'seo_description', 'label' => 'Search description', 'type' => 'textarea', 'section' => 'Search and sharing', 'help' => 'Shown in search results and when shared. About 150 characters. Empty = taken from the text.' );
 }
 
 return $fields;

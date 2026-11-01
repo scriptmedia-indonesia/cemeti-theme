@@ -114,7 +114,8 @@
 	--fs-script-xl: clamp(2.5rem, 1.6rem + 4vw, 5rem);
 	--fs-script-lg: clamp(2rem, 1.5rem + 2.2vw, 3.25rem);
 	--fs-small: 0.875rem;
-	--fs-single: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
+	--fs-single: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
+	--fs-single-title: clamp(1.75rem, 1rem + 2.6vw, 3.25rem);
 
 	/* Space and layout */
 	--content-max: 80rem;

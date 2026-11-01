@@ -65,27 +65,32 @@
 .cemeti-home__section--journal > .cemeti-btn { margin-inline: var(--gutter); }
 @media (max-width: 40rem) { .cemeti-home__item { grid-template-columns: 1fr; } .cemeti-home__poster { max-width: 15rem; } }
 
-/* ---- Detail pages ---- */
-.cemeti-single__nav { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+/* ---- Detail pages ----
+   Measured from the design (1440 px frame, 12-column grid in the 80rem container): the reading column spans
+   columns 2-11 (10/12 of the container); the poster starts at column 4 and is about 5 columns wide;
+   section headings, captions, "back" links, related cards and the share row use the full container. */
+.cemeti-single { --col: 83.333%; font-size: var(--fs-single); }
+.cemeti-single__nav { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: clamp(1rem, 0.5rem + 1.5vw, 2rem); }
 .cemeti-single__nav .cemeti-back { margin-left: auto; }
-.cemeti-toc { font-size: var(--fs-small); display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
-.cemeti-toc a { color: var(--c-salmon); }
-.cemeti-toc span { text-decoration: underline; }
-/* Detail layout (design "Detail Post"): one wide reading column (--col) centred in the container; section
-   headings, "back to list" links, related cards and share row use the full container width. */
-.cemeti-single { --col: 66rem; font-size: var(--fs-single); }
+.cemeti-toc { font-size: 1rem; line-height: 1.4; }
+.cemeti-toc__label { display: block; margin-bottom: 0.35rem; text-decoration: underline; }
+.cemeti-toc__links { display: flex; flex-wrap: wrap; row-gap: 0.25rem; }
+.cemeti-toc__links a { padding: 0 0.75rem; color: var(--c-salmon); border-left: 1px solid var(--c-salmon); }
+.cemeti-toc__links a:first-child { padding-left: 0; border-left: 0; }
+.cemeti-toc__links a[aria-current] { font-weight: 700; }
+.cemeti-toc__links a:hover { color: var(--c-ink); }
 .cemeti-single__head,
 .cemeti-single__info,
 .cemeti-single__body { max-width: var(--col); margin-inline: auto; }
 .cemeti-single__head { margin-bottom: 1.5rem; text-align: left; }
-/* Poster sits inside the column, indented as in the design (centred on phones). */
-.cemeti-single__poster { width: min(100%, 25rem); margin: 1.5rem auto; }
-@media (min-width: 48rem) { .cemeti-single__poster { margin-left: 21%; margin-right: 0; } }
+/* Poster inside the column: centred on phones, from column 4 on larger screens (20% of the column). */
+.cemeti-single__poster { width: min(100%, 25rem); margin: 0.5rem auto 2rem; }
+@media (min-width: 48rem) { .cemeti-single__poster { width: 48.8%; margin-left: 20%; margin-right: 0; } }
 .cemeti-single__hero { width: min(100%, 36rem); margin: 0 auto 1.5rem; }
-.cemeti-single__title { max-width: 48rem; margin: 0 0 0.6em; font-size: var(--fs-title); font-weight: 500; line-height: 1.25; }
-.cemeti-single__date { margin: 0 0 1em; font-size: calc(var(--fs-title) * 0.7); font-weight: 500; }
-.cemeti-single__people { margin: 0 0 1.5em; font-size: calc(var(--fs-title) * 0.55); font-weight: 700; line-height: 1.35; }
-.cemeti-single__time { margin: 0; font-size: var(--fs-small); }
+.cemeti-single__title { margin: 0 0 0.45em; font-size: var(--fs-single-title); font-weight: 500; line-height: 1.2; }
+.cemeti-single__date { margin: 0 0 1em; font-size: calc(var(--fs-single-title) * 0.6); font-weight: 500; line-height: 1.25; }
+.cemeti-single__people { margin: 0 0 1.5em; font-size: calc(var(--fs-single-title) * 0.45); font-weight: 700; line-height: 1.4; }
+.cemeti-single__time { margin: 0; }
 .cemeti-single__info,
 .cemeti-single__body { line-height: 1.55; }
 .cemeti-single__info p { margin: 0 0 1em; }
