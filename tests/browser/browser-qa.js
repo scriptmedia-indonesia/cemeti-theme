@@ -208,16 +208,22 @@ async function open( browser, name, width, height, extra = {} ) {
 		const fam = await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-heading' ) ).fontFamily );
 		ok( /Vampiro One/.test( fam ), 'design: headings use Vampiro One' );
 		const fontsLoaded = await page.evaluate( async () => { await document.fonts.ready; return [ ...document.fonts ].filter( ( f ) => 'loaded' === f.status ).map( ( f ) => f.family ); } );
-		ok( fontsLoaded.some( ( f ) => /Vampiro/.test( f ) ) && fontsLoaded.some( ( f ) => /Hanken/.test( f ) ), 'fonts: Vampiro One and Hanken Grotesk files actually load (' + fontsLoaded.join( ',' ) + ')' );
+		ok( fontsLoaded.some( ( f ) => /Vampiro/.test( f ) ) && fontsLoaded.some( ( f ) => /Akzidenz/.test( f ) ), 'fonts: Vampiro One and Akzidenz-Grotesk Next files actually load (' + fontsLoaded.join( ',' ) + ')' );
 		await ctx.close();
 	}
 
-	/* ---- 7b. Detail pages follow the design: poster centred, text left-aligned; heading and Back stack on phones. */
+	/* ---- 7b. Detail pages follow the design: poster indented in a wide reading column, text left-aligned; heading and Back stack on phones. */
 	{
 		const { page, ctx } = await open( browser, 'single-exhibition', 1280, 800 );
 		ok( 'left' === await page.locator( '.cemeti-single__title' ).evaluate( ( e ) => getComputedStyle( e ).textAlign ), 'design: exhibition title is left-aligned' );
+		const col = await page.locator( '.cemeti-single__head' ).boundingBox();
 		const pb = await page.locator( '.cemeti-single__poster' ).boundingBox();
-		ok( ! pb || Math.abs( ( pb.x + pb.width / 2 ) - 640 ) < 3, 'design: the poster is centred' );
+		const body = await page.locator( '.cemeti-single__body' ).boundingBox();
+		const grid = await page.locator( '.cemeti-photos__grid' ).first().boundingBox();
+		ok( ! pb || ( pb.x > col.x + 100 && pb.x + pb.width <= col.x + col.width ), 'design: the poster is indented inside the reading column' );
+		ok( Math.abs( col.x - body.x ) < 2 && Math.abs( col.width - body.width ) < 2 && col.width > 900, `design: head and text share one wide reading column (${ Math.round( col.width ) }px)` );
+		ok( ! grid || Math.abs( grid.x - col.x ) < 2, 'design: the photo grid lines up with the reading column' );
+		ok( 'Akzidenz-Grotesk Next' === await page.evaluate( () => getComputedStyle( document.body ).fontFamily.split( ',' )[ 0 ].replace( /"/g, '' ) ), 'design: body text uses Akzidenz-Grotesk Next' );
 		await ctx.close();
 		const phone = await open( browser, 'archive-exhibition', 360, 740 );
 		const hb = await phone.page.locator( '.cemeti-page-head .cemeti-heading' ).boundingBox();

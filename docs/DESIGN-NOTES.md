@@ -56,7 +56,7 @@ Layout, measured on 1440 px frames: content width ≈ 1280 px (89 %) — wider t
 ## 3. Typography (client decision)
 
 - **Title / script headings:** **Vampiro One** (SIL OFL 1.1), self-hosted WOFF2, `font-display: swap`.
-- **Sub title and body:** **Akzidenz-Grotesk Next** (Monotype, commercial). It is not bundled: the client must supply licensed web font files, then add an `@font-face` in `tokens.css` (the family name is already first in `--font-sans`). Until then **Hanken Grotesk** variable (SIL OFL 1.1) is the stand-in.
+- **Sub title and body:** **Akzidenz-Grotesk Next** (Monotype, commercial), bundled as WOFF2 (Light, Regular, Italic, Medium, Medium Italic, Bold, Bold Italic) from the files the client supplied; the client holds the licence. **Hanken Grotesk** (SIL OFL 1.1) stays only as a fallback if the files fail to load.
 - Licences of bundled fonts: `assets/fonts/LICENSE-*.txt`.
 
 ## 4. Contrast findings (WCAG 2.1 AA, ratios calculated, colours NOT changed)

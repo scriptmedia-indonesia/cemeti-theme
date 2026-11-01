@@ -62,8 +62,7 @@ refresh by themselves after a theme update (`cemeti_flush_after_update`). Add da
 `components.css`, layout in `layout.css`, page-specific rules in `pages.css`. Colours come from the design PDF
 (`DESIGN-NOTES.md`); several fail WCAG AA contrast and need a client decision before being changed.
 
-**Add the licensed font** (Akzidenz-Grotesk Next): put the WOFF2 files in `assets/fonts/`, add an `@font-face` in
-`tokens.css` named exactly `"Akzidenz-Grotesk Next"`, preload it in `inc/enqueue.php`. Nothing else changes.
+**Change or add a font weight**: put the WOFF2 in `assets/fonts/`, add an `@font-face` in `tokens.css` under the family name `"Akzidenz-Grotesk Next"`; the preload in `inc/enqueue.php` covers only the Regular file.
 
 **Swap the logo**: replace `assets/img/logo.webp` and regenerate `logo-480.webp` / `logo-960.webp` (see the
 build note below). Prefer an SVG once the client has one; then use it in `header.php` and drop the two sizes.
@@ -147,7 +146,7 @@ PY
 | Converter says nothing to convert | everything is already converted (`_cemeti_converted_at`), or no category is mapped in Manual mode |
 | Twin posts not linked | Polylang must be active with `id` and `en` *before* converting; then press "Link translations" |
 | Old URL does not redirect | the path is built from the permalink pattern on the Converter page; compare with the real old URL |
-| Fonts look wrong | files in `assets/fonts/` and `@font-face` in `tokens.css`; Akzidenz-Grotesk Next is not bundled (Hanken Grotesk stands in) |
+| Fonts look wrong | files in `assets/fonts/` and `@font-face` in `tokens.css`; Akzidenz-Grotesk Next is bundled (`akzidenz-grotesk-next-*.woff2`); Hanken Grotesk is only the fallback |
 | White screen after an edit | `wp-content/debug.log` with `WP_DEBUG_LOG`; `php -l` the file you edited |
 
 ## 6. Known gaps and open decisions

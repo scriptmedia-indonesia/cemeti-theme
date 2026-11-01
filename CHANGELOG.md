@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.5.2
+
+- Akzidenz-Grotesk Next (client-supplied) is now bundled and used for all body text; Hanken Grotesk is only a fallback.
+- Detail page (exhibition, public program, open studio, residency) follows the design: one wide reading column
+  (66rem) for head, info, text, photos and biographies; poster indented in the column; section headings, captions,
+  "back to list" links, related cards and share row use the full container; photos 3:2; biography photo/text columns.
+
 ## 0.5.1 — quality pass
 Fixed
 - Home had no `<h1>` (accessibility and SEO); it now has one for the institution name.
