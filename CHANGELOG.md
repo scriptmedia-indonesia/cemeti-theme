@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.6.1
+
+- Exhibition detail page measured from the Figma file (frame EXHIBITION ARTICLE TEMPLATE): title 64, dates and names 40,
+  text 24 on 34, headings 64, contents bar 18, poster 524 wide at column 4, gallery photos 524 x 351, biography photo 308,
+  related cards with 20 px padding; the browser tests check these numbers at 1440 px (`figma:` checks).
+- Contents bar is a scroll-spy (`toc.js`): the section past 35% of the screen is marked.
+- Biography: the name opens the first paragraph in Medium weight, as in the design.
+- Jeruk Bali colour corrected to #f16154 (Figma).
+
 ## 0.6.0
 
 - Detail page re-measured from the design: 12-column grid (reading column = columns 2-11, poster from column 4,

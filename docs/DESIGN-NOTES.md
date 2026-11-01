@@ -101,3 +101,27 @@ These have no page in the PDF and were derived from the design system. Confirm w
 - **Open Call list**: Journal-style rows, blue heading.
 - **People grid** (About): the PDF only shows the "ADVISORY BOARD" and "TEAM" headings; a 4-column photo, name, role grid is assumed.
 - **Residency detail** and **Open Archive entry order**: no page in the PDF; follow the Exhibition detail pattern and alphabetical order.
+
+
+## Figma values: Exhibition article template (read from the file, 1440 px frame)
+
+Source: Figma file "CEMETI WEB 3.0", page Components, frame `EXHIBITION ARTICLE TEMPLATE` (node 2084:307).
+The theme reaches these values at a 1440 px viewport; below that the sizes shrink with `clamp()` (tokens `--fs-single*`).
+
+| Element | Figma | Theme |
+|---|---|---|
+| Title | Akzidenz Medium 64 | `--fs-single-title` |
+| Dates, artists | Medium 40 | `--fs-single-lead` |
+| Labels (Pembukaan:) | Medium 24 / 34 | `strong` = 500 |
+| Text | Regular 24 / 34, ink #4a4a4d | `--fs-single` |
+| Section headings | Vampiro One 64, blue #1c75bc | `--fs-single-script` |
+| Contents bar, captions, "Kembali ke Daftar Isi", share | Regular 18; links Jeruk Bali #f16154, underlined; bars 20 px high, 12 px each side | `--fs-single-small` |
+| Related card title / label | Medium 20 / Regular 18 salmon; card padding 20; image 331:260 | `--fs-single-card` |
+| Reading column | x 188, width 1064 (columns 2-11 of 12; container x 80, width 1280) | `--col: 83.333%` |
+| Poster | 524 x 655, x 404 (216 px into the column) | 49.25% wide, 20.3% in |
+| Gallery / documentation | 4 photos 525 x 351 (3:2), gap 16 / 13 | 2-column grid |
+| Biography | photo 308 square at x 188, text at x 512 (gap 16), 80 px between artists | grid 28.95% / 1fr |
+
+Jeruk Bali is #f16154 in Figma (the PDF showed #f16254); the theme now uses the Figma value.
+Not copied: the related list is a horizontal carousel with fades in Figma (6 cards, 324 px wide); the theme shows up to 4 in a grid.
+Other frames in the file (Open Studio, Public Program, Journal templates, cards, Home, Open Call) have not been measured yet.

@@ -248,7 +248,19 @@ async function open( browser, name, width, height, extra = {} ) {
 		ok( Math.abs( ( col.x - cont.x ) / cont.width - 1 / 12 ) < 0.01, 'layout: reading column starts at column 2' );
 		const poster = await page.locator( '.cemeti-single__poster' ).boundingBox();
 		ok( ! poster || ( Math.abs( ( poster.x - cont.x ) / cont.width - 0.25 ) < 0.01 && poster.width > 480 && poster.width < 560 ), 'layout: poster starts at column 4 and is about 520px wide (' + ( poster ? Math.round( poster.width ) : 'none' ) + ')' );
-		ok( await page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-single__title' ) ).fontSize ) > 44 ), 'layout: title is large (design ~52px)' );
+		// Values read from the Figma frame "EXHIBITION ARTICLE TEMPLATE" (1440 px): see docs/DESIGN-NOTES.md.
+		const px = ( selector, prop ) => page.evaluate( ( [ sel, p ] ) => parseFloat( getComputedStyle( document.querySelector( sel ) )[ p ] ), [ selector, prop ] );
+		ok( 64 === await px( '.cemeti-single__title', 'fontSize' ), 'figma: title 64px' );
+		ok( 40 === await px( '.cemeti-single__date', 'fontSize' ) && 40 === await px( '.cemeti-single__people', 'fontSize' ), 'figma: date and names 40px' );
+		ok( 24 === await px( '.cemeti-single__body p', 'fontSize' ) && Math.abs( 34 - await px( '.cemeti-single__body p', 'lineHeight' ) ) < 0.6, 'figma: text 24px on 34px lines' );
+		ok( 64 === await px( '.cemeti-section-heading', 'fontSize' ), 'figma: script headings 64px' );
+		ok( 18 === await px( '.cemeti-toc__links a', 'fontSize' ) && 18 === await px( '.cemeti-toc__label', 'fontSize' ), 'figma: contents bar 18px' );
+		ok( Math.abs( poster.width - 524 ) < 2 && Math.abs( poster.x - 404 ) < 3, `figma: poster 524 wide at x=404 (${ Math.round( poster.width ) } at ${ Math.round( poster.x ) })` );
+		const g = await page.locator( '.cemeti-photos__grid img' ).first().boundingBox();
+		ok( Math.abs( g.width - 524 ) < 2 && Math.abs( g.height / g.width - 351 / 525 ) < 0.01 && Math.abs( g.x - 188 ) < 2, `figma: gallery photos 524 wide, 3:2, from x=188 (${ Math.round( g.width ) }x${ Math.round( g.height ) } at ${ Math.round( g.x ) })` );
+		const bp = await page.locator( '.cemeti-bio__photo' ).first().boundingBox();
+		ok( ! bp || ( Math.abs( bp.width - 308 ) < 3 && Math.abs( bp.height - 308 ) < 3 ), 'figma: biography photo 308px square' );
+		ok( 'rgb(241, 97, 84)' === await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-toc__links a' ) ).color ), 'figma: links in Jeruk Bali #f16154' );
 		for ( const href of links ) {
 			await page.locator( '.cemeti-toc__links a[href="' + href + '"]' ).click();
 			await page.waitForTimeout( 150 );
@@ -409,7 +421,7 @@ async function open( browser, name, width, height, extra = {} ) {
 		}
 		await ctx.close();
 	}
-	const known = [ 'rgb(241, 98, 84) on rgb(242, 232, 219)', 'rgb(246, 209, 65) on rgb(255, 248, 239)', 'rgb(138, 138, 141) on rgb(255, 248, 239)', 'rgb(28, 117, 188) on rgb(246, 209, 65)', 'rgb(241, 98, 84) on rgb(255, 248, 239)', 'rgb(255, 255, 255) on rgb(0, 161, 75)', 'rgb(74, 74, 77) on rgb(241, 98, 84)', 'rgb(246, 209, 65) on rgb(28, 117, 188)', 'rgb(0, 0, 0) on rgb(0, 0, 0)' ];
+	const known = [ 'rgb(241, 97, 84) on rgb(242, 232, 219)', 'rgb(246, 209, 65) on rgb(255, 248, 239)', 'rgb(138, 138, 141) on rgb(255, 248, 239)', 'rgb(28, 117, 188) on rgb(246, 209, 65)', 'rgb(241, 97, 84) on rgb(255, 248, 239)', 'rgb(255, 255, 255) on rgb(0, 161, 75)', 'rgb(74, 74, 77) on rgb(241, 97, 84)', 'rgb(246, 209, 65) on rgb(28, 117, 188)', 'rgb(0, 0, 0) on rgb(0, 0, 0)' ];
 	for ( const [ k, v ] of Object.entries( contrast ) ) {
 		const documented = known.some( ( x ) => k.startsWith( x ) );
 		notes.push( `${ documented ? 'known ' : 'NEW   ' } contrast ${ v.ratio }:1  ${ k }  ×${ v.n } (${ v.sample }; ${ [ ...new Set( v.pages ) ].join( ', ' ) })` );

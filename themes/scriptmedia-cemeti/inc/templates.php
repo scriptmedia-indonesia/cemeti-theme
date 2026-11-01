@@ -243,13 +243,14 @@ function cemeti_render_biographies( array $rows ) {
 			echo wp_get_attachment_image( (int) $row['photo'], 'cemeti-card', false, array( 'class' => 'cemeti-bio__photo', 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
 		echo '<div class="cemeti-bio__text">';
-		$bio = (string) $row['bio'];
-		if ( '' !== $row['name'] ) {
-			echo '<p><strong>' . esc_html( $row['name'] ) . '</strong>' . ( '' !== $bio ? ' ' : '' ) . '</p>';
+		$bio  = (string) $row['bio'];
+		$name = '' !== $row['name'] ? '<strong>' . esc_html( $row['name'] ) . '</strong>' : '';
+		// As in the design, the name opens the first paragraph in Medium weight.
+		$html = '' !== $bio ? wpautop( esc_html( $bio ) ) : '';
+		if ( '' !== $name ) {
+			$html = '' !== $html ? preg_replace( '/^<p>/', '<p>' . $name . ' ', $html, 1 ) : '<p>' . $name . '</p>';
 		}
-		if ( '' !== $bio ) {
-			echo wp_kses_post( wpautop( esc_html( $bio ) ) );
-		}
+		echo wp_kses_post( $html );
 		echo '</div></div>';
 	}
 }
