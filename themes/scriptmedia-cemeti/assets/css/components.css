@@ -36,6 +36,7 @@
 .cemeti-btn:hover,
 .cemeti-btn:focus-visible { background: var(--c-salmon); color: var(--c-ink); }
 .cemeti-btn--blue { background: var(--c-blue); }
+.cemeti-btn--blue:not(.cemeti-btn--inline) { width: min(100%, 17rem); }
 .cemeti-btn--blue:hover,
 .cemeti-btn--blue:focus-visible { background: var(--c-blue); color: var(--c-yellow); }
 

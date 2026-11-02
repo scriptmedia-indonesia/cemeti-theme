@@ -719,6 +719,15 @@ function wp_insert_term( $name, $tax, $args = array() ) {
 	CemetiWP::$terms[ $tax ][ $id ] = array( 'name' => $name, 'slug' => sanitize_title( $name ), 'description' => isset( $args['description'] ) ? $args['description'] : '' );
 	return array( 'term_id' => $id );
 }
+function wp_update_term( $id, $tax, $args = array() ) {
+	if ( isset( CemetiWP::$terms[ $tax ][ $id ] ) ) {
+		CemetiWP::$terms[ $tax ][ $id ] = array_merge( CemetiWP::$terms[ $tax ][ $id ], array_intersect_key( $args, array_flip( array( 'name', 'slug', 'description' ) ) ) );
+	}
+	return array( 'term_id' => $id );
+}
+function get_term( $id, $tax = '' ) {
+	return isset( CemetiWP::$terms[ $tax ][ $id ] ) ? term_obj( $tax, $id ) : null;
+}
 function wp_set_object_terms( $id, $terms, $tax, $append = false ) {
 	$ids = array();
 	foreach ( (array) $terms as $t ) {
@@ -901,16 +910,21 @@ function have_posts() {
 function the_post() {
 	$GLOBALS['wp_query']->the_post();
 }
+/** WordPress' get_post_thumbnail_id(), including its "post_thumbnail_id" filter. */
+function get_post_thumbnail_id( $id = 0 ) {
+	$id = $id ? $id : get_the_ID();
+	return (int) apply_filters( 'post_thumbnail_id', get_post_meta( $id, '_thumbnail_id', true ), CemetiWP::obj( $id ) );
+}
 function has_post_thumbnail( $id = 0 ) {
-	return (bool) get_post_meta( $id ? $id : get_the_ID(), '_thumbnail_id', true );
+	return (bool) get_post_thumbnail_id( $id );
 }
 function get_the_post_thumbnail_url( $id = 0, $size = 'full' ) {
-	$t = get_post_meta( $id ? $id : get_the_ID(), '_thumbnail_id', true );
+	$t = get_post_thumbnail_id( $id );
 	return $t ? 'http://cemeti.test/img/' . $t . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg' : false;
 }
 function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr = array() ) {
 	$id = is_object( $post ) ? $post->ID : ( $post ? $post : get_the_ID() );
-	return has_post_thumbnail( $id ) ? wp_get_attachment_image( get_post_meta( $id, '_thumbnail_id', true ), $size, false, $attr ) : '';
+	return has_post_thumbnail( $id ) ? wp_get_attachment_image( get_post_thumbnail_id( $id ), $size, false, $attr ) : '';
 }
 function the_post_thumbnail( $size = 'post-thumbnail', $attr = array() ) {
 	echo get_the_post_thumbnail( null, $size, $attr ); // phpcs:ignore
@@ -999,6 +1013,12 @@ function is_singular() {
 }
 function is_page() {
 	return ! empty( CemetiWP::$ctx['singular'] ) && 'page' === get_post_type();
+}
+function is_post_type_archive( $t = '' ) {
+	return ! empty( CemetiWP::$ctx['pta'] ) && ( '' === $t || $t === CemetiWP::$ctx['pta'] );
+}
+function is_tax( $t = '' ) {
+	return ! empty( CemetiWP::$ctx['tax'] ) && ( '' === $t || $t === CemetiWP::$ctx['tax'] );
 }
 function is_search() {
 	return ! empty( CemetiWP::$ctx['search'] );

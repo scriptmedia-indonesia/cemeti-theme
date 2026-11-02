@@ -95,9 +95,23 @@ function cemeti_seed_terms() {
 		return;
 	}
 	foreach ( cemeti_config( 'taxonomies' ) as $taxonomy => $args ) {
+		// A term that was renamed in a later version keeps its entries: rename it instead of adding a second one.
+		foreach ( isset( $args['renamed'] ) ? $args['renamed'] : array() as $old => $new ) {
+			$found = term_exists( $old, $taxonomy );
+			if ( $found && ! term_exists( $new, $taxonomy ) ) {
+				wp_update_term( (int) $found['term_id'], $taxonomy, array( 'name' => $new, 'slug' => sanitize_title( $new ) ) );
+			}
+		}
+		$descriptions = isset( $args['descriptions'] ) ? $args['descriptions'] : array();
 		foreach ( isset( $args['terms'] ) ? $args['terms'] : array() as $term ) {
-			if ( ! term_exists( $term, $taxonomy ) ) {
-				wp_insert_term( $term, $taxonomy );
+			$found = term_exists( $term, $taxonomy );
+			if ( ! $found ) {
+				wp_insert_term( $term, $taxonomy, isset( $descriptions[ $term ] ) ? array( 'description' => $descriptions[ $term ] ) : array() );
+			} elseif ( isset( $descriptions[ $term ] ) ) {
+				$existing = get_term( (int) $found['term_id'], $taxonomy );
+				if ( $existing && ! is_wp_error( $existing ) && '' === trim( (string) $existing->description ) ) {
+					wp_update_term( (int) $found['term_id'], $taxonomy, array( 'description' => $descriptions[ $term ] ) );
+				}
 			}
 		}
 	}
@@ -136,7 +150,8 @@ function cemeti_polylang_post_types( $types ) {
 	$translatable = array();
 	foreach ( cemeti_config( 'post-types' ) as $type => $args ) {
 		if ( 'application' !== $type ) { // Applications are private records, not content.
-			$translatable[ $type ] = 'cemeti';
+			// Polylang wants the post type name as key AND value; any other value makes it ignore the type.
+			$translatable[ $type ] = $type;
 		}
 	}
 	return array_merge( $types, $translatable );
@@ -150,6 +165,104 @@ add_filter( 'pll_get_post_types', 'cemeti_polylang_post_types' );
  * @return array
  */
 function cemeti_polylang_taxonomies( $taxonomies ) {
-	return array_merge( $taxonomies, array_fill_keys( array_keys( cemeti_config( 'taxonomies' ) ), 'cemeti' ) );
+	$names = array_keys( cemeti_config( 'taxonomies' ) );
+	return array_merge( $taxonomies, array_combine( $names, $names ) ); // Key and value are both the taxonomy name.
 }
 add_filter( 'pll_get_taxonomies', 'cemeti_polylang_taxonomies' );
+
+/**
+ * Solo or Group for an exhibition that has no type yet.
+ *
+ * The old site marks it in the title ("Pameran Tunggal …", "Pameran Kelompok …"); otherwise one artist means
+ * Solo and two or more mean Group. Returns '' when nothing tells.
+ *
+ * @param int $post_id Exhibition ID.
+ * @return string "Solo", "Group" or ''.
+ */
+function cemeti_infer_exhibition_type( $post_id ) {
+	$title = (string) get_the_title( $post_id );
+	if ( preg_match( '/^\s*(pameran\s+tunggal|solo\s+(exhibition|show))\b/i', $title ) ) {
+		return 'Solo';
+	}
+	if ( preg_match( '/^\s*(pameran\s+kelompok|group\s+(exhibition|show))\b/i', $title ) ) {
+		return 'Group';
+	}
+	$artists = array_filter( array_map( 'trim', preg_split( '/\R/', (string) cemeti_get_field( 'artists', $post_id ) ) ) );
+	if ( 1 === count( $artists ) ) {
+		return 'Solo';
+	}
+	return count( $artists ) > 1 ? 'Group' : '';
+}
+
+/**
+ * Give an exhibition its Solo/Group term when the editor left it empty. A term chosen by hand is never changed.
+ *
+ * @param int $post_id Exhibition ID.
+ * @return bool Whether a term was set.
+ */
+function cemeti_fill_exhibition_type( $post_id ) {
+	if ( 'exhibition' !== get_post_type( $post_id ) || get_the_terms( $post_id, 'exhibition_type' ) ) {
+		return false;
+	}
+	$type = cemeti_infer_exhibition_type( $post_id );
+	if ( '' === $type ) {
+		return false;
+	}
+	wp_set_object_terms( $post_id, array( $type ), 'exhibition_type' );
+	return true;
+}
+
+/**
+ * On save: fill the type of an exhibition left without one.
+ *
+ * @param int $post_id Post ID.
+ */
+function cemeti_fill_exhibition_type_on_save( $post_id ) {
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || wp_is_post_revision( $post_id ) ) {
+		return;
+	}
+	cemeti_fill_exhibition_type( $post_id );
+}
+add_action( 'save_post', 'cemeti_fill_exhibition_type_on_save', 20 );
+
+/**
+ * Exhibitions that still have no Solo/Group term.
+ *
+ * @return int[]
+ */
+function cemeti_exhibitions_without_type() {
+	$ids = get_posts(
+		array(
+			'post_type'      => 'exhibition',
+			'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private' ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	return array_values(
+		array_filter(
+			array_map( 'intval', $ids ),
+			static function ( $id ) {
+				return ! get_the_terms( $id, 'exhibition_type' );
+			}
+		)
+	);
+}
+
+/**
+ * Button on Settings → Cemeti: fill Solo/Group for every exhibition that has none.
+ */
+function cemeti_handle_fill_types() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'cemeti_fill_types' );
+	$done = 0;
+	foreach ( cemeti_exhibitions_without_type() as $id ) {
+		$done += cemeti_fill_exhibition_type( $id ) ? 1 : 0;
+	}
+	wp_safe_redirect( add_query_arg( 'cemeti_types_filled', $done, admin_url( 'options-general.php?page=cemeti-settings' ) ) );
+	exit;
+}
+add_action( 'admin_post_cemeti_fill_types', 'cemeti_handle_fill_types' );

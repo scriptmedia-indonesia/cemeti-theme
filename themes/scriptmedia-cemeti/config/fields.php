@@ -105,7 +105,8 @@ $fields = array(
 		$related,
 	),
 	'person'         => array(
-		array( 'key' => 'role', 'label' => 'Role', 'type' => 'text' ),
+		array( 'key' => 'role', 'label' => 'Title / role', 'type' => 'text', 'section' => 'Shown on the About page' ),
+		array( 'key' => 'quote', 'label' => 'Short quote', 'type' => 'textarea', 'help' => 'Shown under the title of an Advisory Board member. The photo is the Featured image (square).' ),
 	),
 );
 

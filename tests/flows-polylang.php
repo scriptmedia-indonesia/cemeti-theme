@@ -90,6 +90,28 @@ $group = $GLOBALS['pll']['groups'][0] ?? array();
 ksort( $group );
 ok( 1 === $n && 1 === count( $GLOBALS['pll']['groups'] ) && array( 'en' => $b, 'id' => $a ) === $group, 'converter: the twins are linked as translations (Indonesian ↔ English)' );
 ok( 'exhibition' === get_post_type( $a ) && 'exhibition' === get_post_type( $b ), 'converter: both twins became exhibitions' );
+// ---- every Cemeti type and taxonomy gets Polylang's language selector (key AND value must be the name)
+$pt = apply_filters( 'pll_get_post_types', array( 'post' => 'post', 'page' => 'page' ) );
+$bad = array_keys( array_filter( $pt, static function ( $v, $k ) { return $v !== $k; }, ARRAY_FILTER_USE_BOTH ) );
+ok( ! $bad, 'Polylang: post types are listed as name => name (otherwise Polylang ignores them): ' . implode( ',', $bad ) );
+foreach ( array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'person' ) as $t ) {
+	ok( isset( $pt[ $t ] ), "Polylang: $t has a language selector" );
+}
+ok( ! isset( $pt['application'] ) && isset( $pt['page'] ), 'Polylang: applications stay private, pages keep theirs' );
+$tx = apply_filters( 'pll_get_taxonomies', array( 'category' => 'category' ) );
+$bad = array_keys( array_filter( $tx, static function ( $v, $k ) { return $v !== $k; }, ARRAY_FILTER_USE_BOTH ) );
+ok( ! $bad && isset( $tx['exhibition_type'], $tx['residency_type'], $tx['journal_category'] ), 'Polylang: taxonomies listed as name => name' );
+ok( 'en' === cemeti_lang_code( 'en-US' ) && 'en' === cemeti_lang_code( 'en_GB' ) && 'id' === cemeti_lang_code( 'in' ) && 'id' === cemeti_lang_code( 'id_ID' ) && 'fr' === cemeti_lang_code( 'fr' ), 'language slugs such as en-us, in, id_ID map to en / id' );
+
+// ---- admin: which menus still lack a language selector
+$GLOBALS['pll']['translated'] = array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'person', 'page' );
+function pll_is_translated_post_type( $t ) { return in_array( $t, $GLOBALS['pll']['translated'], true ); }
+ok( array() === cemeti_language_issues(), 'Polylang ready: no language warnings' );
+$GLOBALS['pll']['translated'] = array( 'page', 'exhibition' );
+$issues = cemeti_language_issues();
+ok( 1 === count( $issues ) && false !== strpos( $issues[0], 'residency' ) && false !== strpos( $issues[0], 'journal' ) && false === strpos( $issues[0], 'application' ), 'a type without a language selector is named in the warning' );
+$GLOBALS['pll']['translated'] = array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'person', 'page' );
+
 // ---- fixed pages: one copy per language, same slug, linked as translations
 qa_reset_data();
 $GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();

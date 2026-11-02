@@ -181,6 +181,52 @@ function cemeti_share_links( $url, $title ) {
 }
 
 /**
+ * Small inline icon for a share button (decorative: the app name is written next to it).
+ *
+ * @param string $name App name: WhatsApp, Telegram or More.
+ * @return string SVG markup.
+ */
+function cemeti_share_icon( $name ) {
+	$paths = array(
+		'WhatsApp' => 'M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3zm4.6 12.4c-.2.5-1.1 1-1.6 1-.4.1-.9.1-1.5-.1-.3-.1-.8-.3-1.4-.5-2.4-1-4-3.5-4.1-3.6-.1-.2-1-1.3-1-2.5s.6-1.8.9-2.1c.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .5.4l.8 1.9c.1.1.1.3 0 .4l-.3.5-.4.4c-.1.1-.2.3-.1.4.2.3.7 1.2 1.6 1.9 1.1.9 2 1.2 2.3 1.3.2.1.4.1.5-.1l.7-.9c.1-.2.3-.2.5-.1l1.8.9c.2.1.3.2.4.3 0 .2 0 .8-.2 1.2z',
+		'Telegram' => 'M21.5 4.2 2.9 11.4c-.9.4-.9 1.1-.2 1.3l4.7 1.5 1.8 5.6c.2.6.4.7.8.7s.6-.2.8-.5l2.2-2.1 4.6 3.4c.8.5 1.5.2 1.7-.8l3-14.3c.3-1.2-.4-1.7-1.3-1.2zM9 14l8.6-5.4c.4-.3.8-.1.5.2L11 15.4l-.3 3.1L9 14z',
+		'More'     => 'M18 16.1c-.8 0-1.5.3-2 .8l-7.1-4.2c.1-.2.1-.5.1-.7s0-.5-.1-.7L15.9 7.2c.5.5 1.2.8 2.1.8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .2 0 .5.1.7L9.1 9.8C8.6 9.3 7.8 9 7 9c-1.7 0-3 1.3-3 3s1.3 3 3 3c.8 0 1.6-.3 2.1-.8l7.2 4.2c0 .2-.1.4-.1.6 0 1.6 1.3 2.9 2.9 2.9s2.9-1.3 2.9-2.9-1.3-3-2.9-3z',
+	);
+	if ( ! isset( $paths[ $name ] ) ) {
+		return '';
+	}
+	return '<svg class="cemeti-share__icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="' . esc_attr( $paths[ $name ] ) . '"/></svg>';
+}
+
+/**
+ * Remove the "English | Indonesia" language links that the old site pasted at the top of many entries.
+ * The site has its own language switcher in the header, so they only repeat it.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function cemeti_strip_language_links( $content ) {
+	$word = '(?:English|Indonesia(?:n)?|Bahasa\s+Indonesia|Bahasa\s+Inggris)';
+	$tags = '(?:\s*<[^>]+>\s*)*';
+	$out  = preg_replace( '#<(p|div|h[1-6])\b[^>]*>' . $tags . $word . $tags . '\s*[|/\x{2013}\x{2014}-]\s*' . $tags . $word . $tags . '</\1>\s*#iu', '', (string) $content );
+	return null === $out ? (string) $content : $out;
+}
+
+/**
+ * Apply cemeti_strip_language_links() to the text of Cemeti entries.
+ *
+ * @param string $content Post content.
+ * @return string
+ */
+function cemeti_filter_language_links( $content ) {
+	if ( is_admin() || ! is_singular() || ! array_key_exists( get_post_type(), cemeti_config( 'post-types' ) ) ) {
+		return $content;
+	}
+	return cemeti_strip_language_links( $content );
+}
+add_filter( 'the_content', 'cemeti_filter_language_links', 5 );
+
+/**
  * Section heading (blue script) with an anchor id.
  *
  * @param string $label  Heading text.
@@ -197,7 +243,7 @@ function cemeti_section_heading( $label, $anchor ) {
  */
 function cemeti_back_to_toc( $show ) {
 	if ( $show ) {
-		echo '<p class="cemeti-toc-back"><a href="#toc">' . esc_html( cemeti_t( 'back_to_toc' ) ) . '</a></p>';
+		echo '<p class="cemeti-toc-back"><a href="#toc-top">' . esc_html( cemeti_t( 'back_to_toc' ) ) . '</a></p>';
 	}
 }
 
@@ -281,8 +327,62 @@ function cemeti_render_related( array $posts ) {
 function cemeti_render_share( $url, $title ) {
 	echo '<div class="cemeti-share"><span class="cemeti-share__label">' . esc_html( cemeti_t( 'share' ) ) . ':</span>';
 	foreach ( cemeti_share_links( $url, $title ) as $label => $href ) {
-		echo '<a class="cemeti-share__btn" href="' . esc_url( $href ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $label ) . '</a>';
+		echo '<a class="cemeti-share__btn" href="' . esc_url( $href ) . '" target="_blank" rel="noopener noreferrer">' . cemeti_share_icon( $label ) . esc_html( $label ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	}
-	echo '<button type="button" class="cemeti-share__btn cemeti-share__more" hidden data-title="' . esc_attr( $title ) . '" data-url="' . esc_url( $url ) . '">' . esc_html( cemeti_t( 'share_more' ) ) . '</button>';
+	echo '<button type="button" class="cemeti-share__btn cemeti-share__more" hidden data-title="' . esc_attr( $title ) . '" data-url="' . esc_url( $url ) . '">' . cemeti_share_icon( 'More' ) . esc_html( cemeti_t( 'share_more' ) ) . '</button>'; // phpcs:ignore WordPress.Security.EscapeOutput
 	echo '</div>';
 }
+
+/**
+ * Entries moved from the old site usually have their pictures inside the text and no featured image, so cards,
+ * posters and share previews stayed empty. When there is no featured image, use the first picture of the entry:
+ * a picture with a wp-image-ID class in the text, an image attached to the entry, or an uploaded file whose
+ * address appears in the text. A real featured image always wins.
+ *
+ * Runs through WordPress' own "post_thumbnail_id" filter, so has_post_thumbnail(), the_post_thumbnail() and
+ * get_the_post_thumbnail_url() all see it.
+ *
+ * @param int|false         $thumbnail_id Featured image ID.
+ * @param int|WP_Post|null $post         Post.
+ * @return int|false
+ */
+function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
+	if ( $thumbnail_id ) {
+		return $thumbnail_id;
+	}
+	$post = get_post( $post );
+	if ( ! $post || ! array_key_exists( $post->post_type, cemeti_config( 'post-types' ) ) || 'application' === $post->post_type ) {
+		return $thumbnail_id;
+	}
+	static $cache = array();
+	if ( isset( $cache[ $post->ID ] ) ) {
+		return $cache[ $post->ID ] ? $cache[ $post->ID ] : $thumbnail_id;
+	}
+	$found   = 0;
+	$content = (string) $post->post_content;
+	if ( preg_match( '/wp-image-(\d+)/', $content, $match ) ) {
+		$found = (int) $match[1];
+	}
+	if ( ! $found ) {
+		$attached = get_posts(
+			array(
+				'post_type'        => 'attachment',
+				'post_parent'      => $post->ID,
+				'post_mime_type'   => 'image',
+				'post_status'      => 'inherit',
+				'posts_per_page'   => 1,
+				'orderby'          => 'menu_order ID',
+				'order'            => 'ASC',
+				'fields'           => 'ids',
+				'suppress_filters' => true,
+			)
+		);
+		$found = $attached ? (int) $attached[0] : 0;
+	}
+	if ( ! $found && function_exists( 'attachment_url_to_postid' ) && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $match ) ) {
+		$found = (int) attachment_url_to_postid( $match[1] );
+	}
+	$cache[ $post->ID ] = $found;
+	return $found ? $found : $thumbnail_id;
+}
+add_filter( 'post_thumbnail_id', 'cemeti_fallback_thumbnail_id', 10, 2 );

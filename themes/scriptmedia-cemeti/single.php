@@ -45,7 +45,8 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 ?>
 <article class="cemeti-single cemeti-single--<?php echo esc_attr( $cemeti_type ); ?>">
 	<div class="cemeti-container">
-		<div class="cemeti-single__nav">
+		<span id="toc-top"></span>
+		<div class="cemeti-single__nav<?php echo $cemeti_has_toc ? ' cemeti-single__nav--sticky' : ''; ?>">
 			<?php if ( $cemeti_has_toc ) : ?>
 				<nav class="cemeti-toc" id="toc" aria-labelledby="toc-label">
 					<span class="cemeti-toc__label" id="toc-label"><?php echo esc_html( cemeti_t( 'toc' ) ); ?></span>

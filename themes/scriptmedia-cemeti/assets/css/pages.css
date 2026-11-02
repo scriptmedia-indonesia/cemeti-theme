@@ -15,7 +15,8 @@
 	.cemeti-page-head .cemeti-heading { grid-column: 1; grid-row: 2; }
 }
 .cemeti-heading a { color: inherit; text-decoration: none; }
-.cemeti-heading a:hover { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 3px; }
+.cemeti-heading a:hover,
+.cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: none; }   /* QA: section title turns #1C75BC on hover */
 .cemeti-container--wide { width: 100%; padding-inline: 0; }
 .cemeti-container--wide .cemeti-page-head { padding-inline: var(--gutter); }
 .cemeti-empty { text-align: center; }
@@ -205,3 +206,52 @@
 /* About and Support Us (Figma): the picture / lead text is 848 wide and centred; the rest keeps the reading column. */
 .cemeti-single--about .cemeti-single__hero { width: min(100%, 53rem); aspect-ratio: 848 / 602; object-fit: cover; margin-bottom: 2.5rem; }
 .cemeti-single--support .cemeti-single__body { max-width: 53rem; }
+
+/* ---- Section titles stay under the header while their section scrolls past (Figma: "sticky top-0" titles).
+   The content has its own background and sits above, so it slides over the title. ---- */
+@media (min-width: 48rem) {
+	.cemeti-page-head { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 1; pointer-events: none; }
+	.cemeti-page-head a { pointer-events: auto; }
+	.cemeti-card-grid, .cemeti-row-list, .cemeti-residency-intro, .cemeti-opencalls, .cemeti-az { position: relative; z-index: 2; background: var(--c-cream); }
+	.cemeti-home .cemeti-heading { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 1; }
+	.cemeti-home__item, .cemeti-home__section--journal .cemeti-row-list { position: relative; z-index: 2; background: var(--c-cream); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
+}
+.cemeti-home .cemeti-btn { width: min(100%, 17rem); }
+
+/* ---- Detail page: the contents bar stays at the top while reading ---- */
+.cemeti-single__nav--sticky { position: sticky; top: var(--header-h); z-index: 50; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
+html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 6rem); }
+@media (max-width: 40rem) { .cemeti-single__nav--sticky { position: static; } html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); } }
+.cemeti-single__lead { max-width: var(--col); margin: 0 auto 1.4167em; font-weight: 500; }
+
+/* ---- Share buttons with the app icon and name (Figma "Share this") ---- */
+.cemeti-share__btn { display: inline-flex; align-items: center; gap: 0.4em; }
+.cemeti-share__icon { flex: none; }
+
+/* ---- Files and downloads inside a text: a small button, not a block ---- */
+.cemeti-single__body .wp-block-file { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 0 0 1.4167em; font-size: var(--fs-single-small); }
+.cemeti-single__body .wp-block-file a:not(.wp-block-file__button) { font-weight: 500; }
+.cemeti-single__body .wp-block-file__button,
+.cemeti-single__body a.wp-element-button { display: inline-block; padding: 0.3em 0.9em; border: 0; border-radius: 0; background: var(--c-green); color: var(--c-cream); font-family: var(--font-script); font-size: 1rem; line-height: 1.4; text-decoration: none; }
+.cemeti-single__body .wp-block-file__button:hover { background: var(--c-salmon); color: var(--c-ink); }
+
+/* ---- Text in one column: the old site's two-column language blocks are not used ---- */
+.cemeti-single__body .wp-block-columns { display: block; }
+.cemeti-single__body .wp-block-column { margin: 0; }
+
+/* ---- Open Call list ---- */
+.cemeti-opencalls .cemeti-opencall { margin-bottom: clamp(2.5rem, 2rem + 3vw, 5rem); }
+.cemeti-opencalls .cemeti-single__title a { text-decoration: none; }
+
+/* ---- About: Advisory Board in three columns, photo (square) left, name / title / quote right ---- */
+.cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: 1fr; }
+@media (min-width: 40rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(3, 1fr); } }
+.cemeti-people--advisory-board .cemeti-people__grid li { display: grid; grid-template-columns: minmax(5rem, 38%) 1fr; gap: 1rem; align-items: start; }
+.cemeti-people--advisory-board .cemeti-people__grid img { margin: 0; }
+.cemeti-people--advisory-board .cemeti-people__role { color: var(--c-ink); font-weight: 400; }
+.cemeti-people__quote { margin-top: 0.5rem; font-style: italic; font-size: var(--fs-body); }
+.cemeti-people__text { display: block; }

@@ -50,10 +50,11 @@ function cemeti_pre_get_posts( $query ) {
 		$query->set( 'posts_per_page', 20 );
 	}
 
-	// Menu links: /exhibition/?type=solo|group and /residency/?type=reguler|research.
+	// Menu links: /exhibition/?type=solo|group and /residency/?type=regular|research.
 	if ( ( $query->is_post_type_archive( 'exhibition' ) || $query->is_post_type_archive( 'residency' ) ) && isset( $_GET['type'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		$taxonomy = $query->is_post_type_archive( 'exhibition' ) ? 'exhibition_type' : 'residency_type';
 		$slug     = sanitize_title( wp_unslash( $_GET['type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$slug     = 'reguler' === $slug ? 'regular' : $slug; // The term was called Reguler before 0.8.
 		if ( '' !== $slug ) {
 			$query->set( 'tax_query', array( array( 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => $slug ) ) );
 		}

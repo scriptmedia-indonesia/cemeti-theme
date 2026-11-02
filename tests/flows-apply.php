@@ -67,7 +67,7 @@ ok( 'rina@example.org' === $ack['to'] && false !== strpos( $ack['body'], 'Rina S
 ok( false !== strpos( $ack['body'], 'Halo' ) || false !== strpos( $ack['body'], 'Hello' ), 'success: confirmation is a real sentence, not a placeholder' );
 $reply = implode( ' ', $team['headers'] );
 ok( false !== strpos( $reply, 'Reply-To: Rina Seniman <rina@example.org>' ), 'success: team mail can be answered directly' );
-update_option( 'cemeti_settings_id', array( 'notify_email' => 'team@cemeti.test' ) );
+update_option( 'cemeti_settings_en', array( 'notify_email' => 'team@cemeti.test' ) );
 CemetiWP::$mails = array();
 $reset_rate();
 $submit( $form( array( 'app_email' => 'b@example.org' ) ), $all() );

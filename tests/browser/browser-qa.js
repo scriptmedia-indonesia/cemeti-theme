@@ -417,6 +417,67 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ar.ctx.close();
 	}
 
+	/* ---- 7h. QA round 1: sticky contents bar, back to contents, sticky titles, hover, scroll loading, share, About. */
+	{
+		const { page, ctx } = await open( browser, 'single-exhibition', 1440, 900, { reducedMotion: 'reduce' } );
+		const headerH = ( await page.locator( '.cemeti-header' ).boundingBox() ).height;
+		await page.evaluate( () => window.scrollTo( 0, 1500 ) );
+		await page.waitForTimeout( 150 );
+		const bar = await page.locator( '.cemeti-single__nav' ).boundingBox();
+		ok( Math.abs( bar.y - headerH ) < 3, `qa: the contents bar stays at the top under the header (${ Math.round( bar.y ) } vs ${ Math.round( headerH ) })` );
+		const before = page.url();
+		await page.locator( '.cemeti-toc-back a' ).nth( 1 ).click();
+		await page.waitForTimeout( 250 );
+		ok( page.url().split( '#' )[ 0 ] === before.split( '#' )[ 0 ], 'qa: "back to contents" stays on the same page' );
+		ok( await page.evaluate( () => document.documentElement.scrollTop ) < 400, 'qa: "back to contents" returns to the top of the page' );
+		ok( 18 === await page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-toc-back a' ) ).fontSize ) ), 'qa: "back to contents" is 18px as in the design' );
+		const icons = await page.locator( '.cemeti-share__btn svg' ).count();
+		ok( icons >= 2, `qa: share buttons show an icon and the app name (${ icons } icons)` );
+		ok( ( await page.locator( '.cemeti-share__btn' ).first().textContent() ).includes( 'WhatsApp' ), 'qa: the app name is written next to the icon' );
+		await ctx.close();
+
+		const home = await open( browser, 'home', 1440, 900, { reducedMotion: 'no-preference' } );
+		const link = home.page.locator( '.cemeti-home .cemeti-heading a' ).first();
+		await link.hover();
+		await home.page.waitForTimeout( 100 );
+		ok( 'rgb(28, 117, 188)' === await link.evaluate( ( e ) => getComputedStyle( e ).color ), 'qa: a section title turns #1C75BC on hover' );
+		await home.page.mouse.move( 5, 400 );
+		await home.page.evaluate( () => window.scrollTo( 0, 300 ) );
+		await home.page.waitForTimeout( 200 );
+		const stuck = await home.page.locator( '.cemeti-home .cemeti-heading' ).first().boundingBox();
+		ok( stuck.y >= 100 && stuck.y < 230, `qa: the section title stays under the header while its section scrolls (y=${ Math.round( stuck.y ) })` );
+		await home.ctx.close();
+
+		const inf = await open( browser, 'infinite-1', 1440, 600, { reducedMotion: 'reduce' } );
+		await inf.page.waitForFunction( () => document.querySelectorAll( '.cemeti-card' ).length > 4, null, { timeout: 4000 } ).catch( () => {} );
+		await inf.page.waitForTimeout( 300 );
+		const start = 4;
+		const after = await inf.page.locator( '.cemeti-card' ).count();
+		ok( after === start + 2, `qa: scrolling to the end loads the next page (${ start } -> ${ after } cards)` );
+		ok( ( await inf.page.locator( '.cemeti-card__title' ).allTextContents() ).some( ( t ) => /Second page card B/.test( t ) ), 'qa: the cards of the next page are the real ones' );
+		ok( await inf.page.locator( '.pagination[hidden]' ).count() === 1, 'qa: the Older / Newer links are hidden while scroll loading works' );
+		await inf.ctx.close();
+
+		const oc = await open( browser, 'archive-open-call', 1440, 900, { reducedMotion: 'reduce' } );
+		const op = await oc.page.locator( '.cemeti-opencall__poster' ).count();
+		if ( op ) {
+			const pb = await oc.page.locator( '.cemeti-opencall__poster' ).first().boundingBox();
+			ok( Math.abs( pb.width - 416 ) < 3, `qa: Open Call list uses the design layout (picture ${ Math.round( pb.width ) }px)` );
+		}
+		const btn = await oc.page.locator( '.cemeti-opencall .cemeti-btn--blue' ).first().boundingBox();
+		ok( ! btn || Math.abs( btn.width - 272 ) < 3, 'qa: Application Submission button is 272px wide' );
+		await oc.ctx.close();
+
+		const ab = await open( browser, 'page-about', 1440, 900, { reducedMotion: 'reduce' } );
+		ok( 'rgb(246, 209, 65)' === await ab.page.locator( '.cemeti-page-head .cemeti-heading' ).evaluate( ( e ) => getComputedStyle( e ).color ), 'qa: About title is yellow #F6D141' );
+		const grid = ab.page.locator( '.cemeti-people--advisory-board .cemeti-people__grid' );
+		if ( await grid.count() ) {
+			const cols = await grid.evaluate( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length );
+			ok( 3 === cols, `qa: Advisory Board is a 3-column grid (${ cols })` );
+		}
+		await ab.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

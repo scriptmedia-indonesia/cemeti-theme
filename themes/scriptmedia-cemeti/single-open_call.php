@@ -31,7 +31,7 @@ $cemeti_target   = '' !== $cemeti_external ? $cemeti_external : '#apply';
 					<p><strong><?php echo esc_html( cemeti_t( 'deadline' ) ); ?>: <?php echo esc_html( $cemeti_deadline ); ?></strong></p>
 				<?php endif; ?>
 				<?php if ( $cemeti_open ) : ?>
-					<a class="cemeti-btn cemeti-btn--blue cemeti-btn--inline" href="<?php echo esc_url( $cemeti_target ); ?>">Application Submission</a>
+					<a class="cemeti-btn cemeti-btn--blue cemeti-btn--inline" href="<?php echo esc_url( $cemeti_target ); ?>"><?php echo esc_html( cemeti_t( 'apply_button' ) ); ?></a>
 				<?php else : ?>
 					<p class="cemeti-apply__notice"><?php echo esc_html( cemeti_t( 'form_closed' ) ); ?></p>
 				<?php endif; ?>

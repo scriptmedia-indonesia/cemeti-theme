@@ -25,7 +25,13 @@ return array(
 		'slug'         => 'residency-type',
 		'post_types'   => array( 'residency' ),
 		'hierarchical' => false,
-		'terms'        => array( 'Reguler', 'Research' ),
+		'terms'        => array( 'Regular', 'Research' ),
+		// Shown under the page title on the Residency page; editors can change them (Residency Types).
+		'descriptions' => array(
+			'Regular'  => 'In each residency period we host one Indonesian artist and one or two artists from outside Indonesia.',
+			'Research' => 'Selected participants are facilitated by an assistant during the residency.',
+		),
+		'renamed'      => array( 'Reguler' => 'Regular' ),
 	),
 	'journal_category' => array(
 		'singular'     => 'Journal Category',

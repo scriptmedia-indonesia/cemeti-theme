@@ -50,12 +50,15 @@ $h = page( 'archive-open-studio', 'archive.php', array( 'pta' => 'open_studio' )
 ok( false !== strpos( $h, '>Open Studio</h1>' ), 'archive open studio: singular heading' );
 $h = page( 'archive-residency', 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ) ) );
 ok( false !== strpos( $h, '>Residency</h1>' ), 'archive residency: heading is "Residency", not "Residencies"' );
-ok( false !== strpos( $h, 'cemeti-residency-intro' ) && false !== strpos( $h, 'Reguler' ) && false !== strpos( $h, 'Research' ), 'archive residency: Reguler and Research intros from term descriptions' );
+ok( false !== strpos( $h, 'cemeti-residency-intro' ) && false !== strpos( $h, 'Regular' ) && false !== strpos( $h, 'Research' ), 'archive residency: Regular and Research intros from term descriptions' );
 $h = page( 'archive-journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/journal/', 'query' => array( 'post_type' => 'journal' ), 'flags' => array( 'pta' => 'journal' ) ) );
 ok( 3 === substr_count( $h, 'class="cemeti-row"' ) && strpos( $h, '15-01-2025' ) < strpos( $h, '01-07-2024' ), 'archive journal: rows with dd-mm-yyyy, newest first' );
 ok( false !== strpos( $h, 'Curatorial Essay' ) && false !== strpos( $h, '>Essay<' ), 'archive journal: category label per row' );
 $h = page( 'archive-open-call', 'archive-open_call.php', array( 'pta' => 'open_call' ), array( 'path' => '/open-call/', 'query' => array( 'post_type' => 'open_call' ), 'flags' => array( 'pta' => 'open_call' ) ) );
-ok( 4 === substr_count( $h, 'class="cemeti-row"' ), 'archive open call: four rows' );
+ok( 4 === substr_count( $h, 'cemeti-single--open_call' ), 'archive open call: every call shown in full (four)' );
+ok( substr_count( $h, 'cemeti-btn--blue' ) + substr_count( $h, 'cemeti-apply__notice' ) === 4, 'archive open call: each call has the blue button (open) or the closed notice' );
+ok( false !== strpos( $h, '#apply' ) && false !== strpos( $h, 'Application Submission' ), 'archive open call: the button goes to the form (#apply)' );
+ok( false !== strpos( $h, 'cemeti-single__body' ), 'archive open call: the description is shown' );
 $h = page( 'archive-project', 'archive.php', array( 'term' => 'Maintenance Works' ), array( 'path' => '/project/maintenance-works/', 'query' => array(), 'flags' => array( 'tax' => 'project' ) ) );
 ok( false !== strpos( $h, '>Maintenance Works</h1>' ), 'taxonomy archive: heading is the term name' );
 
@@ -72,12 +75,20 @@ ok( array( 'foreword', 'gallery', 'documentation', 'biography', 'booklet' ) === 
 foreach ( $anchors[1] as $anchor ) {
 	ok( 1 === substr_count( $h, 'id="' . $anchor . '"' ), "contents: link #$anchor has exactly one target" );
 }
-ok( false !== strpos( $h, 'aria-labelledby="toc-label"' ) && false !== strpos( $h, 'Daftar Isi' ), 'contents: labelled navigation, "Daftar Isi"' );
+ok( false !== strpos( $h, 'aria-labelledby="toc-label"' ) && false !== strpos( $h, '>Contents<' ), 'contents: labelled navigation, "Contents" (English is the main language)' );
 ok( false !== strpos( $h, 'href="http://cemeti.test/uploads/booklet-901.pdf"' ), 'booklet: the chosen PDF wins over the external link' );
 ok( false !== strpos( $h, 'Pembukaan' ) || false !== strpos( $h, 'Opening' ), 'single exhibition: opening label' );
 ok( false !== strpos( $h, 'rel="noopener noreferrer"' ) && false !== strpos( $h, 'wa.me' ), 'single exhibition: share links open safely' );
 $h = page( 'single-exhibition-bare', 'single.php', array( 'singular' => true ), array( 'post' => $ids['ex_nodate'], 'path' => '/exhibition/beastly/' ) );
 ok( false === strpos( $h, 'id="toc"' ) && false === strpos( $h, 'id="gallery"' ) && false === strpos( $h, 'id="biography"' ), 'single exhibition without fields: no empty sections or contents' );
+
+// ---- Scroll-loading fixtures (tests/browser): the archive cut into two pages with a "next" link
+$page1 = file_get_contents( "$out/archive-exhibition.html" );
+$nav1  = '<nav class="navigation pagination"><div class="nav-links"><span class="page-numbers current">1</span><a class="next page-numbers" href="infinite-2.html">Older</a></div></nav>';
+$script = false === strpos( $page1, 'infinite.js' ) ? '<script src="../../themes/scriptmedia-cemeti/assets/js/infinite.js"></script>' : '';
+file_put_contents( "$out/infinite-1.html", str_replace( '</ul>', '</ul>' . $nav1, preg_replace( '#</body>#', $script . '</body>', $page1, 1 ) ) ? preg_replace( '#(<ul class="cemeti-card-grid">.*?</ul>)#s', '$1' . $nav1, preg_replace( '#</body>#', $script . '</body>', $page1, 1 ), 1 ) : $page1 );
+$more = '<li class="cemeti-card"><a href="#"><span class="cemeti-card__image cemeti-card__image--empty"></span><span class="cemeti-card__body"><span class="cemeti-card__title">Second page card A</span><span class="cemeti-card__date">2020</span></span></a></li><li class="cemeti-card"><a href="#"><span class="cemeti-card__image cemeti-card__image--empty"></span><span class="cemeti-card__body"><span class="cemeti-card__title">Second page card B</span><span class="cemeti-card__date">2019</span></span></a></li>';
+file_put_contents( "$out/infinite-2.html", '<!doctype html><html><body><ul class="cemeti-card-grid">' . $more . '</ul><nav class="navigation pagination"><div class="nav-links"><span class="page-numbers current">2</span></div></nav></body></html>' );
 
 // ---- Admin "Details" box, for the browser tests of the editing screen (tests/browser/browser-qa.js)
 do_action( 'add_meta_boxes' );

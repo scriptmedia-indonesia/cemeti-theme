@@ -84,6 +84,25 @@ ok( CEMETI_THEME_DIR . '/page-about.php' === cemeti_page_template_by_key( '/them
 $GLOBALS['post'] = CemetiWP::obj( $plain );
 ok( '/theme/page.php' === cemeti_page_template_by_key( '/theme/page.php' ), 'a free page keeps WordPress\' own template' );
 
+/* ---- each fixed page explains itself in the editor */
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $by_slug( 'about' ) ) );
+ok( isset( CemetiWP::$meta_boxes['page']['cemeti_page_help'] ), 'About: a help box beside the editor says where the picture and people come from' );
+ob_start(); call_user_func( CemetiWP::$meta_boxes['page']['cemeti_page_help'] ); $help = ob_get_clean();
+ok( false !== strpos( $help, 'Featured image' ) && false !== strpos( $help, 'People' ), 'About help: Featured image and People menu' );
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $free = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Free' ) ) ) );
+ok( ! isset( CemetiWP::$meta_boxes['page'] ), 'a free page gets no Cemeti box' );
+
+/* ---- language readiness (no Polylang here) */
+$issues = cemeti_language_issues();
+ok( 1 === count( $issues ) && false !== strpos( $issues[0], 'Polylang is not active' ), 'without Polylang the admin is told so' );
+CemetiWP::$ctx = array( 'screen_id' => 'settings_page_cemeti-settings' );
+CemetiWP::$caps = true;
+ob_start(); cemeti_language_notice(); ok( false !== strpos( ob_get_clean(), 'Polylang is not active' ), 'the warning shows on Settings → Cemeti' );
+CemetiWP::$ctx = array( 'screen_id' => 'edit-page' );
+ob_start(); cemeti_language_notice(); ok( '' === ob_get_clean(), 'but not on every screen' );
+
 /* ---- every page renders with real content around */
 $ids = qa_seed();
 $render = static function ( $slug, $template ) use ( $by_slug ) {
@@ -98,7 +117,7 @@ $render = static function ( $slug, $template ) use ( $by_slug ) {
 $h = $render( 'open-archive', 'page-open-archive.php' );
 ok( false !== strpos( $h, 'cemeti-az__letter' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ), 'Open Archive lists the entries A-Z' );
 $h = $render( 'support-us', 'page-support-us.php' );
-ok( 4 === substr_count( $h, '<summary>' ) && false !== strpos( $h, 'Patron of Cemeti' ) && false !== strpos( $h, 'Segera hadir' ), 'Support Us shows its four rows' );
+ok( 4 === substr_count( $h, '<summary>' ) && false !== strpos( $h, 'Patron of Cemeti' ) && false !== strpos( $h, 'Coming soon' ), 'Support Us shows its four rows' );
 $h = $render( 'contact-us', 'page-contact-us.php' );
 ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@cemeti.art' ) && false !== strpos( $h, 'Jl.' ), 'Contact Us shows address, hours and e-mail' );
 $h = $render( 'about', 'page-about.php' );

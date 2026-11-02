@@ -30,6 +30,7 @@ $cemeti_includes = array(
 	'whats-on',
 	'templates',
 	'pages',
+	'language-admin',
 	'queries',
 	'redirects',
 	'migration-rules',

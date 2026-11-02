@@ -35,6 +35,11 @@ function cemeti_default_pages() {
 		'support-us'   => array(
 			'title'    => 'Support Us',
 			'order'    => 30,
+			// Opening text; the team replaces it under Pages → Support Us.
+			'content'  => array(
+				'en' => "Support the work of Cemeti – Institut untuk Seni dan Masyarakat. Choose how you would like to take part below.",
+				'id' => "Dukung kerja Cemeti – Institut untuk Seni dan Masyarakat. Pilih cara Anda ingin terlibat di bawah ini.",
+			),
 			'children' => array(
 				'patron-of-cemeti'  => 'Patron of Cemeti',
 				'friends-of-cemeti' => 'Friends of Cemeti',
@@ -167,7 +172,8 @@ function cemeti_create_missing_pages() {
 		foreach ( cemeti_page_languages() as $lang ) {
 			$parent = cemeti_find_page( $slug, $lang );
 			if ( ! $parent ) {
-				$parent = cemeti_create_page( $slug, $page['title'], $lang, 0, (int) $page['order'], '' );
+				$text   = isset( $page['content'][ cemeti_lang_code( $lang ) ] ) ? $page['content'][ cemeti_lang_code( $lang ) ] : '';
+				$parent = cemeti_create_page( $slug, $page['title'], $lang, 0, (int) $page['order'], $text );
 				$created += $parent ? 1 : 0;
 			}
 			$translations[ $slug ][ $lang ] = $parent;
@@ -176,7 +182,7 @@ function cemeti_create_missing_pages() {
 				++$order;
 				$child = cemeti_find_page( $child_slug, $lang );
 				if ( ! $child && $parent ) {
-					$child    = cemeti_create_page( $child_slug, $child_title, $lang, $parent, $order, 'id' === $lang ? 'Segera hadir.' : 'Coming soon.' );
+					$child    = cemeti_create_page( $child_slug, $child_title, $lang, $parent, $order, 'id' === cemeti_lang_code( $lang ) ? 'Segera hadir.' : 'Coming soon.' );
 					$created += $child ? 1 : 0;
 				}
 				$translations[ $child_slug ][ $lang ] = $child;

@@ -35,7 +35,7 @@ return array(
 		array( 'type' => 'exhibition', 'term' => 'Group', 'cats' => array( 'pameran-kelompok', 'group-exhibition' ) ),
 		array( 'type' => 'exhibition', 'cats' => array( 'pameran', 'exhibition' ), 'term_from_title' => array( '/\b(tunggal|solo)\b/i' => 'Solo', '/\b(kelompok|group)\b/i' => 'Group' ) ),
 		array( 'type' => 'public_program', 'cats' => array( 'program-publik', 'public-program', 'belajar-dari-yang-dekat', 'learning-nearby' ) ),
-		array( 'type' => 'residency', 'term' => 'Reguler', 'cats' => array( 'residensi-reguler', 'regular-residency' ) ),
+		array( 'type' => 'residency', 'term' => 'Regular', 'cats' => array( 'residensi-reguler', 'regular-residency' ) ),
 		array( 'type' => 'residency', 'cat_regex' => '/^(residensi|residency)/' ),
 		array( 'type' => 'public_program', 'cats_from' => 'event_cats', 'flag' => 'events_as_public_program' ),
 	),

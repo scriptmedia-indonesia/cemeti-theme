@@ -98,13 +98,21 @@ function cemeti_render_settings_page() {
 		return;
 	}
 	$langs = array(
+		'en' => __( 'English (main language)', 'scriptmedia-cemeti' ),
 		'id' => __( 'Bahasa Indonesia', 'scriptmedia-cemeti' ),
-		'en' => __( 'English', 'scriptmedia-cemeti' ),
 	);
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html__( 'Cemeti Settings', 'scriptmedia-cemeti' ); ?></h1>
 		<p><?php echo esc_html__( 'Empty fields fall back to the default language, then to built-in values.', 'scriptmedia-cemeti' ); ?></p>
+		<?php if ( isset( $_GET['cemeti_types_filled'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( sprintf( /* translators: %d: number of exhibitions */ _n( 'Solo/Group set on %d exhibition.', 'Solo/Group set on %d exhibitions.', (int) $_GET['cemeti_types_filled'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_types_filled'] ) ); // phpcs:ignore WordPress.Security.NonceVerification ?></p></div>
+		<?php endif; ?>
+		<h2><?php echo esc_html__( 'Maintenance', 'scriptmedia-cemeti' ); ?></h2>
+		<p>
+			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_create_pages' ), 'cemeti_create_pages' ) ); ?>"><?php echo esc_html__( 'Create missing pages', 'scriptmedia-cemeti' ); ?></a>
+			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_types' ), 'cemeti_fill_types' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: exhibitions without a type */ __( 'Set Solo/Group on exhibitions without a type (%d)', 'scriptmedia-cemeti' ), count( cemeti_exhibitions_without_type() ) ) ); ?></a>
+		</p>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'cemeti_settings' ); ?>
 			<?php foreach ( $langs as $lang => $lang_label ) : ?>

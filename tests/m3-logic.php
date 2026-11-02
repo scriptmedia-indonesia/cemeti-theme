@@ -1,7 +1,7 @@
 <?php
 // Run: php tests/m3-logic.php  (stubs WordPress; checks the pure helpers used by the M3 templates).
 define( 'ABSPATH', '/' );
-function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+function add_filter(){} function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function wp_kses( $s ) { return $s; }
 require dirname( __DIR__ ) . '/themes/scriptmedia-cemeti/inc/templates.php';
 

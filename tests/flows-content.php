@@ -14,7 +14,7 @@ ok( false === $types['person']['public'] ? true : empty( $types['person']['publi
 ok( false === $types['application']['has_archive'] && false === $types['application']['rewrite'], 'application has no front-end URL' );
 ok( isset( CemetiWP::$taxonomies['exhibition_type'], CemetiWP::$taxonomies['project'], CemetiWP::$taxonomies['journal_category'] ), 'taxonomies registered' );
 ok( false === CemetiWP::$taxonomies['person_group'][1]['public'], 'person_group is not public' );
-foreach ( array( 'exhibition_type' => array( 'Solo', 'Group' ), 'residency_type' => array( 'Reguler', 'Research' ), 'journal_category' => array( 'News', 'Essay', 'Curatorial Essay' ), 'person_group' => array( 'Advisory Board', 'Team' ) ) as $tax => $names ) {
+foreach ( array( 'exhibition_type' => array( 'Solo', 'Group' ), 'residency_type' => array( 'Regular', 'Research' ), 'journal_category' => array( 'News', 'Essay', 'Curatorial Essay' ), 'person_group' => array( 'Advisory Board', 'Team' ) ) as $tax => $names ) {
 	foreach ( $names as $n ) {
 		ok( null !== term_exists( $n, $tax ), "default term seeded: $tax / $n" );
 	}
@@ -142,7 +142,7 @@ CemetiWP::$today = '20270101';
 ok( $ids['ex_future'] === cemeti_featured_post( 'exhibition' )->ID, 'featured: else the latest previous' );
 CemetiWP::$today = '20260315';
 ok( $ids['j_news'] === cemeti_featured_post( 'journal' )->ID, 'featured: journal = newest' );
-ok( 'Sedang berlangsung' === cemeti_status_label( 'current' ) && 'Mendatang' === cemeti_status_label( 'upcoming' ) && 'Sebelumnya' === cemeti_status_label( 'previous' ) && '' === cemeti_status_label( 'bogus' ), 'status labels (public helper)' );
+ok( 'Current' === cemeti_status_label( 'current' ) && 'Upcoming' === cemeti_status_label( 'upcoming' ) && 'Previous' === cemeti_status_label( 'previous' ) && '' === cemeti_status_label( 'bogus' ), 'status labels (public helper)' );
 
 /* ------------------------------------------------------------ What's on */
 $items = apply_filters( 'cemeti_whats_on_items', array() );
@@ -175,8 +175,8 @@ $q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ),
 ok( array( $ids['ex_current'] ) === wp_list_pluck_ids( $q->posts ), 'archive ?type=group filters by exhibition type' );
 $q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ), array( 'type' => "group' OR 1=1" ) );
 ok( array() === $q->posts, 'archive ?type= with SQL-looking text matches nothing and is sanitized' );
-$q = $run( array( 'post_type' => 'residency' ), array( 'pta' => 'residency' ), array( 'type' => 'reguler' ) );
-ok( array( $ids['res_current'] ) === wp_list_pluck_ids( $q->posts ), 'residency ?type=reguler' );
+$q = $run( array( 'post_type' => 'residency' ), array( 'pta' => 'residency' ), array( 'type' => 'regular' ) );
+ok( array( $ids['res_current'] ) === wp_list_pluck_ids( $q->posts ), 'residency ?type=regular' );
 $q = $run( array( 'post_type' => 'journal' ), array( 'pta' => 'journal' ) );
 ok( 20 === $q->get( 'posts_per_page' ), 'journal: 20 per page' );
 $q = $run( array( 's' => 'x' ), array( 'search' => true ) );
@@ -185,11 +185,77 @@ $entries = cemeti_archive_entries();
 ok( 10 === count( $entries ), 'open archive: 5 exhibitions, 2 residencies, 2 public programs, 1 open studio (' . count( $entries ) . ' entries)' );
 ok( ! in_array( 'Rangkaian Perayaan #37thCemeti', array_column( $entries, 'title' ), true ), 'open archive: journal excluded' );
 
+/* ------------------------------------------------------------ language links pasted into old entries */
+ok( '<p>Real text</p>' === cemeti_strip_language_links( '<p><a href="/en/x">English</a> | <a href="/x">Indonesia</a></p><p>Real text</p>' ), 'old "English | Indonesia" links are removed' );
+ok( '<p>Real text</p>' === cemeti_strip_language_links( '<p><strong>Indonesia</strong> – <strong>English</strong></p><p>Real text</p>' ), 'also with a dash and bold' );
+ok( '<p>Real text</p>' === cemeti_strip_language_links( '<p>English | Indonesia</p><p>Real text</p>' ), 'also as plain text' );
+$keep = '<p>She studied English | and Indonesia is where she lives.</p>';
+ok( $keep === cemeti_strip_language_links( $keep ), 'a sentence that merely mentions the words is kept' );
+CemetiWP::request( '/exhibition/x/', array( 'singular' => true ) );
+$GLOBALS['post'] = CemetiWP::obj( $ids['ex_current'] );
+$shown = apply_filters( 'the_content', '<p><a href="/en/">English</a> | <a href="/">Indonesia</a></p><p>Real</p>' );
+ok( false === strpos( $shown, 'English' ) && false !== strpos( $shown, 'Real' ), 'the text of an entry is cleaned when shown (the_content filter)' );
+CemetiWP::request( '/', array() );
+$GLOBALS['post'] = null;
+ok( false !== strpos( cemeti_share_icon( 'WhatsApp' ), 'aria-hidden="true"' ) && '' === cemeti_share_icon( 'Nope' ), 'share icons are decorative; unknown app gives none' );
+
+/* ------------------------------------------------------------ Solo / Group */
+$mk = static function ( $title, $artists, $terms = array() ) {
+	$id = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => $title, 'meta' => '' === $artists ? array() : array( 'cemeti_artists' => $artists ) ) );
+	if ( $terms ) {
+		wp_set_object_terms( $id, $terms, 'exhibition_type' );
+	}
+	do_action( 'save_post', $id );
+	return $id;
+};
+$type_of = static function ( $id ) {
+	$t = get_the_terms( $id, 'exhibition_type' );
+	return $t ? $t[0]->name : '';
+};
+ok( 'Solo' === $type_of( $mk( 'Pameran Tunggal Enka Komariah', '' ) ), 'type: "Pameran Tunggal" in the title means Solo' );
+ok( 'Group' === $type_of( $mk( 'Pameran Kelompok: Dalam Gelap', "A\nB" ) ), 'type: "Pameran Kelompok" means Group' );
+ok( 'Solo' === $type_of( $mk( 'Solo Exhibition: X', '' ) ) && 'Group' === $type_of( $mk( 'Group Exhibition: Y', '' ) ), 'type: English titles work too' );
+ok( 'Solo' === $type_of( $mk( 'Untitled show', 'Only One' ) ), 'type: one artist means Solo' );
+ok( 'Group' === $type_of( $mk( 'Untitled show', "One\nTwo\n\nThree" ) ), 'type: two or more artists mean Group' );
+ok( '' === $type_of( $mk( 'No hint at all', '' ) ), 'type: nothing to go on, nothing set' );
+ok( 'Group' === $type_of( $mk( 'Pameran Tunggal but chosen Group', '', array( 'Group' ) ) ), 'type: a choice made by hand is never changed' );
+$left = cemeti_exhibitions_without_type();
+ok( count( $left ) >= 1 && ! in_array( $mk( 'Pameran Tunggal Z', '' ), $left, true ), 'type: the list of exhibitions without a type' );
+$bulk = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Pameran Kelompok Bulk' ) );
+CemetiWP::$caps = true;
+$_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
+try { cemeti_handle_fill_types(); ok( false, 'bulk button redirects' ); } catch ( CemetiRedirect $r ) { ok( 'Group' === $type_of( $bulk ) && false !== strpos( $r->url, 'cemeti_types_filled=' ), 'bulk button: fills the missing types and returns to Settings' ); }
+CemetiWP::$caps = false;
+try { cemeti_handle_fill_types(); ok( false, 'bulk button needs permission' ); } catch ( CemetiDie $e ) { ok( true, 'bulk button needs permission' ); }
+CemetiWP::$caps = true;
+
+/* ------------------------------------------------------------ renamed term and default descriptions */
+CemetiWP::$terms['residency_type'] = array( 900 => array( 'name' => 'Reguler', 'slug' => 'reguler', 'description' => '' ) );
+update_option( 'cemeti_terms_seeded', '0.0.0' );
+do_action( 'init' );
+$names = array_column( CemetiWP::$terms['residency_type'], 'name' );
+ok( in_array( 'Regular', $names, true ) && ! in_array( 'Reguler', $names, true ) && 2 === count( $names ), 'term "Reguler" is renamed to "Regular", not duplicated (' . implode( ',', $names ) . ')' );
+ok( 'regular' === CemetiWP::$terms['residency_type'][900]['slug'] && '' !== CemetiWP::$terms['residency_type'][900]['description'], 'the renamed term keeps its id and gets its default description' );
+CemetiWP::$terms['residency_type'][900]['description'] = 'Edited by the team';
+update_option( 'cemeti_terms_seeded', '0.0.0' );
+do_action( 'init' );
+ok( 'Edited by the team' === CemetiWP::$terms['residency_type'][900]['description'], 'an edited description is never overwritten' );
+
+/* ------------------------------------------------------------ pictures of moved entries */
+$old = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Moved from the old site', 'post_content' => '<p>Text</p><img class="alignnone wp-image-777 size-large" src="http://old.test/a.jpg"><img class="wp-image-778">' ) );
+ok( has_post_thumbnail( $old ) && 777 === get_post_thumbnail_id( $old ), 'no featured image: the first picture of the text is used' );
+$own = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'With cover', 'post_content' => '<img class="wp-image-777">', 'meta' => array( '_thumbnail_id' => 5 ) ) );
+ok( 5 === get_post_thumbnail_id( $own ), 'a real featured image always wins' );
+$none = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'No picture', 'post_content' => '<p>Only words</p>' ) );
+ok( ! has_post_thumbnail( $none ), 'no picture anywhere: still none' );
+$page = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Plain page', 'post_content' => '<img class="wp-image-777">' ) );
+ok( ! has_post_thumbnail( $page ), 'pages are left alone' );
+
 /* ------------------------------------------------------------ settings */
 ok( 'Cemeti – Institut untuk Seni dan Masyarakat' === cemeti_option( 'institution_name' ), 'option: built-in default' );
 update_option( 'cemeti_settings_id', array( 'institution_name' => 'Nama ID', 'address' => '' ) );
 update_option( 'cemeti_settings_en', array( 'institution_name' => 'Name EN' ) );
-ok( 'Nama ID' === cemeti_option( 'institution_name' ), 'option: the active language wins' );
+ok( 'Name EN' === cemeti_option( 'institution_name' ), 'option: the active language wins (English is the main language)' );
 ok( strpos( cemeti_option( 'address' ), 'Jl. DI Panjaitan' ) === 0, 'option: empty value falls back to the built-in default' );
 $s = cemeti_sanitize_settings( array( 'institution_name' => '<b>Cemeti</b>', 'email' => 'bad', 'instagram_url' => 'javascript:alert(1)', 'youtube_url' => 'https://youtube.com/x', 'route_url' => 'https://maps.app.goo.gl/x', 'address' => "a\nb", 'unknown' => 'x' ) );
 ok( 'Cemeti' === $s['institution_name'] && '' === $s['email'] && '' === $s['instagram_url'] && 'https://youtube.com/x' === $s['youtube_url'] && ! isset( $s['unknown'] ), 'settings: sanitized, unknown keys dropped' );

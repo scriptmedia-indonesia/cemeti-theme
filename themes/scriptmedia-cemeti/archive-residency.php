@@ -1,6 +1,6 @@
 <?php
 /**
- * Residency archive: Reguler and Research intros (term descriptions), then the grid.
+ * Residency archive: Regular and Research intros (term descriptions), then the grid.
  *
  * @package Scriptmedia_Cemeti
  */
@@ -18,12 +18,10 @@ $cemeti_terms = get_terms( array( 'taxonomy' => 'residency_type', 'hide_empty' =
 	<?php if ( ! is_wp_error( $cemeti_terms ) && $cemeti_terms ) : ?>
 		<div class="cemeti-residency-intro">
 			<?php foreach ( $cemeti_terms as $cemeti_term ) : ?>
-				<?php if ( '' !== trim( $cemeti_term->description ) ) : ?>
-					<section>
-						<h2 class="cemeti-script"><a href="<?php echo esc_url( add_query_arg( 'type', $cemeti_term->slug, get_post_type_archive_link( 'residency' ) ) ); ?>"><?php echo esc_html( $cemeti_term->name ); ?></a></h2>
-						<?php echo wp_kses_post( wpautop( $cemeti_term->description ) ); ?>
-					</section>
-				<?php endif; ?>
+				<section>
+					<h2 class="cemeti-script"><a href="<?php echo esc_url( add_query_arg( 'type', $cemeti_term->slug, get_post_type_archive_link( 'residency' ) ) ); ?>"><?php echo esc_html( $cemeti_term->name ); ?></a></h2>
+					<?php echo wp_kses_post( wpautop( $cemeti_term->description ) ); ?>
+				</section>
 			<?php endforeach; ?>
 		</div>
 	<?php endif; ?>

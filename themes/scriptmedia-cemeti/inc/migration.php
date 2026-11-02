@@ -267,10 +267,13 @@ function cemeti_convert_post( $post_id, array $settings ) {
 		pll_set_post_language( $post_id, $info['lang'] );
 	}
 
-	// Type term (Solo/Group, Reguler, Journal category).
+	// Type term (Solo/Group, Regular, Journal category).
 	$taxonomy = $targets[ $type ][1];
 	if ( $taxonomy && '' !== $info['term'] ) {
 		wp_set_object_terms( $post_id, array( $info['term'] ), $taxonomy );
+	}
+	if ( 'exhibition' === $type && '' === $info['term'] ) {
+		cemeti_fill_exhibition_type( $post_id ); // Solo/Group from the title or the number of artists.
 	}
 	// Project / series terms from the other categories.
 	if ( $info['projects'] ) {
@@ -624,7 +627,7 @@ function cemeti_convert_page() {
 					<?php endforeach; ?>
 					</tbody>
 				</table>
-				<p class="description">Term: type an existing term name (e.g. <code>Solo</code>, <code>Group</code>, <code>Reguler</code>, <code>Essay</code>), or <code>__name</code> to use the old category's name.</p>
+				<p class="description">Term: type an existing term name (e.g. <code>Solo</code>, <code>Group</code>, <code>Regular</code>, <code>Essay</code>), or <code>__name</code> to use the old category's name.</p>
 			</details>
 			<?php submit_button( 'Save settings and preview', 'primary', 'submit', true ); ?>
 		</form>

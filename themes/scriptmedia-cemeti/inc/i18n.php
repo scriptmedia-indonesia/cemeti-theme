@@ -10,6 +10,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Reduce a Polylang language slug to the code used for UI strings and settings ("id" or "en").
+ * Polylang slugs can be "en", "en-us", "en_GB", "id", "in" ...; anything unknown stays as given.
+ *
+ * @param string $slug Language slug.
+ * @return string
+ */
+function cemeti_lang_code( $slug ) {
+	$code = strtolower( substr( preg_replace( '/[^A-Za-z]/', '', (string) $slug ), 0, 2 ) );
+	if ( 'in' === $code ) {
+		return 'id';
+	}
+	return in_array( $code, array( 'id', 'en' ), true ) ? $code : strtolower( (string) $slug );
+}
+
+/**
  * Default site language slug (the language without a URL prefix).
  *
  * @return string
@@ -18,10 +33,10 @@ function cemeti_default_lang() {
 	if ( function_exists( 'pll_default_language' ) ) {
 		$lang = pll_default_language();
 		if ( $lang ) {
-			return (string) $lang;
+			return cemeti_lang_code( (string) $lang );
 		}
 	}
-	return 'id';
+	return 'en'; // The site's main language is English; Indonesian is the second language.
 }
 
 /**
@@ -33,7 +48,7 @@ function cemeti_current_lang() {
 	if ( function_exists( 'pll_current_language' ) ) {
 		$lang = pll_current_language();
 		if ( $lang ) {
-			return (string) $lang;
+			return cemeti_lang_code( (string) $lang );
 		}
 	}
 	return cemeti_default_lang();
@@ -96,6 +111,7 @@ function cemeti_ui_strings() {
 		'share_more'         => array( 'id' => 'Lainnya', 'en' => 'More' ),
 		'opening'            => array( 'id' => 'Pembukaan', 'en' => 'Opening' ),
 		'public_program'     => array( 'id' => 'Program Publik', 'en' => 'Public Program' ),
+		'apply_button'      => array( 'id' => 'Application Submission', 'en' => 'Application Submission' ),
 		'deadline'           => array( 'id' => 'Batas waktu', 'en' => 'Deadline' ),
 		'current_residence'  => array( 'id' => 'Residen saat ini', 'en' => 'Current Residence' ),
 		'advisory_board'     => array( 'id' => 'Dewan Penasihat', 'en' => 'Advisory Board' ),

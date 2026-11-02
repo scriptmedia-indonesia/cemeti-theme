@@ -23,10 +23,10 @@ function cemeti_option_defaults() {
 		'opening_hours'    => "Selasa – Sabtu\n10:00 – 17:00",
 		'email'            => 'info@cemeti.art',
 		'notify_email'     => '',
-		'instagram_url'    => '',
-		'youtube_url'      => '',
-		'facebook_url'     => '',
-		'route_url'        => '',
+		'instagram_url'    => 'https://www.instagram.com/cemeti.institute/',
+		'youtube_url'      => 'https://www.youtube.com/channel/UCfLOv3JECGPQVkw_ivjE6UQ',
+		'facebook_url'     => 'https://www.facebook.com/cemeti.institut',
+		'route_url'        => 'https://maps.app.goo.gl/gbRc1JE67wMU1KcL9',
 	);
 }
 

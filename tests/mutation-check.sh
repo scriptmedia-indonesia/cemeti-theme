@@ -64,6 +64,9 @@ mutate "converter: date range reversed"            $T/inc/migration-rules.php "\
 mutate "i18n: a string lacks English"              $T/inc/i18n.php "'close'              => array( 'id' => 'Tutup', 'en' => 'Close' )," "'close'              => array( 'id' => 'Tutup', 'en' => '' )," static-checks
 mutate "pages: not created on activation"         $T/inc/pages.php "add_action( 'after_switch_theme', 'cemeti_create_pages_on_switch', 20 );" "" flows-pages
 mutate "pages: existing page overwritten"         $T/inc/pages.php "if ( ! \$parent ) {" "if ( true ) {" flows-pages
+mutate "polylang: types listed with a wrong value"  $T/inc/content-model.php "\$translatable[ \$type ] = \$type;" "\$translatable[ \$type ] = 'cemeti';" flows-polylang
+mutate "pictures: first picture not used"         $T/inc/templates.php "if ( preg_match( '/wp-image-(\\d+)/', \$content, \$match ) ) {" "if ( false ) {" flows-content
+mutate "old language links kept in the text"      $T/inc/templates.php "add_filter( 'the_content', 'cemeti_filter_language_links', 5 );" "" render-pages flows-content
 mutate "home: the <h1> removed"                    $T/front-page.php '<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( '"'"'institution_name'"'"' ) ); ?></h1>' "" render-pages
 mutate "header: logo without alt text"             $T/header.php 'fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( '"'"'institution_name'"'"' ) ); ?>">' 'fetchpriority="high">' render-pages
 if node -e "require('playwright')" >/dev/null 2>&1; then

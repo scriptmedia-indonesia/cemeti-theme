@@ -61,7 +61,7 @@ function qa_seed() {
 			CemetiWP::$terms[ $tax ][ $e['term_id'] ]['description'] = $desc;
 		}
 	};
-	$term( 'residency_type', 'Reguler', 'In each residency period we host one Indonesian artist and one or two artists from outside Indonesia.' );
+	$term( 'residency_type', 'Regular', 'In each residency period we host one Indonesian artist and one or two artists from outside Indonesia.' );
 	$term( 'residency_type', 'Research', 'Selected participants are facilitated by an assistant during the residency.' );
 
 	$ex = static function ( $title, $start, $end, $extra = array() ) {
@@ -110,7 +110,7 @@ function qa_seed() {
 
 	$ids['res_current'] = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Residency Program 2026', 'post_excerpt' => 'Program residensi untuk seniman pasca studio.', 'thumb' => 502, 'meta' => array( 'cemeti_start_date' => '20260301', 'cemeti_end_date' => '20260531', 'cemeti_artists' => "Zulfian Amrullah\nJulian Grosmann" ) ) );
 	$ids['res_past']    = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Residency Program 2025', 'meta' => array( 'cemeti_start_date' => '20251001', 'cemeti_end_date' => '20251130' ) ) );
-	wp_set_object_terms( $ids['res_current'], array( 'Reguler' ), 'residency_type' );
+	wp_set_object_terms( $ids['res_current'], array( 'Regular' ), 'residency_type' );
 
 	$ids['pp_past']    = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Public Talk: Power, Politics and the Street', 'thumb' => 503, 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', 'cemeti_time_text' => '15.00 – 17.00 WIB', 'cemeti_speakers' => 'Iola Lenzi', 'cemeti_documentation' => array( 621 ), 'cemeti_biographies' => array( array( 'name' => 'Iola Lenzi', 'photo' => 702, 'bio' => 'Kurator.' ) ) ) ) );
 	$ids['pp_future']  = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Screening', 'meta' => array( 'cemeti_start_date' => '20260501', 'cemeti_end_date' => '20260501' ) ) );

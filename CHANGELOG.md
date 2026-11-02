@@ -3,6 +3,20 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.8.0
+
+QA round 1 (see `docs/QA-ROUND-1.md` for every test case).
+
+- Languages: English is the main language; Cemeti content types and taxonomies are now registered correctly with
+  Polylang (they were ignored, which removed the language selector on those menus and the string switching);
+  language slugs such as en-us / in / id_ID are understood; warnings in the admin when Polylang or a type is missing.
+- Pictures: entries without a featured image use their first picture. Default route / social links; linked address.
+- Layout: sticky section titles, sticky contents bar, back-to-contents fixed, hover colours, Previous buttons equal,
+  About (yellow title, one column, 3-column Advisory Board with quote), share icons, small download buttons,
+  Open Call list in the design layout, Residency Regular / Research, scroll loading for lists.
+- Content: Solo/Group set automatically (and by a button), old "English | Indonesia" links hidden, term "Reguler" renamed "Regular".
+- Admin: help box on each fixed page, Maintenance buttons on Settings → Cemeti, Cemeti settings with English first.
+
 ## 0.7.1
 
 - Fixed: About, Open Archive, Support Us and Contact Us gave "page not found" on a fresh install, because the

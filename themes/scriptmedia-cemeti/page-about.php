@@ -19,7 +19,7 @@ $cemeti_groups = array(
 ?>
 <article class="cemeti-single cemeti-single--about">
 	<div class="cemeti-container">
-		<?php cemeti_page_head( get_the_title(), 'blue' ); ?>
+		<?php cemeti_page_head( get_the_title(), 'yellow' ); ?>
 		<?php if ( has_post_thumbnail() ) : ?>
 			<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
 		<?php endif; ?>
@@ -40,7 +40,7 @@ $cemeti_groups = array(
 				continue;
 			}
 			?>
-			<section class="cemeti-people">
+			<section class="cemeti-people cemeti-people--<?php echo esc_attr( $cemeti_slug ); ?>">
 				<h2 class="cemeti-people__heading"><?php echo esc_html( cemeti_t( $cemeti_key ) ); ?></h2>
 				<ul class="cemeti-people__grid">
 					<?php
@@ -51,8 +51,15 @@ $cemeti_groups = array(
 							<?php if ( has_post_thumbnail() ) : ?>
 								<?php the_post_thumbnail( 'cemeti-card', array( 'loading' => 'lazy' ) ); ?>
 							<?php endif; ?>
-							<strong><?php the_title(); ?></strong>
-							<span><?php echo esc_html( cemeti_get_field( 'role', get_the_ID() ) ); ?></span>
+							<span class="cemeti-people__text">
+								<strong><?php the_title(); ?></strong>
+								<?php if ( '' !== (string) cemeti_get_field( 'role', get_the_ID() ) ) : ?>
+									<span class="cemeti-people__role"><?php echo esc_html( cemeti_get_field( 'role', get_the_ID() ) ); ?></span>
+								<?php endif; ?>
+								<?php if ( '' !== (string) cemeti_get_field( 'quote', get_the_ID() ) ) : ?>
+									<span class="cemeti-people__quote"><?php echo esc_html( cemeti_get_field( 'quote', get_the_ID() ) ); ?></span>
+								<?php endif; ?>
+							</span>
 						</li>
 					<?php endwhile; ?>
 				</ul>

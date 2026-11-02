@@ -20,7 +20,13 @@ $cemeti_address = cemeti_option( 'address' );
 		</div>
 		<div class="cemeti-menu__col">
 			<?php cemeti_render_menu_items( $cemeti_menu['right'] ); ?>
-			<p class="cemeti-menu__address"><?php echo esc_html( str_replace( "\n", ' ', $cemeti_address ) ); ?></p>
+			<p class="cemeti-menu__address">
+				<?php if ( $cemeti_route ) : ?>
+					<a href="<?php echo esc_url( $cemeti_route ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( str_replace( "\n", ' ', $cemeti_address ) ); ?></a>
+				<?php else : ?>
+					<?php echo esc_html( str_replace( "\n", ' ', $cemeti_address ) ); ?>
+				<?php endif; ?>
+			</p>
 			<?php if ( $cemeti_route ) : ?>
 				<a class="cemeti-menu__route" href="<?php echo esc_url( $cemeti_route ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( cemeti_t( 'plan_route' ) ); ?> &gt;&gt;</a>
 			<?php endif; ?>
