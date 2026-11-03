@@ -32,6 +32,7 @@ docs/                  you are here
 | `search.php`, `seo.php`, `security.php` | people-aware search; meta/JSON-LD/robots; hardening and headers |
 | `redirects.php`, `migration*.php` | old-site redirects; the converter and its rules |
 | `language-admin.php` | tells the team what is missing for ID/EN (Polylang, language selector per menu) and explains each fixed page beside its editor |
+| `restructure.php` | splits an old post body into gallery / documentation / biographies / booklet / foreword (heading vocabulary is in `cemeti_restructure_heading_kind()`) |
 | `move-posts.php` | "Move to …" bulk action and box on the Posts screen (same conversion as the Converter, with the editor's choice) |
 | `pages.php` | creates the fixed pages (About, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
 | `core-bridge.php` | `cemeti_config()` loader + optional hand-over to Scriptmedia Core |

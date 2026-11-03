@@ -5,6 +5,25 @@ The old site told content apart by **category**. The new theme uses **content ty
 terms (Solo/Group, Reguler/Research, Journal categories). **Tools → Cemeti Converter**
 maps one to the other for all posts in a few clicks.
 
+## Old text structure → new structure (automatic)
+
+The old posts keep everything in one body. When a post is converted (Converter or "Move to …") the theme reads the
+headings and splits the body (option "Split the old text into the new structure", on by default):
+
+| In the old text | In the new entry |
+|---|---|
+| pictures under *Foto Karya / Artwork Images / Galeri / Exhibition View* | **Gallery** (+ caption if one short line) |
+| pictures under *Dokumentasi / Documentation / Opening Documentation* | **Documentation** (+ caption) |
+| *Biografi / Biography / Profil Seniman*: a bold name starts each artist, the picture before it is the photo | **Biographies** (one block per artist) |
+| a PDF link anywhere in the text | **Booklet** link |
+| *Daftar Isi* + its links, "Kembali ke Daftar Isi", ⇪, *English \| Indonesia*, *Terbitan Terkait* | dropped (the site builds the contents bar, back links, language switch; set Related by hand) |
+| everything else (curatorial statement, essay, practical information) | stays in the text (Foreword) |
+
+A post with no recognised section headings is left untouched. The original text is kept in the post and returns on
+**Revert**. Checked on the real export: 167 of 561 published posts have such sections (41 gallery, 118 documentation,
+60 with biographies = 125 artists, 17 of them without a readable name: check those). Run a small batch first and look
+at five entries before converting everything.
+
 ## Where to set the category of imported posts
 
 Imported content first sits under **Posts**. You decide its type and category in either of two places:

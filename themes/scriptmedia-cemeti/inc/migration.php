@@ -47,6 +47,8 @@ function cemeti_convert_settings() {
 		'end_key'       => isset( $saved['end_key'] ) ? (string) $saved['end_key'] : '',
 		'old_permalink' => isset( $saved['old_permalink'] ) ? (string) $saved['old_permalink'] : '%year%/%monthnum%/%day%/%postname%',
 		'old_host'      => isset( $saved['old_host'] ) ? (string) $saved['old_host'] : 'cemeti.art',
+		// Split the old text into gallery / documentation / biographies / booklet (on unless switched off).
+		'restructure'   => ! isset( $saved['restructure'] ) || ! empty( $saved['restructure'] ),
 	);
 }
 
@@ -284,6 +286,11 @@ function cemeti_convert_post( $post_id, array $settings ) {
 		pll_set_post_language( $post_id, $info['lang'] );
 	}
 
+	if ( ! empty( $settings['restructure'] ) ) {
+		$set = array_merge( $set, cemeti_restructure_post( $post_id, $type ) );
+		update_post_meta( $post_id, '_cemeti_converted_meta', $set );
+	}
+
 	// Type term (Solo/Group, Regular, Journal category).
 	$taxonomy = $targets[ $type ][1];
 	if ( $taxonomy && '' !== $info['term'] ) {
@@ -334,15 +341,19 @@ function cemeti_link_translations() {
  * @param int $post_id Post ID.
  */
 function cemeti_revert_post( $post_id ) {
-	$meta = get_post_meta( $post_id, '_cemeti_converted_meta', true );
+	$meta     = get_post_meta( $post_id, '_cemeti_converted_meta', true );
+	$original = (string) get_post_meta( $post_id, '_cemeti_original_content', true ); // Read before the meta list is deleted.
 	foreach ( is_array( $meta ) ? $meta : array() as $key ) {
 		delete_post_meta( $post_id, $key );
 	}
 	foreach ( get_object_taxonomies( get_post_type( $post_id ) ) as $taxonomy ) {
 		wp_set_object_terms( $post_id, array(), $taxonomy );
 	}
+	if ( '' !== $original ) {
+		wp_update_post( array( 'ID' => $post_id, 'post_content' => $original ) );
+	}
 	set_post_type( $post_id, 'post' );
-	foreach ( array( '_cemeti_converted_at', '_cemeti_converted_meta', '_cemeti_old_path', '_cemeti_old_cats', '_cemeti_old_slug', '_cemeti_head_slugs', '_cemeti_lang' ) as $key ) {
+	foreach ( array( '_cemeti_original_content', '_cemeti_converted_at', '_cemeti_converted_meta', '_cemeti_old_path', '_cemeti_old_cats', '_cemeti_old_slug', '_cemeti_head_slugs', '_cemeti_lang' ) as $key ) {
 		delete_post_meta( $post_id, $key );
 	}
 }
@@ -448,6 +459,7 @@ function cemeti_convert_save() {
 			'start_key'     => isset( $_POST['start_key'] ) ? sanitize_key( wp_unslash( $_POST['start_key'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			'end_key'       => isset( $_POST['end_key'] ) ? sanitize_key( wp_unslash( $_POST['end_key'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 			'old_permalink' => isset( $_POST['old_permalink'] ) ? preg_replace( '/[^a-z%_\/-]/i', '', wp_unslash( $_POST['old_permalink'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
+			'restructure'   => ! empty( $_POST['restructure'] ), // phpcs:ignore WordPress.Security.NonceVerification
 			'old_host'      => isset( $_POST['old_host'] ) ? preg_replace( '/[^a-z0-9.-]/i', '', (string) strtok( preg_replace( '#^https?://#i', '', trim( wp_unslash( $_POST['old_host'] ) ) ), '/' ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
 		),
 		false
@@ -607,6 +619,8 @@ function cemeti_convert_page() {
 				<label><input type="radio" name="mode" value="rules" <?php checked( $rules_on ); ?>> <strong>Cemeti rules</strong> (recommended): built for the old cemeti.art site. Exhibition, Open Studio, Public Program, Residency and Open Call are recognised from their categories and titles; everything else becomes Journal (News, Essay or Curatorial Essay). Dates are read from the post text, tags become artists, other categories become Projects, and Indonesian/English language is detected.</label><br>
 				<label><input type="radio" name="mode" value="manual" <?php checked( ! $rules_on ); ?>> <strong>Manual</strong>: map each category yourself (table below).</label>
 			</p>
+
+			<p><label><input type="checkbox" name="restructure" value="1" <?php checked( ! empty( $settings['restructure'] ) ); ?>> <strong>Split the old text into the new structure</strong>: pictures under "Foto Karya / Galeri" become the Gallery, "Dokumentasi" the Documentation, "Biografi" the Biographies (one per artist), a PDF link the Booklet; the old Daftar Isi, English | Indonesia links and "Terbitan Terkait" are dropped (the site builds them). The original text is kept and comes back on Revert.</label></p>
 
 			<h2>2. Dates and old URLs</h2>
 			<p>

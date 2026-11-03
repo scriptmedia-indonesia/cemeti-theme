@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.0
+
+- Converter and "Move to …" now split the old text into the new structure: Foto Karya / Galeri → Gallery, Dokumentasi →
+  Documentation, Biografi → Biographies (one block per artist, with photo), PDF link → Booklet; the old Daftar Isi,
+  language links, back links and Terbitan Terkait are dropped. The original text is kept and restored by Revert.
+  Option on the Converter page (on by default). Run against the real export: 167 of 561 published posts have sections.
+
 ## 0.8.4
 
 - Imported posts can be sorted where they are: Posts → bulk action "Move to …" (type and term) and a "Move this post"

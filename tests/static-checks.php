@@ -161,7 +161,7 @@ foreach ( $m[1] as $attr ) {
 		}
 	}
 }
-$dyn_prefix = array( 'cemeti-ctx-', 'cemeti-single--', 'cemeti-home__section--' );
+$dyn_prefix = array( 'cemeti-ctx-', 'cemeti-single--', 'cemeti-home__section--', 'cemeti-people--' );
 // Selectors written in PHP (admin inline styles) and in JS count as styled / handled.
 preg_match_all( '/\.(cemeti-[a-z0-9_-]+)/', $all_php . "\n" . $js, $m );
 $other = array_unique( $m[1] );
