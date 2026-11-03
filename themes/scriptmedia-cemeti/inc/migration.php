@@ -126,6 +126,23 @@ function cemeti_convert_pending_ids( array $settings, $limit = -1 ) {
  * @return array{skip:bool,type:string,term:string,lang:string,projects:string[],cat:int}|null Null when nothing matches.
  */
 function cemeti_convert_classify( $post_id, array $settings ) {
+	$info = cemeti_convert_classify_auto( $post_id, $settings );
+	// "Move to …" on the Posts screen: the editor chose the type (and term), the rules only supply language and projects.
+	if ( ! empty( $settings['force_type'] ) ) {
+		$base = $info ? $info : array( 'lang' => '', 'projects' => array(), 'cat' => 0 );
+		$info = array_merge( $base, array( 'skip' => false, 'type' => (string) $settings['force_type'], 'term' => isset( $settings['force_term'] ) ? (string) $settings['force_term'] : '' ) );
+	}
+	return $info;
+}
+
+/**
+ * Classify by the saved rules or category map (no editor choice).
+ *
+ * @param int   $post_id  Post ID.
+ * @param array $settings Converter settings.
+ * @return array|null
+ */
+function cemeti_convert_classify_auto( $post_id, array $settings ) {
 	if ( 'manual' === $settings['mode'] ) {
 		$target = cemeti_convert_pick_target( wp_get_post_categories( $post_id ), $settings['cats'] );
 		if ( ! $target ) {

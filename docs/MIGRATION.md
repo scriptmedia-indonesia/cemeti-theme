@@ -5,6 +5,18 @@ The old site told content apart by **category**. The new theme uses **content ty
 terms (Solo/Group, Reguler/Research, Journal categories). **Tools → Cemeti Converter**
 maps one to the other for all posts in a few clicks.
 
+## Where to set the category of imported posts
+
+Imported content first sits under **Posts**. You decide its type and category in either of two places:
+
+- **Posts → All Posts**: tick posts, choose **Bulk actions → "Move to Exhibition — Solo / Group, Residency — Regular /
+  Research, Public Program, Open Studio, Open Call, Journal — News / Essay / Curatorial Essay"**, press **Apply**.
+  Dates, artists (from tags), language and the old address for the 301 redirect are carried over like in the Converter.
+- **Edit a single post**: the box **"Cemeti: move this post"** beside the editor, choose, press **Move**.
+- **All at once by the old site's categories**: **Tools → Cemeti Converter** (below).
+
+After moving, the entry lives under its own menu (Exhibition, Residency …) where you fill gallery, biographies, booklet.
+
 ## Steps
 
 1. **Back up** the database of the site you convert on.

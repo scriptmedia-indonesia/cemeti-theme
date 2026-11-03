@@ -3,6 +3,11 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.8.4
+
+- Imported posts can be sorted where they are: Posts → bulk action "Move to …" (type and term) and a "Move this post"
+  box on the edit screen, using the same conversion as the Converter. A notice on the Posts list explains it.
+
 ## 0.8.3
 
 - Public Program and Open Studio detail pages follow their Figma template: no contents bar at the top (the "back to
