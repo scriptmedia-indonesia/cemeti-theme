@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.2
+
+- About: the Advisory Board cards are denser (photo about half of the cell, larger name / title / quote, tighter
+  rows). The Team block is now a centred list as on the old site: each role in bold with its names under it, between
+  two rules; people with the same role are grouped; no photos.
+
 ## 0.9.1
 
 - Fixed: people added under People did not appear on About. The page asked for the group by exact slug; Polylang

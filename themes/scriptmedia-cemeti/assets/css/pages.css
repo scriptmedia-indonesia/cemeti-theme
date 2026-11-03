@@ -269,3 +269,17 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 	.cemeti-single--public_program .cemeti-single__poster,
 	.cemeti-single--open_studio .cemeti-single__poster { width: auto; max-width: 43.5%; max-height: 40.9375rem; margin-left: 25.5%; }
 }
+
+/* ---- About, compact: Advisory Board cards fill their cell (bigger photo, bigger text, tighter rows);
+   Team = roles in bold with their names under them, centred between two rules. ---- */
+.cemeti-people--advisory-board .cemeti-people__grid { gap: 1.5rem 2rem; }
+.cemeti-people--advisory-board .cemeti-people__grid li { grid-template-columns: minmax(6rem, 46%) 1fr; gap: 1rem; align-items: start; }
+.cemeti-people--advisory-board .cemeti-people__text strong { display: block; font-size: var(--fs-single-card); font-weight: 500; line-height: 1.2; }
+.cemeti-people--advisory-board .cemeti-people__role { margin-top: 0.35rem; font-size: var(--fs-body); line-height: 1.3; }
+.cemeti-people--advisory-board .cemeti-people__quote { margin-top: 0.6rem; font-size: var(--fs-body); line-height: 1.35; }
+.cemeti-people--team { margin-top: clamp(1.5rem, 1rem + 2vw, 3rem); }
+.cemeti-team { max-width: 45rem; margin: 0 auto; padding: clamp(1.5rem, 1rem + 2vw, 3rem) 0; border-block: 1px solid var(--c-ink); text-align: center; font-size: var(--fs-single); line-height: 1.35; }
+.cemeti-team__role { margin: 0 0 1.5em; }
+.cemeti-team__role:last-child { margin-bottom: 0; }
+.cemeti-team__role strong { display: block; font-weight: 500; }
+.cemeti-team__role span { display: block; }

@@ -152,6 +152,27 @@ $about = $by_slug( 'about' );
 $html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $about, 'path' => '/about/' ) );
 ok( false !== strpos( $html, 'Person Slug En' ) && false !== strpos( $html, 'Person No Group' ) && 2 === substr_count( $html, 'class="cemeti-people ' ), 'About page shows both sections with those people' );
 
+/* ---- Team: roles in bold with their names under them */
+qa_reset_data();
+do_action( 'after_switch_theme' );
+$tm = static function ( $name, $role ) {
+	$id = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => $name, 'meta' => array( 'cemeti_role' => $role ), 'menu_order' => 1 ) );
+	wp_set_object_terms( $id, array( 'Team' ), 'person_group' );
+	return $id;
+};
+$tm( 'Tiara Afriani', 'Manajer Operasional' );
+$tm( 'Joko', 'Staf Teknis' );
+$tm( 'Rizky Ramadhan Aji', 'Staf Teknis' );
+$tm( 'Solo Name', '' );
+$grouped = cemeti_group_people_by_role( cemeti_people_by_group()['team'] );
+$roles = array_column( $grouped, 'role' );
+ok( 3 === count( $grouped ) && in_array( 'Staf Teknis', $roles, true ), 'team: people with the same role are grouped (' . implode( ' | ', $roles ) . ')' );
+$tech = array_values( array_filter( $grouped, static function ( $g ) { return 'Staf Teknis' === $g['role']; } ) )[0];
+ok( 2 === count( $tech['names'] ), 'team: two names under "Staf Teknis"' );
+$html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $by_slug( 'about' ), 'path' => '/about/' ) );
+ok( false !== strpos( $html, 'class="cemeti-team"' ) && false !== strpos( $html, '<strong>Staf Teknis</strong>' ) && false !== strpos( $html, '<span>Joko</span>' ), 'About: Team shows each role in bold with its names under it' );
+ok( false === strpos( preg_replace( '#<section class="cemeti-people cemeti-people--team.*?</section>#s', '', $html ), 'Joko' ) && false === strpos( $html, 'cemeti-people--team">' . '<img' ), 'About: the Team block has no photo grid' );
+
 // An empty site (no entries at all) still renders the archive page.
 qa_reset_data();
 do_action( 'after_switch_theme' );

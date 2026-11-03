@@ -135,3 +135,24 @@ function cemeti_people_by_group() {
 	}
 	return $groups;
 }
+
+
+/**
+ * Team members grouped by role, in the order the roles first appear: "Staf Teknis" -> Joko, Rizky.
+ * The Team block of the About page writes each role in bold with its names underneath.
+ *
+ * @param WP_Post[] $people People of the group, already in display order.
+ * @return array<int, array{role:string,names:string[]}>
+ */
+function cemeti_group_people_by_role( array $people ) {
+	$roles = array();
+	foreach ( $people as $person ) {
+		$role = trim( (string) cemeti_get_field( 'role', $person->ID ) );
+		$key  = strtolower( $role );
+		if ( ! isset( $roles[ $key ] ) ) {
+			$roles[ $key ] = array( 'role' => $role, 'names' => array() );
+		}
+		$roles[ $key ]['names'][] = get_the_title( $person );
+	}
+	return array_values( $roles );
+}

@@ -482,6 +482,17 @@ async function open( browser, name, width, height, extra = {} ) {
 			const cols = await grid.evaluate( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length );
 			ok( 3 === cols, `qa: Advisory Board is a 3-column grid (${ cols })` );
 		}
+		const team = ab.page.locator( '.cemeti-team' );
+		if ( await team.count() ) {
+			ok( 'center' === await team.evaluate( ( e ) => getComputedStyle( e ).textAlign ) && '1px' === await team.evaluate( ( e ) => getComputedStyle( e ).borderTopWidth ) && '1px' === await team.evaluate( ( e ) => getComputedStyle( e ).borderBottomWidth ), 'qa: Team is centred between two rules (roles in bold, names under them)' );
+			ok( 500 === await ab.page.locator( '.cemeti-team__role strong' ).first().evaluate( ( e ) => parseFloat( getComputedStyle( e ).fontWeight ) ), 'qa: Team roles are Medium' );
+		}
+		const li = ab.page.locator( '.cemeti-people--advisory-board .cemeti-people__grid li' ).first();
+		if ( await li.count() ) {
+			const lb = await li.boundingBox();
+			const ib = await li.locator( 'img' ).boundingBox();
+			ok( ib.width / lb.width > 0.4, `qa: Advisory Board photo fills about half of its cell (${ Math.round( ib.width / lb.width * 100 ) }%)` );
+		}
 		await ab.ctx.close();
 	}
 
