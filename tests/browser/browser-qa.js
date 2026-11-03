@@ -499,6 +499,15 @@ async function open( browser, name, width, height, extra = {} ) {
 		await r.ctx.close();
 	}
 
+	/* ---- 7j. Public Program detail: speaker 40, day and time 24, title 64, no contents bar. */
+	{
+		const e = await open( browser, 'single-public-program', 1440, 900, { reducedMotion: 'reduce' } );
+		const epx = ( sel, prop ) => e.page.evaluate( ( [ q, p ] ) => parseFloat( getComputedStyle( document.querySelector( q ) )[ p ] ), [ sel, prop ] );
+		ok( 64 === await epx( '.cemeti-single__title', 'fontSize' ) && 40 === await epx( '.cemeti-single__people', 'fontSize' ) && 24 === await epx( '.cemeti-single__when', 'fontSize' ) && 500 === await epx( '.cemeti-single__when', 'fontWeight' ), 'figma public program: title 64, speaker 40, day and time 24 Medium' );
+		ok( 0 === await e.page.locator( '.cemeti-toc' ).count() && await e.page.locator( '.cemeti-toc-back a' ).count() >= 1, 'figma public program: no contents bar, back links remain' );
+		await e.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

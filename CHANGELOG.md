@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.8.3
+
+- Public Program and Open Studio detail pages follow their Figma template: no contents bar at the top (the "back to
+  contents" links stay), speakers 40 px, then the day with its weekday ("Jumat, 30 Januari 2026" / "Friday, 30 January
+  2026") and the time at 24 px, and a poster that keeps its own proportions (at most 655 px high).
+
 ## 0.8.2
 
 - Residency detail now has the same sections as Exhibition (Foreword, Gallery, Documentation, Biography with several

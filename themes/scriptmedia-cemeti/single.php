@@ -41,7 +41,10 @@ if ( $cemeti_bios ) {
 if ( '' !== $cemeti_booklet ) {
 	$cemeti_toc['booklet'] = 'booklet';
 }
-$cemeti_has_toc = count( $cemeti_toc ) > 1;
+// Public Program and Open Studio (Figma): no contents bar at the top, but the "back" links after each section stay.
+$cemeti_is_event = in_array( $cemeti_type, array( 'public_program', 'open_studio' ), true );
+$cemeti_has_toc  = ! $cemeti_is_event && count( $cemeti_toc ) > 1;
+$cemeti_has_back = count( $cemeti_toc ) > 1;
 ?>
 <article class="cemeti-single cemeti-single--<?php echo esc_attr( $cemeti_type ); ?>">
 	<div class="cemeti-container">
@@ -65,17 +68,29 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 				<?php the_post_thumbnail( 'cemeti-poster', array( 'class' => 'cemeti-single__poster' ) ); ?>
 			<?php endif; ?>
 			<h1 class="cemeti-single__title"><?php the_title(); ?></h1>
-			<?php if ( '' !== $cemeti_dates ) : ?>
-				<p class="cemeti-single__date"><?php echo esc_html( $cemeti_dates ); ?></p>
-			<?php endif; ?>
 			<?php
 			$cemeti_people = '' !== $cemeti_artists ? $cemeti_artists : (string) cemeti_get_field( 'speakers', $cemeti_id );
-			if ( '' !== $cemeti_people ) :
+			if ( $cemeti_is_event ) :
 				?>
-				<p class="cemeti-single__people"><?php echo cemeti_multiline( $cemeti_people ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
-			<?php endif; ?>
-			<?php if ( '' !== (string) cemeti_get_field( 'time_text', $cemeti_id ) ) : ?>
-				<p class="cemeti-single__time"><?php echo esc_html( cemeti_get_field( 'time_text', $cemeti_id ) ); ?></p>
+				<?php if ( '' !== $cemeti_people ) : ?>
+					<p class="cemeti-single__people"><?php echo cemeti_multiline( $cemeti_people ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				<?php endif; ?>
+				<p class="cemeti-single__when">
+					<?php echo esc_html( cemeti_get_event_when( $cemeti_id ) ); ?>
+					<?php if ( '' !== (string) cemeti_get_field( 'time_text', $cemeti_id ) ) : ?>
+						<br><?php echo esc_html( cemeti_get_field( 'time_text', $cemeti_id ) ); ?>
+					<?php endif; ?>
+				</p>
+			<?php else : ?>
+				<?php if ( '' !== $cemeti_dates ) : ?>
+					<p class="cemeti-single__date"><?php echo esc_html( $cemeti_dates ); ?></p>
+				<?php endif; ?>
+				<?php if ( '' !== $cemeti_people ) : ?>
+					<p class="cemeti-single__people"><?php echo cemeti_multiline( $cemeti_people ); // phpcs:ignore WordPress.Security.EscapeOutput ?></p>
+				<?php endif; ?>
+				<?php if ( '' !== (string) cemeti_get_field( 'time_text', $cemeti_id ) ) : ?>
+					<p class="cemeti-single__time"><?php echo esc_html( cemeti_get_field( 'time_text', $cemeti_id ) ); ?></p>
+				<?php endif; ?>
 			<?php endif; ?>
 		</header>
 
@@ -103,14 +118,14 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 
 		<?php if ( '' !== $cemeti_content ) : ?>
 			<div class="cemeti-single__body" id="foreword"><?php the_content(); ?></div>
-			<?php cemeti_back_to_toc( $cemeti_has_toc ); ?>
+			<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 		<?php endif; ?>
 
 		<?php if ( $cemeti_gallery ) : ?>
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'gallery' ), 'gallery' ); ?>
 				<?php cemeti_render_photos( $cemeti_gallery, (string) cemeti_get_field( 'gallery_caption', $cemeti_id ) ); ?>
-				<?php cemeti_back_to_toc( $cemeti_has_toc ); ?>
+				<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 			</section>
 		<?php endif; ?>
 
@@ -118,7 +133,7 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'documentation' ), 'documentation' ); ?>
 				<?php cemeti_render_photos( $cemeti_docs, (string) cemeti_get_field( 'documentation_caption', $cemeti_id ) ); ?>
-				<?php cemeti_back_to_toc( $cemeti_has_toc ); ?>
+				<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 			</section>
 		<?php endif; ?>
 
@@ -126,7 +141,7 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'biography' ), 'biography' ); ?>
 				<?php cemeti_render_biographies( $cemeti_bios ); ?>
-				<?php cemeti_back_to_toc( $cemeti_has_toc ); ?>
+				<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 			</section>
 		<?php endif; ?>
 
@@ -134,7 +149,7 @@ $cemeti_has_toc = count( $cemeti_toc ) > 1;
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'booklet' ), 'booklet' ); ?>
 				<p><a class="cemeti-btn cemeti-btn--inline" href="<?php echo esc_url( $cemeti_booklet ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( cemeti_t( 'booklet' ) ); ?> (PDF)</a></p>
-				<?php cemeti_back_to_toc( $cemeti_has_toc ); ?>
+				<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 			</section>
 		<?php endif; ?>
 

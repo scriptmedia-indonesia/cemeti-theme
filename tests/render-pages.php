@@ -96,6 +96,18 @@ file_put_contents( "$out/infinite-1.html", str_replace( '</ul>', '</ul>' . $nav1
 $more = '<li class="cemeti-card"><a href="#"><span class="cemeti-card__image cemeti-card__image--empty"></span><span class="cemeti-card__body"><span class="cemeti-card__title">Second page card A</span><span class="cemeti-card__date">2020</span></span></a></li><li class="cemeti-card"><a href="#"><span class="cemeti-card__image cemeti-card__image--empty"></span><span class="cemeti-card__body"><span class="cemeti-card__title">Second page card B</span><span class="cemeti-card__date">2019</span></span></a></li>';
 file_put_contents( "$out/infinite-2.html", '<!doctype html><html><body><ul class="cemeti-card-grid">' . $more . '</ul><nav class="navigation pagination"><div class="nav-links"><span class="page-numbers current">2</span></div></nav></body></html>' );
 
+// ---- Public Program / Open Studio detail (no contents bar, weekday date, speakers first)
+$pp = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Public Talk: Power', 'post_content' => 'Foreword', 'thumb' => 501, 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', 'cemeti_speakers' => 'Iola Lenzi', 'cemeti_time_text' => '15.00 – 17.00 WIB', 'cemeti_documentation' => array( 611, 612 ), 'cemeti_biographies' => array( array( 'name' => 'Iola Lenzi', 'photo' => 701, 'bio' => 'Historian.' ) ) ) ) );
+$h = page( 'single-public-program', 'single.php', array( 'singular' => true ), array( 'post' => $pp, 'path' => '/public-program/x/' ) );
+ok( false === strpos( $h, 'id="toc"' ) && false !== strpos( $h, 'id="documentation"' ) && false !== strpos( $h, 'id="biography"' ), 'public program: no contents bar, sections present' );
+ok( false !== strpos( $h, 'href="#toc-top"' ), 'public program: "back to contents" links stay' );
+ok( preg_match( '/cemeti-single__people.*Iola Lenzi.*cemeti-single__when.*Friday, 30 January 2026.*15\.00/s', $h ) === 1, 'public program: speaker, then weekday date and time (' . ( preg_match( '/cemeti-single__when">\s*([^<]*)/', $h, $mm ) ? trim( $mm[1] ) : 'none' ) . ')' );
+ok( false === strpos( $h, 'cemeti-single__date' ), 'public program: no large date line' );
+ok( 'Jumat, 30 Januari 2026' === cemeti_format_event_when( '20260130', '20260130', 'id' ) && '26 September – 15 November 2025' === cemeti_format_event_when( '20250926', '20251115', 'en' ) && '' === cemeti_format_event_when( 'x' ), 'event date: weekday for one day, range otherwise' );
+$os = CemetiWP::post( array( 'post_type' => 'open_studio', 'post_title' => 'Open Studio X', 'post_content' => 'Text', 'meta' => array( 'cemeti_start_date' => '20260310', 'cemeti_end_date' => '20260330', 'cemeti_artists' => 'Angki', 'cemeti_documentation' => array( 611 ), 'cemeti_biographies' => array( array( 'name' => 'Angki', 'photo' => 0, 'bio' => 'Artist.' ) ) ) ) );
+$h = page( 'single-open-studio', 'single.php', array( 'singular' => true ), array( 'post' => $os, 'path' => '/open-studio/x/' ) );
+ok( false === strpos( $h, 'id="toc"' ) && false !== strpos( $h, '10 – 30 March 2026' ), 'open studio: no contents bar, date range shown' );
+
 // ---- Admin "Details" box, for the browser tests of the editing screen (tests/browser/browser-qa.js)
 do_action( 'add_meta_boxes' );
 ob_start();

@@ -68,3 +68,39 @@ function cemeti_format_date_range( $start, $end = '', $lang = null ) {
 	}
 	return sprintf( '%d %s %d%s%d %s %d', $s[2], $months[ $s[1] ], $s[0], $dash, $e[2], $months[ $e[1] ], $e[0] );
 }
+
+/**
+ * Weekday names per language, Sunday first.
+ *
+ * @param string $lang Language slug.
+ * @return string[] Index 0 (Sunday) – 6.
+ */
+function cemeti_weekday_names( $lang ) {
+	$names = array(
+		'en' => array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+		'id' => array( 'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu' ),
+	);
+	return $names[ $lang ] ?? $names['en'];
+}
+
+/**
+ * One day with its weekday, as on Public Program pages: "Jumat, 30 Januari 2026".
+ * A range is written as usual (no weekday).
+ *
+ * @param string      $start Start date, Ymd.
+ * @param string|null $end   Optional end date, Ymd.
+ * @param string|null $lang  Language slug. Defaults to the active language.
+ * @return string
+ */
+function cemeti_format_event_when( $start, $end = '', $lang = null ) {
+	$lang = $lang ? $lang : cemeti_current_lang();
+	if ( ! is_string( $start ) || ! preg_match( '/^(\d{4})(\d{2})(\d{2})$/', $start, $m ) || ! checkdate( (int) $m[2], (int) $m[3], (int) $m[1] ) ) {
+		return '';
+	}
+	if ( $end && $end > $start ) {
+		return cemeti_format_date_range( $start, $end, $lang );
+	}
+	$weekday = (int) gmdate( 'w', gmmktime( 0, 0, 0, (int) $m[2], (int) $m[3], (int) $m[1] ) );
+	$names   = cemeti_weekday_names( $lang );
+	return $names[ $weekday ] . ', ' . cemeti_format_date_range( $start, '', $lang );
+}

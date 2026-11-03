@@ -140,6 +140,26 @@ function cemeti_status_label( $status ) {
  * @param int|null $post_id Post ID. Defaults to the current post.
  * @return string
  */
+/**
+ * Date of a Public Program or Open Studio with its weekday ("Jumat, 30 Januari 2026").
+ *
+ * @param int|null $post_id Post ID.
+ * @return string
+ */
+function cemeti_get_event_when( $post_id = null ) {
+	$post_id = $post_id ? (int) $post_id : get_the_ID();
+	list( $start_key, $end_key ) = cemeti_date_keys( get_post_type( $post_id ) );
+	$start = $start_key ? cemeti_get_field( $start_key, $post_id ) : '';
+	$end   = $end_key ? cemeti_get_field( $end_key, $post_id ) : '';
+	return cemeti_format_event_when( (string) $start, (string) $end );
+}
+
+/**
+ * Date text of a post (range form).
+ *
+ * @param int|null $post_id Post ID.
+ * @return string
+ */
 function cemeti_get_date_range( $post_id = null ) {
 	$post_id = $post_id ? (int) $post_id : get_the_ID();
 	list( $start_key, $end_key ) = cemeti_date_keys( get_post_type( $post_id ) );

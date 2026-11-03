@@ -261,3 +261,11 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-home__text:hover .cemeti-home__title a,
 .cemeti-home__text:hover .cemeti-home__people,
 .cemeti-home__text:hover .cemeti-home__date { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }
+
+/* ---- Public Program and Open Studio (Figma "PUBLIC ARTICLE TEMPLATE"): no contents bar; speakers 40 Medium, then the
+   day and time 24 Medium; the poster keeps its own proportions, at most 655 px high. ---- */
+.cemeti-single__when { margin: 0 0 1.4167em; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+@media (min-width: 48rem) {
+	.cemeti-single--public_program .cemeti-single__poster,
+	.cemeti-single--open_studio .cemeti-single__poster { width: auto; max-width: 43.5%; max-height: 40.9375rem; margin-left: 25.5%; }
+}
