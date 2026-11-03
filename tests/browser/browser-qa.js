@@ -446,6 +446,13 @@ async function open( browser, name, width, height, extra = {} ) {
 		await home.page.waitForTimeout( 200 );
 		const stuck = await home.page.locator( '.cemeti-home .cemeti-heading' ).first().boundingBox();
 		ok( stuck.y >= 100 && stuck.y < 230, `qa: the section title stays under the header while its section scrolls (y=${ Math.round( stuck.y ) })` );
+		const top = await home.page.evaluate( () => { const h = document.querySelector( '.cemeti-home .cemeti-heading a' ); const r = h.getBoundingClientRect(); const el = document.elementFromPoint( r.x + r.width / 2, r.y + r.height / 2 ); return el === h || h.contains( el ); } );
+		ok( top, 'qa: the pinned section title stays on top of the content that scrolls under it' );
+		const txt = home.page.locator( '.cemeti-home__section--exhibition .cemeti-home__text' ).first();
+		await home.page.evaluate( () => window.scrollTo( 0, 0 ) );
+		await txt.hover();
+		await home.page.waitForTimeout( 100 );
+		ok( 'rgb(241, 97, 84)' === await home.page.locator( '.cemeti-home__date' ).first().evaluate( ( e ) => getComputedStyle( e ).color ), 'qa: hovering a Home entry turns its title, names and date salmon' );
 		await home.ctx.close();
 
 		const inf = await open( browser, 'infinite-1', 1440, 600, { reducedMotion: 'reduce' } );

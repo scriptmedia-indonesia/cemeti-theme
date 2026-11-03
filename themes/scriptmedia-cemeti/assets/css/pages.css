@@ -16,7 +16,7 @@
 }
 .cemeti-heading a { color: inherit; text-decoration: none; }
 .cemeti-heading a:hover,
-.cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: none; }   /* QA: section title turns #1C75BC on hover */
+.cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }   /* prototype: blue #1C75BC and underlined on hover */
 .cemeti-container--wide { width: 100%; padding-inline: 0; }
 .cemeti-container--wide .cemeti-page-head { padding-inline: var(--gutter); }
 .cemeti-empty { text-align: center; }
@@ -207,14 +207,13 @@
 .cemeti-single--about .cemeti-single__hero { width: min(100%, 53rem); aspect-ratio: 848 / 602; object-fit: cover; margin-bottom: 2.5rem; }
 .cemeti-single--support .cemeti-single__body { max-width: 53rem; }
 
-/* ---- Section titles stay under the header while their section scrolls past (Figma: "sticky top-0" titles).
-   The content has its own background and sits above, so it slides over the title. ---- */
+/* ---- Section titles stay pinned under the header while their section scrolls; the content slides underneath
+   and the title stays ON TOP of it (prototype behaviour). The title box lets clicks through except on the link. ---- */
 @media (min-width: 48rem) {
-	.cemeti-page-head { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 1; pointer-events: none; }
+	.cemeti-page-head { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
 	.cemeti-page-head a { pointer-events: auto; }
-	.cemeti-card-grid, .cemeti-row-list, .cemeti-residency-intro, .cemeti-opencalls, .cemeti-az { position: relative; z-index: 2; background: var(--c-cream); }
-	.cemeti-home .cemeti-heading { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 1; }
-	.cemeti-home__item, .cemeti-home__section--journal .cemeti-row-list { position: relative; z-index: 2; background: var(--c-cream); }
+	.cemeti-home .cemeti-heading { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
+	.cemeti-home .cemeti-heading a { pointer-events: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
 	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
@@ -255,3 +254,10 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-people--advisory-board .cemeti-people__role { color: var(--c-ink); font-weight: 400; }
 .cemeti-people__quote { margin-top: 0.5rem; font-style: italic; font-size: var(--fs-body); }
 .cemeti-people__text { display: block; }
+
+/* Home: the whole text block is one link; hovering it turns title, names and date salmon and underlined (prototype). */
+.cemeti-home__text { position: relative; }
+.cemeti-home__title a::after { content: ""; position: absolute; inset: 0; }
+.cemeti-home__text:hover .cemeti-home__title a,
+.cemeti-home__text:hover .cemeti-home__people,
+.cemeti-home__text:hover .cemeti-home__date { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }

@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.8.1
+
+- Pinned section titles (Home sections, page titles) now stay on top of the content that scrolls under them, as in the
+  prototype (the content no longer covers them). Hover: title blue and underlined; a Home entry turns salmon and
+  underlined as a whole (title, names, date) and is one clickable block.
+
 ## 0.8.0
 
 QA round 1 (see `docs/QA-ROUND-1.md` for every test case).
