@@ -79,6 +79,12 @@ ok( false !== strpos( $h, 'aria-labelledby="toc-label"' ) && false !== strpos( $
 ok( false !== strpos( $h, 'href="http://cemeti.test/uploads/booklet-901.pdf"' ), 'booklet: the chosen PDF wins over the external link' );
 ok( false !== strpos( $h, 'Pembukaan' ) || false !== strpos( $h, 'Opening' ), 'single exhibition: opening label' );
 ok( false !== strpos( $h, 'rel="noopener noreferrer"' ) && false !== strpos( $h, 'wa.me' ), 'single exhibition: share links open safely' );
+$res = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Residency Program 2025', 'post_content' => 'Foreword text', 'thumb' => 501, 'meta' => array( 'cemeti_start_date' => '20251001', 'cemeti_end_date' => '20251130', 'cemeti_artists' => "Resident One\nResident Two", 'cemeti_gallery' => array( 601, 602, 603, 604 ), 'cemeti_documentation' => array( 611, 612 ), 'cemeti_biographies' => array( array( 'name' => 'Resident One', 'photo' => 701, 'bio' => 'Born somewhere.' ), array( 'name' => 'Resident Two', 'photo' => 0, 'bio' => 'Lives somewhere.' ) ), 'cemeti_booklet_url' => 'https://example.org/residency.pdf' ) ) );
+$h = page( 'single-residency-full', 'single.php', array( 'singular' => true ), array( 'post' => $res, 'path' => '/residency/x/' ) );
+foreach ( array( 'id="foreword"', 'id="gallery"', 'id="documentation"', 'id="biography"', 'id="booklet"', 'cemeti-single--residency', 'cemeti-toc__links' ) as $needle ) {
+	ok( false !== strpos( $h, $needle ), "single residency: $needle" );
+}
+ok( 2 === substr_count( $h, 'class="cemeti-bio"' ) && 2 === substr_count( $h, 'cemeti-photos__grid"' ), 'single residency: two biographies, gallery and documentation grids' );
 $h = page( 'single-exhibition-bare', 'single.php', array( 'singular' => true ), array( 'post' => $ids['ex_nodate'], 'path' => '/exhibition/beastly/' ) );
 ok( false === strpos( $h, 'id="toc"' ) && false === strpos( $h, 'id="gallery"' ) && false === strpos( $h, 'id="biography"' ), 'single exhibition without fields: no empty sections or contents' );
 

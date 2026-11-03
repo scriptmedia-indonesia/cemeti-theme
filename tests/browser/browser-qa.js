@@ -485,6 +485,20 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ab.ctx.close();
 	}
 
+	/* ---- 7i. Residency detail uses the same template and the same Figma values as Exhibition. */
+	{
+		const r = await open( browser, 'single-residency-full', 1440, 900, { reducedMotion: 'reduce' } );
+		const rpx = ( sel, prop ) => r.page.evaluate( ( [ q, p ] ) => parseFloat( getComputedStyle( document.querySelector( q ) )[ p ] ), [ sel, prop ] );
+		ok( 64 === await rpx( '.cemeti-single__title', 'fontSize' ) && 40 === await rpx( '.cemeti-single__date', 'fontSize' ) && 24 === await rpx( '.cemeti-single__body', 'fontSize' ), 'figma residency: title 64, dates 40, text 24' );
+		const poster = await r.page.locator( '.cemeti-single__poster' ).boundingBox();
+		ok( Math.abs( poster.width - 524 ) < 2, 'figma residency: poster 524 wide' );
+		const links = await r.page.locator( '.cemeti-toc__links a' ).allTextContents();
+		ok( links.length === 5, 'residency: contents bar lists Foreword, Gallery, Documentation, Biography, Booklet (' + links.join( ', ' ) + ')' );
+		const photo = await r.page.locator( '.cemeti-photos__grid img' ).first().boundingBox();
+		ok( Math.abs( photo.width - 524 ) < 2, 'figma residency: gallery photos 524 wide' );
+		await r.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

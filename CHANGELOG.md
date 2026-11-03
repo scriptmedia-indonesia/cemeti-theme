@@ -3,6 +3,11 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.8.2
+
+- Residency detail now has the same sections as Exhibition (Foreword, Gallery, Documentation, Biography with several
+  residents, Booklet, Related) in the editor and on the page, with the same Figma measurements. Tests check both.
+
 ## 0.8.1
 
 - Pinned section titles (Home sections, page titles) now stay on top of the content that scrolls under them, as in the

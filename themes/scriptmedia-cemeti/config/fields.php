@@ -73,10 +73,17 @@ $fields = array(
 	'residency'      => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'artists', 'label' => 'Residents', 'type' => 'list', 'section' => 'Residents', 'help' => 'One name per row.' ),
-			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery' ),
+			array( 'key' => 'artists', 'label' => 'Residents', 'type' => 'list', 'section' => 'Residents', 'help' => 'One name per row. Shown under the dates.' ),
+			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery', 'help' => 'Shown as "Gallery" on the page, two photos per row.' ),
+			array( 'key' => 'gallery_caption', 'label' => 'Gallery caption', 'type' => 'text' ),
 		),
-		array( $related )
+		$documentation,
+		array(
+			$biographies,
+			array( 'key' => 'booklet', 'label' => 'Booklet (PDF)', 'type' => 'file', 'section' => 'Booklet', 'help' => 'Upload or choose a PDF from the media library.' ),
+			array( 'key' => 'booklet_url', 'label' => 'or link to a booklet elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+			$related,
+		)
 	),
 	'public_program' => array_merge(
 		$dates,
