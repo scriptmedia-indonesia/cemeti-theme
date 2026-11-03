@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.1
+
+- Fixed: people added under People did not appear on About. The page asked for the group by exact slug; Polylang
+  renames a second-language copy of a term ("advisory-board-en") and hides entries that have no language. Groups are
+  now recognised by slug or name (also "Dewan Penasihat"), a person with no group is shown under Team, and when the
+  current language has nobody, people of all languages are shown. The Solo/Group filter (?type=) accepts "-en" / "-id" slugs too.
+
 ## 0.9.0
 
 - Converter and "Move to …" now split the old text into the new structure: Foto Karya / Galeri → Gallery, Dokumentasi →

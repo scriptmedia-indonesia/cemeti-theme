@@ -56,7 +56,8 @@ function cemeti_pre_get_posts( $query ) {
 		$slug     = sanitize_title( wp_unslash( $_GET['type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$slug     = 'reguler' === $slug ? 'regular' : $slug; // The term was called Reguler before 0.8.
 		if ( '' !== $slug ) {
-			$query->set( 'tax_query', array( array( 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => $slug ) ) );
+			// Polylang names the copy of a term in the second language "solo-en": accept both.
+			$query->set( 'tax_query', array( array( 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => array( $slug, $slug . '-en', $slug . '-id' ) ) ) );
 		}
 	}
 
@@ -92,4 +93,45 @@ function cemeti_archive_entries() {
 	}
 	set_transient( $cache_key, $entries, DAY_IN_SECONDS );
 	return $entries;
+}
+
+
+/**
+ * People for the About page, split into Advisory Board and Team.
+ *
+ * A group is recognised by its term, whatever Polylang made of the slug ("advisory-board-en") or the name
+ * ("Dewan Penasihat"). A person with no group, or an unknown one, is shown under Team rather than nowhere.
+ * Polylang hides entries that have no language; when the current language has nobody at all, people of every
+ * language are shown, so a freshly added person never "disappears".
+ *
+ * @return array<string, WP_Post[]> Keys "advisory-board" and "team".
+ */
+function cemeti_people_by_group() {
+	$args = array(
+		'post_type'      => 'person',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'no_found_rows'  => true,
+		'orderby'        => array( 'menu_order' => 'ASC', 'title' => 'ASC' ),
+	);
+	if ( function_exists( 'pll_current_language' ) && pll_current_language() ) {
+		$args['lang'] = pll_current_language();
+	}
+	$people = get_posts( array_merge( $args, array( 'suppress_filters' => false ) ) );
+	if ( ! $people && function_exists( 'pll_languages_list' ) ) {
+		$people = get_posts( array_merge( $args, array( 'suppress_filters' => false, 'lang' => '' ) ) );
+	}
+	$groups = array( 'advisory-board' => array(), 'team' => array() );
+	foreach ( $people as $person ) {
+		$key   = 'team';
+		$terms = get_the_terms( $person->ID, 'person_group' );
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			if ( preg_match( '/advis|penasihat|penasehat/i', $term->slug . ' ' . $term->name ) ) {
+				$key = 'advisory-board';
+				break;
+			}
+		}
+		$groups[ $key ][] = $person;
+	}
+	return $groups;
 }

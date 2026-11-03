@@ -173,6 +173,13 @@ $q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ) 
 ok( 12 === $q->get( 'posts_per_page' ), 'archive: 12 per page' );
 $q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ), array( 'type' => 'group' ) );
 ok( array( $ids['ex_current'] ) === wp_list_pluck_ids( $q->posts ), 'archive ?type=group filters by exhibition type' );
+foreach ( CemetiWP::$terms['exhibition_type'] as $tid => $t ) {
+	if ( 'Group' === $t['name'] ) {
+		CemetiWP::$terms['exhibition_type'][ $tid ]['slug'] = 'group-en'; // Polylang's name for a second-language copy.
+	}
+}
+$q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ), array( 'type' => 'group' ) );
+ok( array( $ids['ex_current'] ) === wp_list_pluck_ids( $q->posts ), 'archive ?type=group still works when Polylang made the slug "group-en"' );
 $q = $run( array( 'post_type' => 'exhibition' ), array( 'pta' => 'exhibition' ), array( 'type' => "group' OR 1=1" ) );
 ok( array() === $q->posts, 'archive ?type= with SQL-looking text matches nothing and is sanitized' );
 $q = $run( array( 'post_type' => 'residency' ), array( 'pta' => 'residency' ), array( 'type' => 'regular' ) );

@@ -128,4 +128,17 @@ foreach ( $kids as $kid_id => $kid ) {
 }
 ok( 0 === cemeti_create_missing_pages() && 16 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
 
+// ---- a person without a language is not lost on the About page
+qa_reset_data();
+$GLOBALS['pll']['lang'] = array();
+$nolang = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => 'Added before languages', 'menu_order' => 1 ) );
+$GLOBALS['pll']['current'] = 'en';
+$g = cemeti_people_by_group();
+ok( 1 === count( $g['team'] ) && 'Added before languages' === $g['team'][0]->post_title, 'Polylang: a person with no language still appears (all languages are tried when the current one has nobody)' );
+$withlang = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => 'English person', 'menu_order' => 2 ) );
+$GLOBALS['pll']['lang'][ $withlang ] = 'en';
+$g = cemeti_people_by_group();
+ok( 1 === count( $g['team'] ) && 'English person' === $g['team'][0]->post_title, 'Polylang: once the language has people, only that language is shown' );
+$GLOBALS['pll']['current'] = 'id';
+
 qa_done();

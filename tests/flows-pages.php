@@ -123,6 +123,35 @@ ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@ceme
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
 
+/* ---- People added in the admin always appear on About */
+$mkp = static function ( $title, array $terms, $status = 'publish' ) {
+	$id = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => $title, 'post_status' => $status, 'menu_order' => 1 ) );
+	if ( $terms ) {
+		wp_set_object_terms( $id, $terms, 'person_group' );
+	}
+	return $id;
+};
+qa_reset_data();
+do_action( 'after_switch_theme' );
+$mkp( 'Person Slug En', array( 'Advisory Board' ) );
+foreach ( CemetiWP::$terms['person_group'] as $tid => $t ) {
+	if ( 'Advisory Board' === $t['name'] ) {
+		CemetiWP::$terms['person_group'][ $tid ]['slug'] = 'advisory-board-en'; // What Polylang makes of a second-language copy.
+	}
+}
+$mkp( 'Person Dewan', array( 'Dewan Penasihat' ) );
+$mkp( 'Person Team', array( 'Team' ) );
+$mkp( 'Person No Group', array() );
+$mkp( 'Person Draft', array( 'Team' ), 'draft' );
+$groups = cemeti_people_by_group();
+$names = static function ( $list ) { return array_map( static function ( $p ) { return $p->post_title; }, $list ); };
+ok( in_array( 'Person Slug En', $names( $groups['advisory-board'] ), true ) && in_array( 'Person Dewan', $names( $groups['advisory-board'] ), true ), 'people: an Advisory Board term is recognised whatever its slug ("-en") or name ("Dewan Penasihat")' );
+ok( in_array( 'Person Team', $names( $groups['team'] ), true ) && in_array( 'Person No Group', $names( $groups['team'] ), true ), 'people: Team members, and people with no group, are shown under Team' );
+ok( ! in_array( 'Person Draft', array_merge( $names( $groups['team'] ), $names( $groups['advisory-board'] ) ), true ), 'people: drafts stay hidden' );
+$about = $by_slug( 'about' );
+$html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $about, 'path' => '/about/' ) );
+ok( false !== strpos( $html, 'Person Slug En' ) && false !== strpos( $html, 'Person No Group' ) && 2 === substr_count( $html, 'class="cemeti-people ' ), 'About page shows both sections with those people' );
+
 // An empty site (no entries at all) still renders the archive page.
 qa_reset_data();
 do_action( 'after_switch_theme' );
