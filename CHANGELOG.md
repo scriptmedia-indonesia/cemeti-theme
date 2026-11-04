@@ -3,6 +3,19 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.14
+
+- Deep functional QA on phones, tablets (portrait and landscape), laptop, 1920 and 2560 px with touch emulation
+  (menu, search, language, contents links, scroll-spy, back to contents, accordion, share, hit-testing every link for
+  things covering it). Found and fixed:
+  - Menu links of the fixed pages (About, Open Archive, Support Us, Contact Us) were built from the English slug, so
+    on the Indonesian site "About" led to /id/about/ (404) when the page is called "tentang" (also "kontak" ...).
+    They now point to the real page of the current language.
+  - Contents bar: the link you click is now the one marked, also on tall screens where the next section is already
+    on show, and the last section is marked at the end of the page.
+  - Landscape phones: the menu and search open in view even if the page was scrolled; scrolling the menu no longer
+    scrolls the page behind it.
+
 ## 0.9.13
 
 - The Indonesian Open Archive, Support Us and Contact Us pages (with the four Support Us rows) did not exist on a site

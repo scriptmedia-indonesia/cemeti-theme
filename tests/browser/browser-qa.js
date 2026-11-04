@@ -512,6 +512,38 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( 'center' === await li.locator( '.cemeti-people__text' ).evaluate( ( e ) => getComputedStyle( e ).textAlign ), 'qa2: Advisory Board name is centred' );
 		}
 		{
+			const lm = await open( browser, 'single-exhibition', 844, 390 );
+			await lm.page.evaluate( () => window.scrollTo( 0, 800 ) );
+			await lm.page.locator( '.cemeti-menu-toggle' ).click();
+			await lm.page.waitForTimeout( 450 );
+			const top = await lm.page.evaluate( () => ( { y: scrollY, m: document.getElementById( 'cemeti-menu' ).getBoundingClientRect().top } ) );
+			ok( 0 === top.y && top.m >= 0 && top.m < 390, `qa4: on a landscape phone the menu opens in view even after scrolling (${ top.y }, ${ Math.round( top.m ) })` );
+			ok( 'contain' === await lm.page.evaluate( () => getComputedStyle( document.getElementById( 'cemeti-menu' ) ).overscrollBehaviorY ), 'qa4: scrolling the menu does not scroll the page behind it' );
+			await lm.ctx.close();
+		}
+		{
+			// QA round 4: the link just clicked is the one marked, also on a tall screen where the next section is on show.
+			for ( const [ w, h ] of [ [ 1440, 900 ], [ 2560, 1440 ], [ 820, 1180 ] ] ) {
+				const tc = await open( browser, 'single-residency-full', w, h );
+				const hrefs = await tc.page.$$eval( '.cemeti-toc__links a', ( as ) => as.map( ( a ) => a.getAttribute( 'href' ) ) );
+				let wrong = [];
+				for ( const href of hrefs.slice( 0, -1 ) ) {
+					await tc.page.locator( '.cemeti-toc__links a[href="' + href + '"]' ).first().click();
+					await tc.page.waitForTimeout( 600 );
+					const cur = await tc.page.locator( '.cemeti-toc__links a[aria-current]' ).first().getAttribute( 'href' ).catch( () => '' );
+					if ( cur !== href ) { wrong.push( href + '->' + cur ); }
+				}
+				ok( ! wrong.length, `qa4: clicked contents link is the marked one at ${ w }px (${ wrong.join( ', ' ) })` );
+				await tc.page.waitForTimeout( 1100 );
+				await tc.page.evaluate( () => window.scrollTo( 0, 0 ) );
+				await tc.page.waitForTimeout( 150 );
+				await tc.page.evaluate( () => window.scrollTo( 0, document.documentElement.scrollHeight ) );
+				await tc.page.waitForTimeout( 300 );
+				ok( hrefs[ hrefs.length - 1 ] === await tc.page.locator( '.cemeti-toc__links a[aria-current]' ).first().getAttribute( 'href' ).catch( () => '' ), `qa4: at the bottom the last section is marked at ${ w }px` );
+				await tc.ctx.close();
+			}
+		}
+		{
 			const jr = await open( browser, 'single-journal', 1440, 900 );
 			const fb = await jr.page.locator( '.cemeti-single__figure img' ).boundingBox();
 			const cb = await jr.page.locator( '.cemeti-single__figure figcaption' ).boundingBox();

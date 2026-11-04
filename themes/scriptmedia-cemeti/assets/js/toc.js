@@ -1,6 +1,8 @@
 /**
  * Table of contents on detail pages: marks the section being read (aria-current) while the visitor scrolls.
- * A section is "being read" once its start has passed 35% of the screen height; the last such section wins.
+ * A section is "being read" once its start has reached the line where an anchor jump puts it (just under the header
+ * and the contents bar, the page's scroll-padding), so the link just clicked is the one marked, even when the next
+ * section is short and already on screen; at the very bottom of the page the last section that is visible wins.
  * Without JavaScript the links still jump to their anchors.
  */
 ( function () {
@@ -16,16 +18,39 @@
 		return document.getElementById( link.getAttribute( 'href' ).slice( 1 ) );
 	} );
 	var queued = false;
+	var chosenY = null;
+	var timer = 0;
+	var chosen = -1; // The link the visitor just clicked: it stays marked while its section cannot scroll higher.
 
 	function update() {
 		queued = false;
-		var line = window.innerHeight * 0.35;
+		if ( chosen > -1 && null !== chosenY && Math.abs( window.pageYOffset - chosenY ) > 40 ) {
+			chosen = -1;
+		}
+		var pad = parseFloat( window.getComputedStyle( document.documentElement ).scrollPaddingTop );
+		var line = ( isNaN( pad ) ? window.innerHeight * 0.2 : pad ) + 8;
 		var current = -1;
 		targets.forEach( function ( target, index ) {
 			if ( target && target.getBoundingClientRect().top <= line ) {
 				current = index;
 			}
 		} );
+		// The end of the page: sections that can never scroll up to the line are still the ones being read.
+		var atBottom = window.pageYOffset + window.innerHeight >= document.documentElement.scrollHeight - 2;
+		if ( atBottom && window.pageYOffset > 0 && chosen < 0 ) {
+			targets.forEach( function ( target, index ) {
+				var top = target ? target.getBoundingClientRect().top : Infinity;
+				if ( top > line && top < window.innerHeight * 0.75 ) {
+					current = index;
+				}
+			} );
+		}
+		if ( chosen > -1 && atBottom && targets[ chosen ] ) {
+			var chosenTop = targets[ chosen ].getBoundingClientRect().top;
+			if ( chosenTop >= 0 && chosenTop < window.innerHeight ) {
+				current = chosen;
+			}
+		}
 		links.forEach( function ( link, index ) {
 			if ( index === current ) {
 				link.setAttribute( 'aria-current', 'true' );
@@ -42,6 +67,21 @@
 		}
 	}
 
+	links.forEach( function ( link, index ) {
+		link.addEventListener( 'click', function () {
+			chosen = index;
+			chosenY = null;
+			window.clearTimeout( timer );
+			timer = window.setTimeout( function () {
+				chosenY = window.pageYOffset; // Where the jump ended; moving away from it ends the choice.
+			}, 900 );
+		} );
+	} );
+	[ 'wheel', 'touchmove', 'keydown' ].forEach( function ( type ) {
+		window.addEventListener( type, function () {
+			chosen = -1;
+		}, { passive: true } );
+	} );
 	window.addEventListener( 'scroll', queue, { passive: true } );
 	window.addEventListener( 'resize', queue );
 	queue();

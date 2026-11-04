@@ -131,6 +131,7 @@
 	max-height: calc(100vh - var(--header-h));
 	max-height: calc(100dvh - var(--header-h));
 	overflow-y: auto;
+	overscroll-behavior: contain;
 	opacity: 0;
 	transform: translateY(-0.75rem);
 	transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);

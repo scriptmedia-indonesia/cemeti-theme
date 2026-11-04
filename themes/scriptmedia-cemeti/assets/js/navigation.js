@@ -45,6 +45,11 @@
 		}
 		current = name;
 		opener = trigger || null;
+		// Short screens do not pin the header: bring it into view so the panel that hangs from it can be seen.
+		var header = doc.querySelector( '.cemeti-header' );
+		if ( header && ( name === 'menu' || name === 'search' ) && window.getComputedStyle( header ).position !== 'sticky' && window.pageYOffset > 0 ) {
+			window.scrollTo( 0, 0 );
+		}
 		panel.el.hidden = false;
 		// Force layout so the transition runs from the closed state.
 		void panel.el.offsetWidth;

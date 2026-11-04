@@ -73,6 +73,45 @@ function cemeti_default_menu() {
 }
 
 /**
+ * Address of a menu entry in the current language. The fixed pages (About, Open Archive, Support Us, Contact Us)
+ * are looked up as real pages, because the Indonesian copy often has its own slug ("tentang", "kontak"): a link
+ * built from the English slug would lead to a 404 there. Other entries are plain program paths.
+ *
+ * @param string $path Menu path such as "about" or "exhibition/?type=solo".
+ * @return string
+ */
+function cemeti_menu_url( $path ) {
+	$slug  = trim( $path, '/' );
+	$pages = cemeti_default_pages();
+	if ( ! isset( $pages[ $slug ] ) ) {
+		return cemeti_url( $path );
+	}
+	$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
+	$id = 0;
+	if ( '' === $lang ) {
+		$lang = cemeti_default_lang();
+	}
+	$candidates = array( $slug );
+	foreach ( cemeti_page_slug_aliases() as $alias => $key ) {
+		if ( $key === $slug ) {
+			$candidates[] = $alias;
+		}
+	}
+	foreach ( $candidates as $candidate ) {
+		$found = cemeti_find_page( $candidate, $lang );
+		if ( $found && 'publish' === get_post_status( $found ) ) {
+			$id = $found;
+			break;
+		}
+	}
+	if ( ! $id && function_exists( 'pll_get_post' ) ) {
+		$english = cemeti_find_page( $slug, cemeti_default_lang() );
+		$id      = $english ? (int) pll_get_post( $english, $lang ) : 0;
+	}
+	return $id ? (string) get_permalink( $id ) : cemeti_url( $path );
+}
+
+/**
  * Is this menu path the page being viewed? Entries with a query string never match.
  *
  * @param string $path Menu path.
@@ -83,7 +122,7 @@ function cemeti_menu_is_current( $path ) {
 		return false;
 	}
 	$request = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_parse_url( wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH ) : '';
-	$target  = (string) wp_parse_url( cemeti_url( $path ), PHP_URL_PATH );
+	$target  = (string) wp_parse_url( cemeti_menu_url( $path ), PHP_URL_PATH );
 	return trim( $request, '/' ) === trim( $target, '/' );
 }
 
@@ -98,11 +137,11 @@ function cemeti_render_menu_items( array $groups ) {
 		echo '<ul class="' . esc_attr( $class ) . '">';
 		foreach ( $group['items'] as $item ) {
 			$current = cemeti_menu_is_current( $item['path'] ) ? ' aria-current="page"' : '';
-			echo '<li class="cemeti-menu__item"><a href="' . esc_url( cemeti_url( $item['path'] ) ) . '"' . $current . '>' . esc_html( $item['label'] ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
+			echo '<li class="cemeti-menu__item"><a href="' . esc_url( cemeti_menu_url( $item['path'] ) ) . '"' . $current . '>' . esc_html( $item['label'] ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput
 			if ( ! empty( $item['children'] ) ) {
 				echo '<ul class="cemeti-menu__sub">';
 				foreach ( $item['children'] as $child ) {
-					echo '<li><a href="' . esc_url( cemeti_url( $child['path'] ) ) . '">' . esc_html( $child['label'] ) . '</a></li>';
+					echo '<li><a href="' . esc_url( cemeti_menu_url( $child['path'] ) ) . '">' . esc_html( $child['label'] ) . '</a></li>';
 				}
 				echo '</ul>';
 			}

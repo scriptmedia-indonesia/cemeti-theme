@@ -129,6 +129,19 @@ foreach ( $kids as $kid_id => $kid ) {
 }
 ok( 0 === cemeti_create_missing_pages() && 16 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
 
+// ---- menu links lead to the real page of the current language (Indonesian slugs differ: "tentang", "kontak")
+$by = static function ( $slug, $lang ) { foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'page' === $pp['post_type'] && $slug === $pp['post_name'] && ( $GLOBALS['pll']['lang'][ $pid ] ?? '' ) === $lang ) { return $pid; } } return 0; };
+$about_id = $by( 'about', 'id' ); $contact_id = $by( 'contact-us', 'id' );
+CemetiWP::$posts[ $about_id ]['post_name'] = 'tentang';
+CemetiWP::$posts[ $contact_id ]['post_name'] = 'kontak';
+$GLOBALS['pll']['current'] = 'id';
+ok( false !== strpos( cemeti_menu_url( 'about' ), '/tentang' ) && false !== strpos( cemeti_menu_url( 'contact-us' ), '/kontak' ), 'menu: Indonesian About and Contact Us link to "tentang" and "kontak", not to missing English slugs' );
+ok( false !== strpos( cemeti_menu_url( 'support-us' ), 'support-us' ) && false !== strpos( cemeti_menu_url( 'exhibition' ), 'exhibition' ), 'menu: pages that keep their slug and program paths still link normally' );
+$GLOBALS['pll']['current'] = 'en';
+ok( false !== strpos( cemeti_menu_url( 'about' ), '/about' ), 'menu: the English About link is unchanged' );
+CemetiWP::$posts[ $about_id ]['post_name'] = 'about';
+CemetiWP::$posts[ $contact_id ]['post_name'] = 'contact-us';
+
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
 	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {
