@@ -67,6 +67,7 @@ mutate "pages: existing page overwritten"         $T/inc/pages.php "if ( ! \$par
 mutate "polylang: types listed with a wrong value"  $T/inc/content-model.php "\$translatable[ \$type ] = \$type;" "\$translatable[ \$type ] = 'cemeti';" flows-polylang
 mutate "pictures: first picture not used"         $T/inc/templates.php "if ( preg_match( '/wp-image-(\\d+)/', \$content, \$match ) ) {" "if ( false ) {" flows-content
 mutate "old language links kept in the text"      $T/inc/templates.php "add_filter( 'the_content', 'cemeti_filter_language_links', 5 );" "" render-pages flows-content
+mutate "pages: Indonesian page not recognised"      $T/inc/pages.php "\$aliases = cemeti_page_slug_aliases();" "\$aliases = array();" flows-pages flows-languages
 mutate "home: the <h1> removed"                    $T/front-page.php '<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( '"'"'institution_name'"'"' ) ); ?></h1>' "" render-pages
 mutate "header: logo without alt text"             $T/header.php 'fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( '"'"'institution_name'"'"' ) ); ?>">' 'fetchpriority="high">' render-pages
 if node -e "require('playwright')" >/dev/null 2>&1; then

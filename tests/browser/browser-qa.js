@@ -519,6 +519,47 @@ async function open( browser, name, width, height, extra = {} ) {
 		await e.ctx.close();
 	}
 
+	/* ---- 7k. English and Indonesian are the same design: same sizes, positions, fonts, colours; no overflow in Indonesian. */
+	{
+		const names = fs.readdirSync( dir ).filter( ( f ) => /^pair-.*-en\.html$/.test( f ) ).map( ( f ) => f.replace( /^pair-|-en\.html$/g, '' ) );
+		const probe = () => {
+			const pick = ( q ) => [ ...document.querySelectorAll( q ) ].slice( 0, 12 ).map( ( e ) => { const r = e.getBoundingClientRect(); return '.cemeti-heading' === q ? [ Math.round( r.x + r.width / 2 ), 0 ] : [ Math.round( r.x ), Math.round( r.width ) ]; } ); // A title has its own words: only its centre must match.
+			const style = ( q ) => [ ...document.querySelectorAll( q ) ].slice( 0, 6 ).map( ( e ) => { const c = getComputedStyle( e ); return [ c.fontSize, c.fontWeight, c.fontFamily.split( ',' )[ 0 ], c.color ].join( '|' ); } );
+			const boxes = [ '.cemeti-header', '.cemeti-container', '.cemeti-single__poster', '.cemeti-single__hero', '.cemeti-card', '.cemeti-photos__grid img', '.cemeti-bio__photo', '.cemeti-opencall__poster', '.cemeti-home__poster img', '.cemeti-people__grid img', '.cemeti-heading', '.cemeti-footer__inner' ];
+			const styles = [ 'h1', 'h2', '.cemeti-single__title', '.cemeti-card__title', '.cemeti-card__body', '.cemeti-btn', '.cemeti-section-heading', '.cemeti-toc__links a', '.cemeti-row__title', '.cemeti-home__title' ];
+			const out = {};
+			boxes.forEach( ( q ) => { out[ 'box ' + q ] = pick( q ); } );
+			styles.forEach( ( q ) => { out[ 'style ' + q ] = style( q ); } );
+			return out;
+		};
+		let compared = 0;
+		for ( const name of names ) {
+			const en = await open( browser, 'pair-' + name + '-en', 1440, 900, { reducedMotion: 'reduce' } );
+			const id = await open( browser, 'pair-' + name + '-id', 1440, 900, { reducedMotion: 'reduce' } );
+			const a = await en.page.evaluate( probe );
+			const b = await id.page.evaluate( probe );
+			const diffs = [];
+			Object.keys( a ).forEach( ( key ) => {
+				const x = JSON.stringify( a[ key ] );
+				const y = JSON.stringify( b[ key ] );
+				if ( key.startsWith( 'style ' ) ) {
+					if ( x !== y ) { diffs.push( key + ' ' + x + ' vs ' + y ); }
+				} else if ( a[ key ].length !== b[ key ].length || a[ key ].some( ( v, i ) => Math.abs( v[ 0 ] - b[ key ][ i ][ 0 ] ) > 2 || Math.abs( v[ 1 ] - b[ key ][ i ][ 1 ] ) > 2 ) ) {
+					diffs.push( key + ' ' + x + ' vs ' + y );
+				}
+			} );
+			ok( ! diffs.length, `EN = ID at 1440: ${ name }${ diffs.length ? ' — ' + diffs.slice( 0, 2 ).join( ' ; ' ) : '' }` );
+			await en.ctx.close();
+			await id.ctx.close();
+			const narrow = await open( browser, 'pair-' + name + '-id', 360, 740 );
+			const over = await narrow.page.evaluate( () => document.documentElement.scrollWidth - document.documentElement.clientWidth );
+			ok( over <= 1, `Indonesian text does not overflow at 360px: ${ name } (${ over }px)` );
+			await narrow.ctx.close();
+			compared++;
+		}
+		ok( compared >= 20, 'language pairs compared: ' + compared );
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

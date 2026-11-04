@@ -103,9 +103,10 @@ node tests/browser/serve.js      # then open http://127.0.0.1:8765/build/qa/home
 | `flows-content.php` | post types/taxonomies/terms, saving fields (nonce, permissions, sanitising), two-way related, status logic on the boundary days, What's on and its cache, archive ordering and filters, SEO tags and JSON-LD, security hooks, redirects |
 | `flows-apply.php` | the application form from submit to stored entry and e-mails; every refusal (spam, size, type, closed, rate limit); header injection; cleanup on failure; download permissions and path traversal; deleting an entry deletes its files |
 | `flows-migration.php` | the converter end to end on a synthetic old site: batches, dates from text, tags, projects, languages, redirects, revert, manual mode |
+| `flows-languages.php` | every main template (home, archives, details, fixed pages, search, 404) rendered in English and Indonesian: same structure; writes pairs for the browser test |
 | `flows-polylang.php` | the theme with Polylang active: URLs per language, strings, switcher, converter linking translations |
 | `m2…m5-logic`, `migration-logic` | small pure functions: date reader, rules, pairing, summaries, JSON-LD builders, upload validation |
-| `browser/browser-qa.js` | in Chromium: no horizontal scroll at 360/768/1280/1920 px on 16 pages, no script errors, menu/search/dialog behaviour (ESC, focus, scroll lock), keyboard focus rings, 24px touch targets, design measurements (header, menu, footer), fonts really load, form validation, colour contrast report |
+| `browser/browser-qa.js` | in Chromium: English and Indonesian pages have the same sizes, positions, fonts and colours, and Indonesian text does not overflow at 360 px; no horizontal scroll at 360/768/1280/1920 px on 16 pages, no script errors, menu/search/dialog behaviour (ESC, focus, scroll lock), keyboard focus rings, 24px touch targets, design measurements (header, menu, footer), fonts really load, form validation, colour contrast report |
 
 **What the tests cannot prove.** They run on a simulation of WordPress (`tests/harness/wp-stubs.php`): SQL is
 replaced by PHP, there is no MySQL, no real Polylang, no web server. They prove the theme builds the right

@@ -372,3 +372,34 @@ function cemeti_save_page_type( $post_id ) {
 	}
 }
 add_action( 'save_post_page', 'cemeti_save_page_type' );
+
+
+/**
+ * The rows of Support Us: the child pages of this page. A translated copy that has no children of its own shows
+ * the rows of the other language's page (each one in the current language when it has a translation), so English
+ * and Indonesian always show the same rows.
+ *
+ * @param int $page_id Support Us page ID.
+ * @return WP_Post[]
+ */
+function cemeti_support_rows( $page_id ) {
+	$args = array( 'parent' => $page_id, 'sort_column' => 'menu_order,post_title', 'post_status' => 'publish' );
+	$rows = get_pages( $args );
+	if ( $rows || ! function_exists( 'pll_get_post_translations' ) ) {
+		return $rows;
+	}
+	$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
+	foreach ( (array) pll_get_post_translations( $page_id ) as $other ) {
+		if ( (int) $other === (int) $page_id ) {
+			continue;
+		}
+		foreach ( get_pages( array_merge( $args, array( 'parent' => (int) $other ) ) ) as $row ) {
+			$mine   = $lang && function_exists( 'pll_get_post' ) ? (int) pll_get_post( $row->ID, $lang ) : 0;
+			$rows[] = $mine ? get_post( $mine ) : $row;
+		}
+		if ( $rows ) {
+			break;
+		}
+	}
+	return $rows;
+}

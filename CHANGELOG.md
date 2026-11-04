@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.4
+
+- English and Indonesian are tested to be the same design on every main page (home, all archives and filters, all
+  detail pages, About / Open Archive / Support Us / Contact Us with an Indonesian copy under its own slug, search, 404):
+  same structure (PHP) and same sizes, positions, fonts and colours (browser), no overflow of the longer Indonesian
+  text at 360 px.
+- Fixed by that test: the Indonesian Support Us page showed no rows (its rows are child pages of the English page); it now
+  shows the rows, each through its Indonesian copy when it has one.
+
 ## 0.9.3
 
 - English and Indonesian now look the same. Cause of the difference seen on "Tentang": the Indonesian page had its

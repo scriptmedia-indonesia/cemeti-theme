@@ -12,13 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 the_post();
-$cemeti_rows = get_pages(
-	array(
-		'parent'      => get_the_ID(),
-		'sort_column' => 'menu_order,post_title',
-		'post_status' => 'publish',
-	)
-);
+$cemeti_rows = cemeti_support_rows( get_the_ID() );
 ?>
 <article class="cemeti-single cemeti-single--support">
 	<div class="cemeti-container">
