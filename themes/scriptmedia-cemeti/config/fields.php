@@ -110,6 +110,8 @@ $fields = array(
 	),
 	'journal'        => array(
 		array( 'key' => 'author', 'label' => 'Author', 'type' => 'text' ),
+		array( 'key' => 'documentation', 'label' => 'Documentation (photos)', 'type' => 'images', 'section' => 'Documentation', 'help' => 'Photos shown after the article, under the heading "Documentation". Add them in the order they should appear.' ),
+		array( 'key' => 'documentation_caption', 'label' => 'Documentation caption', 'type' => 'text' ),
 		$related,
 	),
 	'person'         => array(

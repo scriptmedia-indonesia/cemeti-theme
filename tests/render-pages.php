@@ -119,9 +119,13 @@ file_put_contents( "$out/admin-exhibition.html", '<!doctype html><html lang="en"
 page( 'single-public-program', 'single.php', array( 'singular' => true ), array( 'post' => $ids['pp_past'], 'path' => '/public-program/x/' ) );
 page( 'single-open-studio', 'single.php', array( 'singular' => true ), array( 'post' => $ids['os_current'], 'path' => '/open-studio/x/' ) );
 page( 'single-residency', 'single.php', array( 'singular' => true ), array( 'post' => $ids['res_current'], 'path' => '/residency/x/' ) );
+update_post_meta( $ids['j_essay'], 'cemeti_documentation', array( 506, 506 ) );
+update_post_meta( $ids['j_essay'], 'cemeti_documentation_caption', 'Dinner table' );
 $h = page( 'single-journal', 'single-journal.php', array( 'singular' => true ), array( 'post' => $ids['j_essay'], 'path' => '/journal/x/' ) );
 ok( false !== strpos( $h, 'Mira Asriningtyas' ) && false !== strpos( $h, '01-07-2024' ), 'single journal: author and date' );
 ok( false !== strpos( $h, 'cemeti-related' ), 'single journal: related publications' );
+ok( false !== strpos( $h, 'class="cemeti-single__figure"' ) && false !== strpos( $h, 'Fine dining at Cemeti, 2025.' ), 'single journal: hero picture with its caption (Figma)' );
+ok( 2 === substr_count( $h, 'class="cemeti-photos__grid"' ) + substr_count( $h, '<figure class="cemeti-photos">' ) && false !== strpos( $h, 'id="documentation"' ) && false !== strpos( $h, 'Dinner table' ), 'single journal: Documentation section with its photos and caption' );
 
 // ---- Open Call
 $h = page( 'single-open-call', 'single-open_call.php', array( 'singular' => true ), array( 'post' => $ids['oc_open'], 'path' => '/open-call/x/' ) );

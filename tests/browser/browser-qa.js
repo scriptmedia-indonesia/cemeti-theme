@@ -512,6 +512,18 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( 'center' === await li.locator( '.cemeti-people__text' ).evaluate( ( e ) => getComputedStyle( e ).textAlign ), 'qa2: Advisory Board name is centred' );
 		}
 		{
+			const jr = await open( browser, 'single-journal', 1440, 900 );
+			const fb = await jr.page.locator( '.cemeti-single__figure img' ).boundingBox();
+			const cb = await jr.page.locator( '.cemeti-single__figure figcaption' ).boundingBox();
+			ok( Math.abs( fb.width - 848 ) < 2 && Math.abs( fb.x + fb.width / 2 - 720 ) < 2, `qa3: journal picture is 848 px wide and centred (${ Math.round( fb.width ) })` );
+			ok( cb.y >= fb.y + fb.height && parseFloat( await jr.page.locator( '.cemeti-single__figure figcaption' ).evaluate( ( e ) => getComputedStyle( e ).paddingLeft ) ) > 60, 'qa3: journal caption sits under the picture, indented' );
+			ok( Math.abs( fb.height - 602 ) < 2, 'qa3: journal picture ratio 848 x 602' );
+			await jr.ctx.close();
+			const jp = await open( browser, 'single-journal', 390, 800 );
+			ok( await jp.page.evaluate( () => document.documentElement.scrollWidth <= document.documentElement.clientWidth ), 'qa3: journal fits a phone' );
+			await jp.ctx.close();
+		}
+		{
 			const lg = await open( browser, 'archive-exhibition', 1440, 900 );
 			const col = ( sel ) => lg.page.locator( sel ).first().evaluate( ( e ) => getComputedStyle( e ).color );
 			const cur = await lg.page.locator( '.cemeti-lang a[aria-current]' ).first().evaluate( ( e ) => getComputedStyle( e ).color );

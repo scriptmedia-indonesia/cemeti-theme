@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 the_post();
 $cemeti_related = cemeti_get_related( get_the_ID() );
+$cemeti_docs    = cemeti_get_field( 'documentation', get_the_ID() );
 $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 ?>
 <article class="cemeti-single cemeti-single--journal">
@@ -20,7 +21,13 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 			<a class="cemeti-back" href="<?php echo esc_url( cemeti_back_url() ); ?>"><span aria-hidden="true">←</span> <?php echo esc_html( cemeti_t( 'back' ) ); ?></a>
 		</div>
 		<?php if ( has_post_thumbnail() ) : ?>
-			<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
+			<?php $cemeti_caption = trim( wp_strip_all_tags( (string) wp_get_attachment_caption( get_post_thumbnail_id() ) ) ); ?>
+			<figure class="cemeti-single__figure">
+				<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
+				<?php if ( '' !== $cemeti_caption ) : ?>
+					<figcaption><?php echo esc_html( $cemeti_caption ); ?></figcaption>
+				<?php endif; ?>
+			</figure>
 		<?php endif; ?>
 		<header class="cemeti-single__head">
 			<h1 class="cemeti-single__title"><?php the_title(); ?></h1>
@@ -33,6 +40,13 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 			<p class="cemeti-single__lead"><?php echo esc_html( get_the_excerpt() ); ?></p>
 		<?php endif; ?>
 		<div class="cemeti-single__body"><?php the_content(); ?></div>
+
+		<?php if ( $cemeti_docs ) : ?>
+			<section class="cemeti-single__section">
+				<?php cemeti_section_heading( cemeti_t( 'documentation' ), 'documentation' ); ?>
+				<?php cemeti_render_photos( $cemeti_docs, (string) cemeti_get_field( 'documentation_caption', get_the_ID() ) ); ?>
+			</section>
+		<?php endif; ?>
 
 		<?php if ( $cemeti_related ) : ?>
 			<section class="cemeti-single__section">

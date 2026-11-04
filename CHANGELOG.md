@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.10
+
+- Journal detail follows the design: the picture is 848 px wide (centred, same ratio as About) with its caption under
+  it, indented (the caption is the image's Caption in the Media Library). New Journal fields: Documentation (photos)
+  and its caption, shown after the article under the heading Documentation / Dokumentasi.
+
 ## 0.9.9
 
 - QA round 2: the language switch fades the selected language (it was the other one); Home residency excerpt is

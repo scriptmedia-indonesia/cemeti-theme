@@ -976,6 +976,9 @@ function get_queried_object_id() {
 function _n( $single, $plural, $n ) {
 	return 1 === (int) $n ? $single : $plural;
 }
+function wp_get_attachment_caption( $id = 0 ) {
+	return 506 === (int) $id ? 'Fine dining at Cemeti, 2025.' : '';
+}
 function wp_get_attachment_image( $id, $size = 'thumbnail', $icon = false, $attr = array() ) {
 	$attr = array_merge( array( 'src' => 'http://cemeti.test/img/' . $id . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg', 'alt' => 'Image ' . $id ), $attr );
 	$html = '<img';
