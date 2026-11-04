@@ -560,6 +560,22 @@ async function open( browser, name, width, height, extra = {} ) {
 		ok( compared >= 20, 'language pairs compared: ' + compared );
 	}
 
+	/* ---- 7l. Residency page: Regular / Research as in the design. */
+	{
+		const r = await open( browser, 'archive-residency', 1440, 900, { reducedMotion: 'reduce' } );
+		const rp = r.page;
+		const num = ( q, p ) => rp.evaluate( ( [ sel, prop ] ) => parseFloat( getComputedStyle( document.querySelector( sel ) )[ prop ] ), [ q, p ] );
+		const titleSize = await num( '.cemeti-page-head .cemeti-heading', 'fontSize' );
+		const subSize = await num( '.cemeti-residency-intro h2', 'fontSize' );
+		ok( subSize < titleSize && subSize === 40, `residency: Regular / Research titles (${ subSize }px) are smaller than the page title (${ titleSize }px)` );
+		ok( 400 === await num( '.cemeti-residency-intro p', 'fontWeight' ) && 24 === await num( '.cemeti-residency-intro p', 'fontSize' ), 'residency: the text is regular weight, 24px' );
+		const cols = await rp.locator( '.cemeti-residency-intro > section' ).evaluateAll( ( els ) => els.map( ( e ) => { const b = e.getBoundingClientRect(); return [ Math.round( b.x ), Math.round( b.width ) ]; } ) );
+		ok( cols.length === 2 && Math.abs( cols[ 0 ][ 1 ] - cols[ 1 ][ 1 ] ) < 2 && Math.abs( cols[ 0 ][ 0 ] - 188 ) < 3, `residency: two equal columns inside the reading column (${ JSON.stringify( cols ) })` );
+		const centred = await rp.locator( '.cemeti-residency-intro h2' ).evaluateAll( ( els ) => els.every( ( e ) => getComputedStyle( e ).textAlign === 'center' ) );
+		ok( centred, 'residency: each title is centred over its text' );
+		await r.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

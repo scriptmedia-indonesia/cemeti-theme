@@ -3,6 +3,11 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.5
+
+- Residency page: Regular and Research sit side by side inside the reading column (two equal columns), each title
+  centred over its text at 40 px (the page title is 64 px), the text 24 px regular weight (was bold).
+
 ## 0.9.4
 
 - English and Indonesian are tested to be the same design on every main page (home, all archives and filters, all
