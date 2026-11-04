@@ -30,7 +30,8 @@ function cemeti_setup() {
 	);
 
 	// Square card, poster and hero sizes from the design brief.
-	add_image_size( 'cemeti-card', 600, 600, true );
+	add_image_size( 'cemeti-card', 616, 772, true );   // 4:5, twice the 308 x 386 card of the design
+	add_image_size( 'cemeti-square', 600, 600, true );
 	add_image_size( 'cemeti-poster', 1200, 0, false );
 	add_image_size( 'cemeti-hero', 1600, 0, false );
 }

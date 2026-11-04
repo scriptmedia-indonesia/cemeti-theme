@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.9
+
+- QA round 2: the language switch fades the selected language (it was the other one); Home residency excerpt is
+  regular weight and Home titles have space above the date; Advisory Board shows a larger photo with the name
+  centred under it; People list in the admin has Title / role and Order columns, sorted by Order (lower = higher
+  on the About page; Team divisions follow the order of their first member); archive thumbnails are now cut 4:5
+  (616 x 772) like the card instead of square (regenerate thumbnails to apply to old uploads); on screens wider
+  than 1600 px the archive cards grow instead of staying at the 1440 px size.
+
 ## 0.9.8
 
 - Pre-release QA sweep (every page fixture at 11 widths from 320 to 1920 px plus landscape phones): a very long search

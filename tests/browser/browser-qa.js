@@ -506,7 +506,25 @@ async function open( browser, name, width, height, extra = {} ) {
 		if ( await li.count() ) {
 			const lb = await li.boundingBox();
 			const ib = await li.locator( 'img' ).boundingBox();
-			ok( ib.width / lb.width > 0.4, `qa: Advisory Board photo fills about half of its cell (${ Math.round( ib.width / lb.width * 100 ) }%)` );
+			ok( ib.width / lb.width > 0.95, `qa2: Advisory Board photo fills its cell (${ Math.round( ib.width / lb.width * 100 ) }%)` );
+			const nb = await li.locator( 'strong' ).boundingBox();
+			ok( nb.y >= ib.y + ib.height - 1, 'qa2: Advisory Board name sits under the photo' );
+			ok( 'center' === await li.locator( '.cemeti-people__text' ).evaluate( ( e ) => getComputedStyle( e ).textAlign ), 'qa2: Advisory Board name is centred' );
+		}
+		{
+			const lg = await open( browser, 'archive-exhibition', 1440, 900 );
+			const col = ( sel ) => lg.page.locator( sel ).first().evaluate( ( e ) => getComputedStyle( e ).color );
+			const cur = await lg.page.locator( '.cemeti-lang a[aria-current]' ).first().evaluate( ( e ) => getComputedStyle( e ).color );
+			await lg.page.evaluate( () => { const a = document.createElement( 'a' ); a.href = '#'; a.textContent = 'EN'; document.querySelector( '.cemeti-lang' ).appendChild( a ); } );
+			const oth = await lg.page.locator( '.cemeti-lang a:not([aria-current])' ).first().evaluate( ( e ) => getComputedStyle( e ).color );
+			ok( cur !== oth && 'rgb(133, 133, 133)' === cur, `qa2: the selected language is the faded one (${ cur } vs ${ oth })` );
+			await lg.ctx.close();
+			const hm = await open( browser, 'home', 1440, 900 );
+			const w = await hm.page.locator( '.cemeti-home__text > p:not([class])' ).first().evaluate( ( e ) => parseFloat( getComputedStyle( e ).fontWeight ) ).catch( () => 400 );
+			ok( 400 === w, 'qa2: Home excerpt text is regular weight' );
+			const gaps = await hm.page.evaluate( () => [ ...document.querySelectorAll( '.cemeti-home__title + .cemeti-home__date' ) ].map( ( d ) => d.getBoundingClientRect().top - d.previousElementSibling.getBoundingClientRect().bottom ) );
+			ok( gaps.every( ( g ) => g >= 8 ), 'qa2: Home title and date have breathing space (' + gaps.map( Math.round ) + ')' );
+			await hm.ctx.close();
 		}
 		await ab.ctx.close();
 	}

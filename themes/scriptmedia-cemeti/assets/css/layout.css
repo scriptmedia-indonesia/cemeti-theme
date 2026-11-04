@@ -63,8 +63,8 @@
 	font-weight: 500;
 }
 /* Padding with an equal negative margin: a 24px+ target without moving anything (WCAG 2.2, 2.5.8). */
-.cemeti-lang a { display: inline-block; padding: 0.4rem 0.4rem; margin: -0.4rem -0.4rem; text-decoration: none; color: #9a9a9a; }
-.cemeti-lang a[aria-current] { color: var(--c-ink); }
+.cemeti-lang a { display: inline-block; padding: 0.4rem 0.4rem; margin: -0.4rem -0.4rem; text-decoration: none; color: var(--c-ink); }
+.cemeti-lang a[aria-current] { color: #858585; }
 .cemeti-lang a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
 .cemeti-lang__sep { color: var(--c-ink); }
 .cemeti-search-toggle:hover { color: var(--c-blue); }

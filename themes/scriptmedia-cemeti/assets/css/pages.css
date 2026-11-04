@@ -334,3 +334,15 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
 	.cemeti-header { position: relative; }
 }
+
+/* ---- QA round 2 ---- */
+.cemeti-home__text > p:not([class]) { font-weight: 400; }                          /* residency excerpt: regular, not bold */
+.cemeti-home__title + .cemeti-home__date { margin-top: 0.6em; }                    /* public programme: air between title and date */
+.cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: 1fr; gap: 2.5rem 2rem; }
+@media (min-width: 40rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(3, 1fr); } }
+.cemeti-people--advisory-board .cemeti-people__grid li { display: block; text-align: center; }
+.cemeti-people--advisory-board .cemeti-people__grid img { width: 100%; aspect-ratio: 1; object-fit: cover; margin: 0 0 1rem; }
+.cemeti-people--advisory-board .cemeti-people__text { text-align: center; }
+/* Bigger screens: the archive cards grow with the page instead of staying at the 1440 px size. */
+@media (min-width: 100rem) { .cemeti-card-grid { width: min(100%, 1520px); margin-inline: auto; } }

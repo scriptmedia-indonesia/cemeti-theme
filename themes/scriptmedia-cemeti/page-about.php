@@ -59,7 +59,7 @@ $cemeti_by_group = cemeti_people_by_group();
 						<?php foreach ( $cemeti_by_group[ $cemeti_slug ] as $cemeti_person ) : ?>
 							<li>
 								<?php if ( has_post_thumbnail( $cemeti_person->ID ) ) : ?>
-									<?php echo get_the_post_thumbnail( $cemeti_person, 'cemeti-card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+									<?php echo get_the_post_thumbnail( $cemeti_person, 'cemeti-square', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 								<?php endif; ?>
 								<span class="cemeti-people__text">
 									<strong><?php echo esc_html( get_the_title( $cemeti_person ) ); ?></strong>

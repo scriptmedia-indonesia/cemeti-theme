@@ -156,3 +156,65 @@ function cemeti_group_people_by_role( array $people ) {
 	}
 	return array_values( $roles );
 }
+
+
+/**
+ * People list in the admin: Group, Title / role and Order columns, sorted by Order (the "Order" box in
+ * Page Attributes) so the editor sees the order the About page uses. A lower number is shown higher; the
+ * divisions of the Team block appear in the order of their first member.
+ *
+ * @param array $columns Columns.
+ * @return array
+ */
+function cemeti_person_columns( $columns ) {
+	$out = array();
+	foreach ( $columns as $key => $label ) {
+		$out[ $key ] = $label;
+		if ( 'title' === $key ) {
+			$out['cemeti_role']  = __( 'Title / role', 'scriptmedia-cemeti' );
+			$out['cemeti_order'] = __( 'Order', 'scriptmedia-cemeti' );
+		}
+	}
+	return $out;
+}
+add_filter( 'manage_person_posts_columns', 'cemeti_person_columns' );
+
+/**
+ * Cells of the People columns.
+ *
+ * @param string $column  Column key.
+ * @param int    $post_id Post ID.
+ */
+function cemeti_person_column_value( $column, $post_id ) {
+	if ( 'cemeti_role' === $column ) {
+		echo esc_html( (string) cemeti_get_field( 'role', $post_id ) );
+	} elseif ( 'cemeti_order' === $column ) {
+		echo (int) get_post_field( 'menu_order', $post_id );
+	}
+}
+add_action( 'manage_person_posts_custom_column', 'cemeti_person_column_value', 10, 2 );
+
+/**
+ * Make the Order column sortable and the default sort of the People list.
+ *
+ * @param array $columns Sortable columns.
+ * @return array
+ */
+function cemeti_person_sortable( $columns ) {
+	$columns['cemeti_order'] = 'menu_order';
+	return $columns;
+}
+add_filter( 'manage_edit-person_sortable_columns', 'cemeti_person_sortable' );
+
+/**
+ * Default sort of the People list: by Order, then name.
+ *
+ * @param WP_Query $query Query.
+ */
+function cemeti_person_default_sort( $query ) {
+	if ( ! is_admin() || ! $query->is_main_query() || 'person' !== $query->get( 'post_type' ) || $query->get( 'orderby' ) ) {
+		return;
+	}
+	$query->set( 'orderby', array( 'menu_order' => 'ASC', 'title' => 'ASC' ) );
+}
+add_action( 'pre_get_posts', 'cemeti_person_default_sort' );

@@ -312,7 +312,7 @@ function cemeti_render_biographies( array $rows ) {
 	foreach ( $rows as $row ) {
 		echo '<div class="cemeti-bio">';
 		if ( ! empty( $row['photo'] ) ) {
-			echo wp_get_attachment_image( (int) $row['photo'], 'cemeti-card', false, array( 'class' => 'cemeti-bio__photo', 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+			echo wp_get_attachment_image( (int) $row['photo'], 'cemeti-square', false, array( 'class' => 'cemeti-bio__photo', 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
 		echo '<div class="cemeti-bio__text">';
 		$bio  = (string) $row['bio'];
