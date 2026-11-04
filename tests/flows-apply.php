@@ -102,6 +102,9 @@ $expect( 'forged token', 'spam', $form( array( 'cemeti_ts' => ( time() - 30 ) . 
 $expect( 'stale form', 'spam', $form( array( 'cemeti_ts' => cemeti_form_token( time() - 99999 ) ) ), $all() );
 $expect( 'wrong nonce', 'spam', $form( array( '_cemeti_nonce' => 'nope' ) ), $all() );
 $expect( 'closed open call', 'closed', $form( array( 'open_call' => $ids['oc_closed'] ) ), $all() );
+update_post_meta( $ids['oc_open'], 'cemeti_active', '0' );
+$expect( 'call switched off by the team (Active unticked)', 'closed', $form(), $all() );
+delete_post_meta( $ids['oc_open'], 'cemeti_active' );
 $expect( 'target is not an open call', 'spam', $form( array( 'open_call' => $ids['ex_current'] ) ), $all() );
 $expect( 'target does not exist', 'spam', $form( array( 'open_call' => 999999 ) ), $all() );
 CemetiWP::$posts[ $ids['oc_open'] ]['post_status'] = 'draft';

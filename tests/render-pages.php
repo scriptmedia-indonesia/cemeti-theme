@@ -55,8 +55,8 @@ $h = page( 'archive-journal', 'archive-journal.php', array( 'pta' => 'journal' )
 ok( 3 === substr_count( $h, 'class="cemeti-row"' ) && strpos( $h, '15-01-2025' ) < strpos( $h, '01-07-2024' ), 'archive journal: rows with dd-mm-yyyy, newest first' );
 ok( false !== strpos( $h, 'Curatorial Essay' ) && false !== strpos( $h, '>Essay<' ), 'archive journal: category label per row' );
 $h = page( 'archive-open-call', 'archive-open_call.php', array( 'pta' => 'open_call' ), array( 'path' => '/open-call/', 'query' => array( 'post_type' => 'open_call' ), 'flags' => array( 'pta' => 'open_call' ) ) );
-ok( 4 === substr_count( $h, 'cemeti-single--open_call' ), 'archive open call: every call shown in full (four)' );
-ok( substr_count( $h, 'cemeti-btn--blue' ) + substr_count( $h, 'cemeti-apply__notice' ) === 4, 'archive open call: each call has the blue button (open) or the closed notice' );
+ok( 1 === substr_count( $h, 'cemeti-single--open_call' ), 'archive open call: only one call is shown' );
+ok( 1 === substr_count( $h, 'cemeti-btn--blue' ) + substr_count( $h, 'cemeti-apply__notice' ), 'archive open call: it has the blue button (active) or the closed notice' );
 ok( false !== strpos( $h, '#apply' ) && false !== strpos( $h, 'Application Submission' ), 'archive open call: the button goes to the form (#apply)' );
 ok( false !== strpos( $h, 'cemeti-single__body' ), 'archive open call: the description is shown' );
 $h = page( 'archive-project', 'archive.php', array( 'term' => 'Maintenance Works' ), array( 'path' => '/project/maintenance-works/', 'query' => array(), 'flags' => array( 'tax' => 'project' ) ) );

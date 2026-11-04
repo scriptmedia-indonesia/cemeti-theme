@@ -64,7 +64,49 @@ function cemeti_application_max_file() {
  * @return bool
  */
 function cemeti_open_call_is_open( $open_call_id ) {
-	return 'publish' === get_post_status( $open_call_id ) && 'previous' !== cemeti_get_status( $open_call_id );
+	if ( 'publish' !== get_post_status( $open_call_id ) ) {
+		return false;
+	}
+	$flag = (string) get_post_meta( $open_call_id, 'cemeti_active', true );
+	if ( '' !== $flag ) {
+		return '1' === $flag; // The team's choice (the "Active" tick) decides.
+	}
+	return 'previous' !== cemeti_get_status( $open_call_id ); // Never touched: open until the deadline.
+}
+
+/**
+ * The call the Open Call page shows: the newest active one; when none is active, the newest call (with its closed notice).
+ *
+ * @return WP_Post|null
+ */
+function cemeti_current_open_call() {
+	$calls = get_posts(
+		array(
+			'post_type'        => 'open_call',
+			'post_status'      => 'publish',
+			'posts_per_page'   => -1,
+			'no_found_rows'    => true,
+			'suppress_filters' => false,
+		)
+	);
+	if ( ! $calls ) {
+		return null;
+	}
+	$deadline = static function ( $post ) {
+		return (string) get_post_meta( $post->ID, 'cemeti_deadline', true ) . '|' . $post->post_date;
+	};
+	usort(
+		$calls,
+		static function ( $a, $b ) use ( $deadline ) {
+			return strcmp( $deadline( $b ), $deadline( $a ) );
+		}
+	);
+	foreach ( $calls as $call ) {
+		if ( cemeti_open_call_is_open( $call->ID ) ) {
+			return $call;
+		}
+	}
+	return $calls[0];
 }
 
 /**
@@ -439,3 +481,76 @@ function cemeti_delete_application_files( $post_id ) {
 	}
 }
 add_action( 'before_delete_post', 'cemeti_delete_application_files' );
+
+/**
+ * Open Call list in the admin: an "Active" column and a one-click Close / Reopen action.
+ *
+ * @param array $columns Columns.
+ * @return array
+ */
+function cemeti_open_call_columns( $columns ) {
+	$out = array();
+	foreach ( $columns as $key => $label ) {
+		$out[ $key ] = $label;
+		if ( 'title' === $key ) {
+			$out['cemeti_active'] = __( 'Active', 'scriptmedia-cemeti' );
+		}
+	}
+	return $out;
+}
+add_filter( 'manage_open_call_posts_columns', 'cemeti_open_call_columns' );
+
+/**
+ * Cell of the "Active" column.
+ *
+ * @param string $column  Column key.
+ * @param int    $post_id Post ID.
+ */
+function cemeti_open_call_column_content( $column, $post_id ) {
+	if ( 'cemeti_active' !== $column ) {
+		return;
+	}
+	if ( cemeti_open_call_is_open( $post_id ) ) {
+		echo '<strong>&#9679; ' . esc_html__( 'Active', 'scriptmedia-cemeti' ) . '</strong>';
+	} else {
+		echo '<span>&#9675; ' . esc_html__( 'Closed', 'scriptmedia-cemeti' ) . '</span>';
+	}
+	$deadline = cemeti_get_date_range( $post_id );
+	if ( '' !== $deadline ) {
+		echo '<br><small>' . esc_html( cemeti_t( 'deadline' ) . ': ' . $deadline ) . '</small>';
+	}
+}
+add_action( 'manage_open_call_posts_custom_column', 'cemeti_open_call_column_content', 10, 2 );
+
+/**
+ * "Close call" / "Reopen call" under the title in the list.
+ *
+ * @param array   $actions Row actions.
+ * @param WP_Post $post    Post.
+ * @return array
+ */
+function cemeti_open_call_row_actions( $actions, $post ) {
+	if ( 'open_call' !== $post->post_type || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return $actions;
+	}
+	$open = cemeti_open_call_is_open( $post->ID );
+	$url  = wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_toggle_call&post=' . (int) $post->ID . '&to=' . ( $open ? '0' : '1' ) ), 'cemeti_toggle_call_' . (int) $post->ID );
+	$actions['cemeti_toggle'] = '<a href="' . esc_url( $url ) . '">' . esc_html( $open ? __( 'Close call', 'scriptmedia-cemeti' ) : __( 'Reopen call', 'scriptmedia-cemeti' ) ) . '</a>';
+	return $actions;
+}
+add_filter( 'post_row_actions', 'cemeti_open_call_row_actions', 10, 2 );
+
+/**
+ * Handle Close / Reopen, then return to the list.
+ */
+function cemeti_handle_toggle_call() {
+	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( ! $post_id || 'open_call' !== get_post_type( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'cemeti_toggle_call_' . $post_id );
+	update_post_meta( $post_id, 'cemeti_active', isset( $_GET['to'] ) && '1' === $_GET['to'] ? '1' : '0' ); // phpcs:ignore WordPress.Security.NonceVerification
+	wp_safe_redirect( admin_url( 'edit.php?post_type=open_call' ) );
+	exit;
+}
+add_action( 'admin_post_cemeti_toggle_call', 'cemeti_handle_toggle_call' );

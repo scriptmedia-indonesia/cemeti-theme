@@ -73,6 +73,8 @@ function cemeti_sanitize_field( array $def, $value ) {
 	switch ( $def['type'] ) {
 		case 'textarea':
 			return is_scalar( $value ) ? sanitize_textarea_field( (string) $value ) : '';
+		case 'checkbox':
+			return is_scalar( $value ) && '1' === (string) $value ? '1' : '0';
 		case 'list':
 			// One entry per row in the admin; stored as lines so every reader keeps working with plain text.
 			$lines = is_array( $value ) ? $value : preg_split( '/\R/', is_scalar( $value ) ? (string) $value : '' );
@@ -172,6 +174,9 @@ function cemeti_render_input( array $def, $value, $name, $id ) {
 		case 'url':
 			printf( '<input type="url" class="regular-text"%s name="%s" value="%s">', $id_attr, esc_attr( $name ), esc_attr( (string) $value ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 			break;
+		case 'checkbox':
+			printf( '<input type="hidden" name="%1$s" value="0"><label><input type="checkbox"%2$s name="%1$s" value="1"%3$s> %4$s</label>', esc_attr( $name ), $id_attr, checked( '1', (string) $value, false ), esc_html( isset( $def['check_label'] ) ? $def['check_label'] : __( 'Yes', 'scriptmedia-cemeti' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
 		case 'list':
 			$lines = '' === (string) $value ? array() : preg_split( '/\R/', (string) $value );
 			$row   = static function ( $line ) use ( $name, $def ) {
@@ -261,6 +266,9 @@ function cemeti_render_meta_box( $post ) {
 		$key   = $def['key'];
 		$id    = 'cemeti_field_' . $key;
 		$value = cemeti_get_field( $key, $post->ID );
+		if ( 'checkbox' === $def['type'] && '' === $value ) {
+			$value = 'active' === $key && 'open_call' === $post->post_type && 'previous' === cemeti_get_status( $post->ID ) ? '0' : '1'; // Never touched: ticked unless its deadline has passed.
+		}
 		$has_control = ! in_array( $def['type'], array( 'repeater', 'list', 'images', 'file', 'image' ), true );
 		echo '<tr><th scope="row">' . ( $has_control ? '<label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label>' : '<span>' . esc_html( $def['label'] ) . '</span>' ) . '</th><td>';
 

@@ -278,7 +278,7 @@ foreach ( $taxes as $key => $t ) {
 		$err( "taxonomy $key slug '{$t['slug']}' clashes with a post type URL" );
 	}
 }
-$known = array( 'text', 'textarea', 'list', 'date', 'url', 'image', 'images', 'file', 'relation', 'repeater' );
+$known = array( 'text', 'textarea', 'checkbox', 'list', 'date', 'url', 'image', 'images', 'file', 'relation', 'repeater' );
 foreach ( $fields as $type => $list ) {
 	if ( ! isset( $types[ $type ] ) ) {
 		$err( "fields defined for unknown post type $type" );

@@ -901,6 +901,10 @@ function get_pages( $args = array() ) {
 	);
 	return $q->posts;
 }
+function setup_postdata( $post ) {
+	$GLOBALS['post'] = $post;
+	return true;
+}
 function wp_reset_postdata() {
 	$GLOBALS['post'] = isset( $GLOBALS['wp_query']->posts[0] ) && is_object( $GLOBALS['wp_query']->posts[0] ) ? $GLOBALS['wp_query']->posts[0] : $GLOBALS['post'];
 }

@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.6
+
+- Open Call page shows one call, in the design layout: the newest call that is ticked Active (when none is active, the
+  newest call with its closed notice).
+- New "Active" tick on every Open Call (Open Call → edit → Details → Status): untick to close it at once, tick to
+  open it (even past its deadline: the team decides). Never touched = open until the deadline, as before. The Open
+  Call list in the admin has an Active column and a one-click "Close call" / "Reopen call". The application form
+  refuses a call that is switched off.
+
 ## 0.9.5
 
 - Residency page: Regular and Research sit side by side inside the reading column (two equal columns), each title

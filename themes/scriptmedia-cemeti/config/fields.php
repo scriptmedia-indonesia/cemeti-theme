@@ -3,7 +3,7 @@
  * Cemeti fields per post type, rendered as a "Details" meta box (inc/fields.php).
  * Poster / cover image is the featured image; body text is the editor.
  *
- * Field types: text, textarea, list (one line per entry, stored newline-separated), date, url, image,
+ * Field types: text, textarea, checkbox, list (one line per entry, stored newline-separated), date, url, image,
  * images, file (a PDF from the media library), relation, repeater. A 'section' key on a field starts a new
  * heading in the "Details" box.
  * Dates are stored as Ymd. 'relation' is two-way and limited to 4 entries.
@@ -103,6 +103,7 @@ $fields = array(
 		array( $biographies, $related )
 	),
 	'open_call'      => array(
+		array( 'key' => 'active', 'label' => 'Active', 'type' => 'checkbox', 'section' => 'Status', 'help' => 'Tick = this call is the one shown on the Open Call page and it accepts applications. Untick to close it at once. If you never touch it, the call closes by itself after its deadline. The Open Call page shows one call: the newest active one.' ),
 		array( 'key' => 'deadline', 'label' => 'Deadline', 'type' => 'date' ),
 		array( 'key' => 'application_url', 'label' => 'External application URL (optional)', 'type' => 'url', 'help' => 'Leave empty to use the built-in form below the text. If set, the blue button goes to this address instead.' ),
 		array( 'key' => 'documents', 'label' => 'Required documents', 'type' => 'text', 'help' => 'Comma separated: cv, portfolio, proposal, motivation. Empty = all four. Use "none" for a form without uploads.' ),

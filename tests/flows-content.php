@@ -192,6 +192,54 @@ $entries = cemeti_archive_entries();
 ok( 10 === count( $entries ), 'open archive: 5 exhibitions, 2 residencies, 2 public programs, 1 open studio (' . count( $entries ) . ' entries)' );
 ok( ! in_array( 'Rangkaian Perayaan #37thCemeti', array_column( $entries, 'title' ), true ), 'open archive: journal excluded' );
 
+/* ------------------------------------------------------------ Open Call: one call, switched on and off by the team */
+$current = cemeti_current_open_call();
+ok( $current && cemeti_open_call_is_open( $current->ID ), 'open call page: the call shown is an active one (' . ( $current ? $current->post_title : 'none' ) . ')' );
+$newest_open = $current->ID;
+foreach ( array( 'oc_open', 'oc_external', 'oc_nodocs' ) as $k ) {
+	update_post_meta( $ids[ $k ], 'cemeti_active', '0' );
+}
+$none = cemeti_current_open_call();
+ok( $none && ! cemeti_open_call_is_open( $none->ID ), 'no active call: the newest call is shown with its closed notice' );
+update_post_meta( $ids['oc_closed'], 'cemeti_active', '1' );
+$forced = cemeti_current_open_call();
+ok( $ids['oc_closed'] === $forced->ID && cemeti_open_call_is_open( $ids['oc_closed'] ), 'a call ticked Active is open even past its deadline (the team decides)' );
+foreach ( array( 'oc_open', 'oc_external', 'oc_nodocs', 'oc_closed' ) as $k ) {
+	delete_post_meta( $ids[ $k ], 'cemeti_active' );
+}
+ok( cemeti_open_call_is_open( $ids['oc_open'] ) && ! cemeti_open_call_is_open( $ids['oc_closed'] ), 'never touched: open until the deadline, as before' );
+// The tick in the editor: unticked is stored as 0, not forgotten.
+$def = cemeti_field_def( 'open_call', 'active' );
+ok( '1' === cemeti_sanitize_field( $def, '1' ) && '0' === cemeti_sanitize_field( $def, '0' ) && '0' === cemeti_sanitize_field( $def, '' ) && '0' === cemeti_sanitize_field( $def, 'yes' ), 'checkbox: only "1" ticks it' );
+CemetiWP::$caps = true;
+$post_save( $ids['oc_open'], array( 'deadline' => '2026-08-14', 'active' => '0' ) );
+ok( '0' === get_post_meta( $ids['oc_open'], 'cemeti_active', true ) && ! cemeti_open_call_is_open( $ids['oc_open'] ), 'saving with the tick off closes the call' );
+$post_save( $ids['oc_open'], array( 'deadline' => '2026-08-14', 'active' => '1' ) );
+ok( cemeti_open_call_is_open( $ids['oc_open'] ), 'saving with the tick on opens it again' );
+do_action( 'add_meta_boxes' );
+ob_start();
+call_user_func( CemetiWP::$meta_boxes['open_call']['cemeti_details'], CemetiWP::obj( $ids['oc_closed'] ) );
+$box = ob_get_clean();
+ok( false !== strpos( $box, 'type="checkbox"' ) && false !== strpos( $box, 'name="cemeti_fields[active]"' ) && false === strpos( $box, 'value="1" checked' ), 'editor: the Active tick is there, unticked for a call past its deadline' );
+// List column and the one-click action.
+ok( isset( cemeti_open_call_columns( array( 'title' => 'Title', 'date' => 'Date' ) )['cemeti_active'] ), 'admin list: an Active column' );
+ob_start(); cemeti_open_call_column_content( 'cemeti_active', $ids['oc_closed'] ); $cell = ob_get_clean();
+ok( false !== strpos( $cell, 'Closed' ), 'admin list: shows Closed for a call past its deadline' );
+$actions = cemeti_open_call_row_actions( array(), CemetiWP::obj( $ids['oc_open'] ) );
+ok( isset( $actions['cemeti_toggle'] ) && false !== strpos( $actions['cemeti_toggle'], 'Close call' ), 'admin list: "Close call" under an active call' );
+$actions = cemeti_open_call_row_actions( array(), CemetiWP::obj( $ids['oc_closed'] ) );
+ok( false !== strpos( $actions['cemeti_toggle'], 'Reopen call' ), 'admin list: "Reopen call" under a closed one' );
+$_GET = $_REQUEST = array( 'post' => $ids['oc_open'], 'to' => '0', '_wpnonce' => 'valid' );
+try { cemeti_handle_toggle_call(); ok( false, 'toggle redirects' ); } catch ( CemetiRedirect $r ) { ok( ! cemeti_open_call_is_open( $ids['oc_open'] ) && false !== strpos( $r->url, 'post_type=open_call' ), 'one-click Close: the call is closed and the list opens again' ); }
+$_GET = $_REQUEST = array( 'post' => $ids['oc_open'], 'to' => '1', '_wpnonce' => 'valid' );
+try { cemeti_handle_toggle_call(); } catch ( CemetiRedirect $r ) { ok( cemeti_open_call_is_open( $ids['oc_open'] ), 'one-click Reopen: open again' ); }
+CemetiWP::$caps = false;
+try { cemeti_handle_toggle_call(); ok( false, 'toggle needs permission' ); } catch ( CemetiDie $x ) { ok( true, 'one-click toggle needs permission' ); }
+CemetiWP::$caps = true;
+$_GET = $_REQUEST = array( 'post' => $ids['p_contact'], 'to' => '0', '_wpnonce' => 'valid' );
+try { cemeti_handle_toggle_call(); ok( false, 'toggle only for open calls' ); } catch ( CemetiDie $x ) { ok( true, 'one-click toggle works only on open calls' ); }
+$_GET = $_REQUEST = array();
+
 /* ------------------------------------------------------------ language links pasted into old entries */
 ok( '<p>Real text</p>' === cemeti_strip_language_links( '<p><a href="/en/x">English</a> | <a href="/x">Indonesia</a></p><p>Real text</p>' ), 'old "English | Indonesia" links are removed' );
 ok( '<p>Real text</p>' === cemeti_strip_language_links( '<p><strong>Indonesia</strong> – <strong>English</strong></p><p>Real text</p>' ), 'also with a dash and bold' );

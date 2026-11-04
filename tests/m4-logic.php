@@ -6,7 +6,7 @@ function add_action() {} function add_filter() {} function apply_filters( $t, $v
 function sanitize_file_name( $s ) { return $s; }
 function wp_salt( $s ) { return 'test-salt-' . $s; }
 function cemeti_get_field( $k, $id ) { return $GLOBALS['field']; }
-function get_post_status( $id ) { return 'publish'; } function cemeti_get_status( $id ) { return $GLOBALS['status'] ?? 'current'; }
+function get_post_meta( $id, $k = '', $single = false ) { return $GLOBALS['flag'] ?? ''; } function get_post_status( $id ) { return 'publish'; } function cemeti_get_status( $id ) { return $GLOBALS['status'] ?? 'current'; }
 require CEMETI_DIR . '/inc/core-bridge.php'; require CEMETI_DIR . '/inc/applications.php'; require CEMETI_DIR . '/inc/search.php';
 
 $fail = 0; function ok( $c, $m ) { global $fail; echo ( $c ? 'PASS ' : 'FAIL ' ) . $m . "\n"; if ( ! $c ) { $fail++; } }
@@ -47,4 +47,7 @@ $GLOBALS['field'] = 'none';
 ok( cemeti_open_call_documents( 1 ) === array(), 'documents: none' );
 $GLOBALS['status'] = 'previous'; ok( ! cemeti_open_call_is_open( 1 ), 'closed after the deadline' );
 $GLOBALS['status'] = 'current'; ok( cemeti_open_call_is_open( 1 ), 'open before the deadline' );
+$GLOBALS['flag'] = '0'; ok( ! cemeti_open_call_is_open( 1 ), 'unticked Active closes a call that is still before its deadline' );
+$GLOBALS['flag'] = '1'; $GLOBALS['status'] = 'previous'; ok( cemeti_open_call_is_open( 1 ), 'ticked Active keeps a call open past its deadline (the team decides)' );
+unset( $GLOBALS['flag'] );
 echo $fail ? "\n$fail FAILED\n" : "\nALL OK\n"; exit( $fail ? 1 : 0 );
