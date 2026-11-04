@@ -123,19 +123,41 @@ function cemeti_people_by_group() {
 	}
 	$groups = array( 'advisory-board' => array(), 'team' => array() );
 	foreach ( $people as $person ) {
-		$key   = 'team';
-		$terms = get_the_terms( $person->ID, 'person_group' );
-		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
-			if ( preg_match( '/advis|penasihat|penasehat/i', $term->slug . ' ' . $term->name ) ) {
-				$key = 'advisory-board';
-				break;
-			}
-		}
-		$groups[ $key ][] = $person;
+		$groups[ cemeti_person_group_key( $person ) ][] = $person;
 	}
 	return $groups;
 }
 
+
+/**
+ * Group of one person: "advisory-board" or "team".
+ *
+ * The person's own group term decides. A translation often has no term (Polylang does not copy it unless
+ * "Group" is synchronised), so then the term of the other-language versions is used, and finally the
+ * Title / role text ("Advisory Board", "Dewan Penasihat"). Nothing found = Team.
+ *
+ * @param WP_Post $person Person.
+ * @return string
+ */
+function cemeti_person_group_key( $person ) {
+	$pattern = '/advis|penasihat|penasehat|dewan/i';
+	$ids     = array( $person->ID );
+	if ( function_exists( 'pll_get_post_translations' ) ) {
+		$ids = array_merge( $ids, array_map( 'intval', array_values( (array) pll_get_post_translations( $person->ID ) ) ) );
+	}
+	foreach ( array_unique( $ids ) as $id ) {
+		$terms = get_the_terms( $id, 'person_group' );
+		foreach ( is_array( $terms ) ? $terms : array() as $term ) {
+			if ( preg_match( $pattern, $term->slug . ' ' . $term->name ) ) {
+				return 'advisory-board';
+			}
+		}
+		if ( is_array( $terms ) && $terms && $id === $person->ID ) {
+			return 'team'; // an explicit, different group wins over the guesses below
+		}
+	}
+	return preg_match( $pattern, (string) cemeti_get_field( 'role', $person->ID ) ) ? 'advisory-board' : 'team';
+}
 
 /**
  * Team members grouped by role, in the order the roles first appear: "Staf Teknis" -> Joko, Rizky.

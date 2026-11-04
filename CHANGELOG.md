@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.11
+
+- About (Indonesian): an Advisory Board member whose Indonesian copy had no Group term was listed under Team. A
+  person's group is now taken from their own Group, else from the other-language version, else from the Title / role
+  text ("Advisory Board", "Dewan Penasihat"). An explicit Team group is never overridden. Tip: set Group on both copies.
+
 ## 0.9.10
 
 - Journal detail follows the design: the picture is 848 px wide (centred, same ratio as About) with its caption under

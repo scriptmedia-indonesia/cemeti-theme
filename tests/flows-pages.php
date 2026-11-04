@@ -187,6 +187,18 @@ $names = static function ( $list ) { return array_map( static function ( $p ) { 
 ok( in_array( 'Person Slug En', $names( $groups['advisory-board'] ), true ) && in_array( 'Person Dewan', $names( $groups['advisory-board'] ), true ), 'people: an Advisory Board term is recognised whatever its slug ("-en") or name ("Dewan Penasihat")' );
 ok( in_array( 'Person Team', $names( $groups['team'] ), true ) && in_array( 'Person No Group', $names( $groups['team'] ), true ), 'people: Team members, and people with no group, are shown under Team' );
 ok( ! in_array( 'Person Draft', array_merge( $names( $groups['team'] ), $names( $groups['advisory-board'] ) ), true ), 'people: drafts stay hidden' );
+// Second-language copy without a group term (QA round 3: the Indonesian Advisory Board member showed under Team).
+$mk_role = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => 'Person Role Only', 'menu_order' => 1, 'meta' => array( 'cemeti_role' => 'Advisory Board' ) ) );
+$mk_tr_en = $mkp( 'Person Tr En', array( 'Advisory Board' ) );
+$mk_tr_id = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => 'Person Tr Id', 'menu_order' => 1, 'meta' => array( 'cemeti_role' => 'Penyunting' ) ) );
+$GLOBALS['qa_translations'] = array( $mk_tr_id => array( 'en' => $mk_tr_en, 'id' => $mk_tr_id ) );
+if ( ! function_exists( 'pll_get_post_translations' ) ) {
+	function pll_get_post_translations( $id ) { return isset( $GLOBALS['qa_translations'][ $id ] ) ? $GLOBALS['qa_translations'][ $id ] : array(); }
+}
+$groups = cemeti_people_by_group();
+ok( in_array( 'Person Role Only', $names( $groups['advisory-board'] ), true ), 'people: no group term but the role says Advisory Board -> Advisory Board' );
+ok( in_array( 'Person Tr Id', $names( $groups['advisory-board'] ), true ), 'people: a copy without a group term takes the group of its translation' );
+ok( in_array( 'Person Team', $names( $groups['team'] ), true ) && ! in_array( 'Person Team', $names( $groups['advisory-board'] ), true ), 'people: an explicit Team term is not overridden' );
 $about = $by_slug( 'about' );
 $html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $about, 'path' => '/about/' ) );
 ok( false !== strpos( $html, 'Person Slug En' ) && false !== strpos( $html, 'Person No Group' ) && 2 === substr_count( $html, 'class="cemeti-people ' ), 'About page shows both sections with those people' );
