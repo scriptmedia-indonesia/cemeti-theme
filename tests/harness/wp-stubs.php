@@ -988,7 +988,7 @@ function wp_get_attachment_image( $id, $size = 'thumbnail', $icon = false, $attr
 	return $html . '>';
 }
 function the_posts_pagination( $args = array() ) {
-	echo '<nav class="navigation pagination" aria-label="Pagination"><div class="nav-links"></div></nav>'; // phpcs:ignore
+	echo '<nav class="navigation pagination" aria-label="' . ( isset( $args['aria_label'] ) ? $args['aria_label'] : 'Pagination' ) . '"><div class="nav-links"></div></nav>'; // phpcs:ignore
 }
 function post_type_archive_title( $prefix = '', $display = true ) {
 	$t = isset( CemetiWP::$ctx['pta'] ) ? CemetiWP::$ctx['pta'] : '';

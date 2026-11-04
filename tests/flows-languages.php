@@ -110,4 +110,9 @@ ok( 4 === count( cemeti_support_rows( $support[1] ) ), 'Support Us: the Indonesi
 $GLOBALS['pll']['current'] = 'en';
 ok( 4 === count( cemeti_support_rows( $support[0] ) ), 'Support Us: the English page keeps its own rows' );
 
+/* ---- QA round 3: no English UI left on the Indonesian pages (program and menu names stay English by design) */
+$idhome = (string) file_get_contents( $out . '/pair-home-id.html' );
+ok( false !== strpos( $idhome, 'Exhibition Sebelumnya' ) && false !== strpos( $idhome, 'Journal Sebelumnya' ) && false === strpos( $idhome, 'Previous ' ), 'Indonesian home: the "previous" buttons are translated' );
+ok( false !== strpos( (string) file_get_contents( $out . '/pair-archive-exhibition-id.html' ), 'aria-label="Navigasi halaman"' ), 'Indonesian archive: pagination label is translated' );
+
 qa_done();

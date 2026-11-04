@@ -36,7 +36,7 @@ $cemeti_sections = array( 'exhibition', 'residency', 'public_program', 'open_stu
 					<a href="<?php echo esc_url( get_permalink( $cemeti_post ) ); ?>" tabindex="-1" aria-hidden="true">
 						<?php echo get_the_post_thumbnail( $cemeti_post, 'cemeti-card', array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					</a>
-					<a class="cemeti-btn" href="<?php echo esc_url( get_post_type_archive_link( $cemeti_type ) ); ?>">Previous <?php echo esc_html( $cemeti_obj->labels->singular_name ); ?></a>
+					<a class="cemeti-btn" href="<?php echo esc_url( get_post_type_archive_link( $cemeti_type ) ); ?>"><?php echo esc_html( sprintf( cemeti_t( 'previous_of' ), $cemeti_obj->labels->singular_name ) ); ?></a>
 				</div>
 				<div class="cemeti-home__text">
 					<h3 class="cemeti-home__title"><a href="<?php echo esc_url( get_permalink( $cemeti_post ) ); ?>"><?php echo esc_html( get_the_title( $cemeti_post ) ); ?></a></h3>
@@ -73,7 +73,7 @@ $cemeti_sections = array( 'exhibition', 'residency', 'public_program', 'open_stu
 				wp_reset_postdata();
 				?>
 			</ul>
-			<a class="cemeti-btn cemeti-btn--inline" href="<?php echo esc_url( get_post_type_archive_link( 'journal' ) ); ?>">Previous Journal</a>
+			<a class="cemeti-btn cemeti-btn--inline" href="<?php echo esc_url( get_post_type_archive_link( 'journal' ) ); ?>"><?php echo esc_html( sprintf( cemeti_t( 'previous_of' ), 'Journal' ) ); ?></a>
 		</section>
 	<?php endif; ?>
 

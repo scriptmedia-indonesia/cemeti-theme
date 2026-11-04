@@ -3,6 +3,14 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.12
+
+- QA of every Indonesian page: the Home buttons "Previous Exhibition / Residency / Public Program / Open Studio /
+  Journal" were English in Indonesian ("Exhibition Sebelumnya" now) and the pagination label was English
+  ("Navigasi halaman" now). Everything else was checked: all pages have EN/ID parity in structure and size (browser
+  test), no overflow at 320-1920 px in Indonesian, and the only English left is by design (program and menu names,
+  "Application Submission"). Tests cover both strings.
+
 ## 0.9.11
 
 - About (Indonesian): an Advisory Board member whose Indonesian copy had no Group term was listed under Team. A
