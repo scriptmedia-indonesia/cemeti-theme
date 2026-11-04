@@ -129,6 +129,26 @@ foreach ( $kids as $kid_id => $kid ) {
 }
 ok( 0 === cemeti_create_missing_pages() && 16 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
 
+// ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
+foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
+	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {
+		unset( CemetiWP::$posts[ $pid ] );
+	}
+}
+$GLOBALS['pll']['groups'] = array();
+CemetiWP::$options = array();
+$count_id = static function () { return count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ); };
+CemetiWP::$caps = false;
+do_action( 'admin_init' );
+ok( 8 === $count_id(), 'update: a visitor who is not an administrator creates nothing' );
+CemetiWP::$caps = true;
+do_action( 'admin_init' );
+ok( 16 === $count_id() && 8 === count( $GLOBALS['pll']['groups'] ), 'update: the admin dashboard creates the missing Indonesian Open Archive, Support Us and Contact Us pages and links them' );
+$before = $count_id();
+foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'contact-us' === $pp['post_name'] ) { unset( CemetiWP::$posts[ $pid ] ); break; } }
+do_action( 'admin_init' );
+ok( $before - 1 === $count_id(), 'update: it runs once per version, a page deleted on purpose stays deleted' );
+
 // ---- a person without a language is not lost on the About page
 qa_reset_data();
 $GLOBALS['pll']['lang'] = array();

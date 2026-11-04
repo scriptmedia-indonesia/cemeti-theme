@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.13
+
+- The Indonesian Open Archive, Support Us and Contact Us pages (with the four Support Us rows) did not exist on a site
+  where the theme was updated instead of re-activated: pages were only created on activation. Now an administrator
+  opening any admin screen after an update (or after a language is added) creates every missing page in every
+  language and links them as translations. It runs once per version; the "Create them" button still works any time.
+
 ## 0.9.12
 
 - QA of every Indonesian page: the Home buttons "Previous Exhibition / Residency / Public Program / Open Studio /

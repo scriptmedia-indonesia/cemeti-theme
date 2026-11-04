@@ -212,6 +212,26 @@ function cemeti_create_pages_on_switch() {
 add_action( 'after_switch_theme', 'cemeti_create_pages_on_switch', 20 );
 
 /**
+ * Create the missing pages by itself when an administrator opens the dashboard after the theme was updated
+ * or a language was added (QA round 3: the Indonesian Open Archive, Support Us and Contact Us pages did not
+ * exist because the theme was updated in place, and "after_switch_theme" only runs on activation).
+ * It runs once per theme version and set of languages; pages deleted on purpose afterwards stay deleted
+ * (the "Create them" button on the notice still brings them back).
+ */
+function cemeti_create_pages_after_update() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$signature = CEMETI_VERSION . '|' . implode( ',', cemeti_page_languages() );
+	if ( get_option( 'cemeti_pages_signature' ) === $signature ) {
+		return;
+	}
+	cemeti_create_missing_pages();
+	update_option( 'cemeti_pages_signature', $signature );
+}
+add_action( 'admin_init', 'cemeti_create_pages_after_update' );
+
+/**
  * The button on the notice and on Settings → Cemeti.
  */
 function cemeti_handle_create_pages() {
