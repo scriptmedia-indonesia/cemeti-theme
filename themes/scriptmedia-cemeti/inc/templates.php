@@ -227,6 +227,32 @@ function cemeti_filter_language_links( $content ) {
 add_filter( 'the_content', 'cemeti_filter_language_links', 5 );
 
 /**
+ * Take a picture that opens the text out of it, so it can be shown in the page's own picture slot.
+ * Used on About when the page has no featured image: the old pages put the picture first in the text.
+ *
+ * @param string $html Page content.
+ * @return array{0:int,1:string} Attachment ID (0 when none) and the content without that picture.
+ */
+function cemeti_take_leading_image( $html ) {
+	$html = (string) $html;
+	$re   = '#^\s*(?:<!--.*?-->\s*)*(<figure\b[^>]*>.*?</figure>|<p>\s*(?:<a\b[^>]*>\s*)?<img\b[^>]*>\s*(?:</a>\s*)?</p>|<img\b[^>]*>)\s*(?:<!--.*?-->\s*)*#s';
+	if ( ! preg_match( $re, $html, $m ) ) {
+		return array( 0, $html );
+	}
+	$id = 0;
+	if ( preg_match( '#wp-image-(\d+)#', $m[1], $c ) && 'attachment' === get_post_type( (int) $c[1] ) ) {
+		$id = (int) $c[1];
+	}
+	if ( ! $id && function_exists( 'attachment_url_to_postid' ) && preg_match( '#<img[^>]+src=["\']([^"\']+)["\']#i', $m[1], $s ) ) {
+		$id = (int) attachment_url_to_postid( preg_replace( '/-\d+x\d+(\.[a-z]+)$/i', '$1', preg_replace( '/\?.*$/', '', $s[1] ) ) );
+	}
+	if ( ! $id || 1 === preg_match( '#<figcaption[^>]*>\s*[^\s<]#i', $m[1] ) || '' !== trim( wp_strip_all_tags( preg_replace( '#<figcaption.*?</figcaption>#is', '', $m[1] ) ) ) ) {
+		return array( 0, $html ); // Unknown picture, or a picture with text around it: leave it where it is.
+	}
+	return array( $id, substr( $html, strlen( $m[0] ) ) );
+}
+
+/**
  * Section heading (blue script) with an anchor id.
  *
  * @param string $label  Heading text.
@@ -351,8 +377,25 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 		return $thumbnail_id;
 	}
 	$post = get_post( $post );
-	if ( ! $post || ! array_key_exists( $post->post_type, cemeti_config( 'post-types' ) ) || 'application' === $post->post_type ) {
+	if ( ! $post || 'application' === $post->post_type ) {
 		return $thumbnail_id;
+	}
+	$is_entry = array_key_exists( $post->post_type, cemeti_config( 'post-types' ) );
+	$is_page  = 'page' === $post->post_type && '' !== cemeti_page_key( $post->ID );
+	if ( ! $is_entry && ! $is_page ) {
+		return $thumbnail_id;
+	}
+	// The other language's copy has the picture: use it, so both languages show the same one.
+	if ( function_exists( 'pll_get_post_translations' ) ) {
+		foreach ( (array) pll_get_post_translations( $post->ID ) as $other ) {
+			$theirs = (int) get_post_meta( (int) $other, '_thumbnail_id', true );
+			if ( (int) $other !== (int) $post->ID && $theirs ) {
+				return $theirs;
+			}
+		}
+	}
+	if ( $is_page ) {
+		return $thumbnail_id; // A page's picture is chosen, never guessed from its text.
 	}
 	static $cache = array();
 	if ( isset( $cache[ $post->ID ] ) ) {

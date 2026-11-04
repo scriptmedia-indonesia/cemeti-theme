@@ -17,6 +17,7 @@ function pll_the_languages( $args = array() ) {
 }
 function pll_set_post_language( $id, $lang ) { $GLOBALS['pll']['lang'][ $id ] = $lang; }
 function pll_save_post_translations( $arr ) { $GLOBALS['pll']['groups'][] = $arr; }
+function pll_get_post_translations( $id ) { foreach ( $GLOBALS['pll']['groups'] as $g ) { if ( in_array( $id, $g, true ) ) { return $g; } } return array(); }
 function pll_languages_list() { return array( 'id', 'en' ); }
 
 qa_boot();
@@ -139,6 +140,62 @@ $withlang = CemetiWP::post( array( 'post_type' => 'person', 'post_title' => 'Eng
 $GLOBALS['pll']['lang'][ $withlang ] = 'en';
 $g = cemeti_people_by_group();
 ok( 1 === count( $g['team'] ) && 'English person' === $g['team'][0]->post_title, 'Polylang: once the language has people, only that language is shown' );
+$GLOBALS['pll']['current'] = 'id';
+
+// ---- both languages of a page / entry look the same
+qa_reset_data();
+$GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();
+$en  = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'About', 'post_name' => 'about', 'thumb' => 55, 'meta' => array( '_cemeti_page_key' => 'about' ) ) );
+$idp = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Halaman kami', 'post_name' => 'halaman-kami' ) );
+ok( '' === cemeti_page_key( $idp ), 'not linked yet: an ordinary page' );
+pll_save_post_translations( array( 'en' => $en, 'id' => $idp ) );
+ok( 'about' === cemeti_page_key( $idp ), 'Polylang: the Indonesian copy takes the design of the English page' );
+ok( 55 === get_post_thumbnail_id( $idp ), 'Polylang: the Indonesian copy shows the same featured image as the English one' );
+$free_en = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Free', 'thumb' => 66 ) );
+$free_id = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Bebas' ) );
+pll_save_post_translations( array( 'en' => $free_en, 'id' => $free_id ) );
+ok( ! has_post_thumbnail( $free_id ), 'an ordinary page does not borrow pictures' );
+$ex_en = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Show', 'thumb' => 77 ) );
+$ex_id = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Pameran' ) );
+pll_save_post_translations( array( 'en' => $ex_en, 'id' => $ex_id ) );
+ok( 77 === get_post_thumbnail_id( $ex_id ), 'Polylang: an entry without a poster uses the poster of its translation' );
+
+// ---- parity: the same page in English and in Indonesian has the same structure (only the words differ)
+qa_reset_data();
+$GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();
+$ids = qa_seed();
+$skeleton = static function ( $html ) {
+	$html = preg_replace( '#<(script|style)\b.*?</\1>#s', '', $html );
+	$html = preg_replace( '#\s(href|src|srcset|alt|title|aria-label|aria-labelledby|placeholder|value|data-[a-z-]+|id|for|name|content|aria-current|action)="[^"]*"#', '', $html );
+	$html = preg_replace( '#>[^<]+<#', '><', $html );
+	return preg_replace( '#\s+#', ' ', $html );
+};
+$pages = array(
+	'home'               => array( 'front-page.php', array( 'front' => true ), array() ),
+	'archive exhibition' => array( 'archive.php', array( 'pta' => 'exhibition' ), array( 'path' => '/exhibition/', 'query' => array( 'post_type' => 'exhibition' ), 'flags' => array( 'pta' => 'exhibition' ) ) ),
+	'archive residency'  => array( 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ) ) ),
+	'archive journal'    => array( 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/journal/', 'query' => array( 'post_type' => 'journal' ), 'flags' => array( 'pta' => 'journal' ) ) ),
+	'exhibition detail'  => array( 'single.php', array( 'singular' => true ), array( 'post' => $ids['ex_current'], 'path' => '/exhibition/x/' ) ),
+	'journal detail'     => array( 'single-journal.php', array( 'singular' => true ), array( 'post' => $ids['j_essay'], 'path' => '/journal/x/' ) ),
+);
+foreach ( $pages as $label => $def ) {
+	$GLOBALS['pll']['current'] = 'en';
+	$english = qa_render( $def[0], $def[1], $def[2] );
+	$GLOBALS['pll']['current'] = 'id';
+	$indonesian = qa_render( $def[0], $def[1], $def[2] );
+	$a = $skeleton( $english );
+	$b = $skeleton( $indonesian );
+	$at = '';
+	if ( $a !== $b ) {
+		$i = 0;
+		while ( $i < strlen( $a ) && $i < strlen( $b ) && $a[ $i ] === $b[ $i ] ) {
+			++$i;
+		}
+		$at = ' — differs at: EN "' . substr( $a, max( 0, $i - 40 ), 90 ) . '" / ID "' . substr( $b, max( 0, $i - 40 ), 90 ) . '"';
+	}
+	ok( $a === $b, "parity: $label has the same structure in English and Indonesian" . $at );
+	ok( $english !== $indonesian, "parity: $label really changes words between the languages" );
+}
 $GLOBALS['pll']['current'] = 'id';
 
 qa_done();

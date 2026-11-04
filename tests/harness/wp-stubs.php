@@ -949,6 +949,9 @@ function delete_transient( $k ) {
 	unset( CemetiWP::$transients[ $k ] );
 	return true;
 }
+function wp_strip_all_tags( $s, $breaks = false ) {
+	return trim( strip_tags( (string) $s ) );
+}
 function wp_update_post( $a ) {
 	if ( isset( CemetiWP::$posts[ $a['ID'] ] ) ) {
 		CemetiWP::$posts[ $a['ID'] ] = array_merge( CemetiWP::$posts[ $a['ID'] ], $a );

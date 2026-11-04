@@ -21,10 +21,18 @@ $cemeti_by_group = cemeti_people_by_group();
 <article class="cemeti-single cemeti-single--about">
 	<div class="cemeti-container">
 		<?php cemeti_page_head( get_the_title(), 'yellow' ); ?>
-		<?php if ( has_post_thumbnail() ) : ?>
-			<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
+		<?php
+		// Same picture size in every language: the featured image, else the picture that opens the text.
+		$cemeti_text = get_the_content();
+		$cemeti_hero = has_post_thumbnail() ? (int) get_post_thumbnail_id() : 0;
+		if ( ! $cemeti_hero ) {
+			list( $cemeti_hero, $cemeti_text ) = cemeti_take_leading_image( $cemeti_text );
+		}
+		?>
+		<?php if ( $cemeti_hero ) : ?>
+			<?php echo wp_get_attachment_image( $cemeti_hero, 'cemeti-hero', false, array( 'class' => 'cemeti-single__hero' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 		<?php endif; ?>
-		<div class="cemeti-single__body"><?php the_content(); ?></div>
+		<div class="cemeti-single__body"><?php echo apply_filters( 'the_content', $cemeti_text ); // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
 
 		<?php foreach ( $cemeti_groups as $cemeti_slug => $cemeti_key ) : ?>
 			<?php if ( ! $cemeti_by_group[ $cemeti_slug ] ) : ?>

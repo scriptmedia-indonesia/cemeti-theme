@@ -3,6 +3,17 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.3
+
+- English and Indonesian now look the same. Cause of the difference seen on "Tentang": the Indonesian page had its
+  own slug, so the theme did not know it is the About page and drew it with the plain page template (blue title,
+  picture as a content image, no Advisory Board / Team). Now a page is recognised by (1) the new "Cemeti page design"
+  selector in the page editor, (2) the design of its Polylang translation, (3) well-known slugs (tentang, arsip-terbuka,
+  dukung-kami, hubungi-kami …).
+- A page or entry without a picture uses the picture of its translation; on About the picture that opens the text is
+  lifted into the hero slot, so the size is the same in both languages.
+- Test: every main template is rendered in English and in Indonesian and must have the same structure.
+
 ## 0.9.2
 
 - About: the Advisory Board cards are denser (photo about half of the cell, larger name / title / quote, tighter

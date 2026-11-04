@@ -80,7 +80,7 @@ function cemeti_page_help_texts() {
  * @param WP_Post $post Page being edited.
  */
 function cemeti_add_page_help_box( $post ) {
-	$key   = (string) get_post_meta( $post->ID, '_cemeti_page_key', true );
+	$key   = cemeti_page_key( $post->ID );
 	$texts = cemeti_page_help_texts();
 	if ( ! isset( $texts[ $key ] ) ) {
 		return;

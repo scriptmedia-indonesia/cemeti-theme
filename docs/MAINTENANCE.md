@@ -149,6 +149,7 @@ PY
 
 | Symptom | Look at |
 |---|---|
+| The Indonesian page looks different from the English one | Page editor → "Cemeti page design" box: choose the same design (About, Open Archive, Support Us, Contact Us) on the Indonesian copy, or link it as a translation of the English page |
 | A menu has no language selector | Polylang must list the type under Languages → Settings → Custom post types; the theme registers them itself, the warning on the Dashboard / Settings → Cemeti names any that are missing |
 | About / Open Archive / Support Us / Contact Us give 404 | the page does not exist: Dashboard shows a "Create them" button, or Settings → Cemeti; with Polylang each language needs its own copy (the button makes both) |
 | A content type URL gives 404 | Settings → Permalinks → Save. The theme also flushes once per version (`cemeti_rewrite_version` option) |

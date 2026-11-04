@@ -92,7 +92,7 @@ ob_start(); call_user_func( CemetiWP::$meta_boxes['page']['cemeti_page_help'] );
 ok( false !== strpos( $help, 'Featured image' ) && false !== strpos( $help, 'People' ), 'About help: Featured image and People menu' );
 CemetiWP::$meta_boxes = array();
 do_action( 'add_meta_boxes_page', CemetiWP::obj( $free = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Free' ) ) ) );
-ok( ! isset( CemetiWP::$meta_boxes['page'] ), 'a free page gets no Cemeti box' );
+ok( ! isset( CemetiWP::$meta_boxes['page']['cemeti_page_help'] ), 'a free page gets no help text (only the design selector)' );
 
 /* ---- language readiness (no Polylang here) */
 $issues = cemeti_language_issues();
@@ -122,6 +122,45 @@ $h = $render( 'contact-us', 'page-contact-us.php' );
 ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@cemeti.art' ) && false !== strpos( $h, 'Jl.' ), 'Contact Us shows address, hours and e-mail' );
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
+
+/* ---- a page called "tentang" (or marked in the editor) uses the About design in every language */
+qa_reset_data();
+do_action( 'after_switch_theme' );
+$tentang = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Tentang', 'post_name' => 'tentang' ) );
+$random  = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Random', 'post_name' => 'random' ) );
+ok( 'about' === cemeti_page_key( $tentang ) && '' === cemeti_page_key( $random ), 'page key: slug "tentang" is About, a free page is nothing' );
+CemetiWP::request( '/tentang/', array( 'singular' => true ) );
+$GLOBALS['post'] = CemetiWP::obj( $tentang );
+ok( CEMETI_THEME_DIR . '/page-about.php' === cemeti_page_template_by_key( '/t/page.php' ), 'page "tentang" is drawn with page-about.php' );
+$GLOBALS['post'] = CemetiWP::obj( $random );
+ok( '/t/page.php' === cemeti_page_template_by_key( '/t/page.php' ), 'a free page keeps the ordinary template' );
+CemetiWP::$caps = true;
+$_POST = array( 'cemeti_page_type_nonce' => 'valid', 'cemeti_page_type' => 'support-us' );
+do_action( 'save_post_page', $random );
+ok( 'support-us' === cemeti_page_key( $random ), 'selector: choosing a design in the editor sets it' );
+$_POST = array( 'cemeti_page_type_nonce' => 'valid', 'cemeti_page_type' => 'bogus' );
+do_action( 'save_post_page', $random );
+ok( '' === cemeti_page_key( $random ), 'selector: an unknown value clears it' );
+$_POST = array( 'cemeti_page_type' => 'about' );
+do_action( 'save_post_page', $random );
+ok( '' === cemeti_page_key( $random ), 'selector: without the nonce nothing is saved' );
+$_POST = array();
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $random ) );
+ob_start(); call_user_func( CemetiWP::$meta_boxes['page']['cemeti_page_type'], CemetiWP::obj( $random ) ); $box = ob_get_clean();
+ok( false !== strpos( $box, 'value="about"' ) && false !== strpos( $box, 'Automatic' ), 'selector box lists the designs' );
+
+/* ---- About without a featured image: the picture that opens the text becomes the hero */
+$att = CemetiWP::post( array( 'post_type' => 'attachment', 'post_title' => 'photo' ) );
+list( $hid, $rest ) = cemeti_take_leading_image( '<!-- wp:image --><figure class="wp-block-image"><img src="x.jpg" class="wp-image-' . $att . '"></figure><!-- /wp:image --><p>Text after</p>' );
+ok( $att === $hid && '<p>Text after</p>' === trim( $rest ), 'leading picture: lifted out of the text' );
+list( $hid, $rest ) = cemeti_take_leading_image( '<p>Text first</p><figure><img class="wp-image-' . $att . '"></figure>' );
+ok( 0 === $hid && false !== strpos( $rest, 'Text first' ), 'leading picture: a picture later in the text stays' );
+list( $hid, $rest ) = cemeti_take_leading_image( '<figure><img class="wp-image-' . $att . '"><figcaption>Caption</figcaption></figure><p>x</p>' );
+ok( 0 === $hid && false !== strpos( $rest, 'Caption' ), 'leading picture: with a caption it stays in the text' );
+$ab = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Tentang', 'post_name' => 'tentang-cemeti', 'post_content' => '<figure><img class="wp-image-' . $att . '"></figure><p>Cemeti adalah.</p>' ) );
+$html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $ab, 'path' => '/tentang-cemeti/' ) );
+ok( false !== strpos( $html, 'cemeti-single__hero' ) && 1 === substr_count( $html, '/img/' . $att . '-' ), 'About: the picture sits in the hero slot once, with the same class as the English page' );
 
 /* ---- People added in the admin always appear on About */
 $mkp = static function ( $title, array $terms, $status = 'publish' ) {
