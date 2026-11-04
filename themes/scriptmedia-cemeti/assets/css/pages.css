@@ -117,10 +117,9 @@
 .cemeti-toc-back { margin: 0.75rem 0 0; text-align: right; font-size: var(--fs-single-small); }
 .cemeti-toc-back a { color: var(--c-salmon); }
 .cemeti-photos { margin: 0; }
-.cemeti-photos__grid { display: grid; grid-template-columns: 1fr; gap: 0.8125rem 1rem; max-width: var(--col); margin-inline: auto; }
+.cemeti-photos__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8125rem 1rem; max-width: var(--col); margin-inline: auto; }
 .cemeti-photos__grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
 .cemeti-photos figcaption { margin: 0.6rem 0 0; font-size: var(--fs-single-small); }
-@media (min-width: 30rem) { .cemeti-photos__grid { grid-template-columns: 1fr 1fr; } }
 /* Biography: 308 px square photo, 16 px gap, text 24 on 34; 80 px between artists. */
 .cemeti-bio { display: grid; grid-template-columns: 1fr; gap: 1rem; max-width: var(--col); margin: 0 auto clamp(2.5rem, 1.5rem + 3vw, 5rem); }
 .cemeti-bio__photo { width: min(100%, 19.25rem); aspect-ratio: 1; object-fit: cover; }
@@ -288,3 +287,32 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-team__role:last-child { margin-bottom: 0; }
 .cemeti-team__role strong { display: block; font-weight: 500; }
 .cemeti-team__role span { display: block; }
+
+/* ---- Phones and small tablets (QA: responsive) ---- */
+@media (max-width: 47.99rem) {
+	/* The reading column is the whole width: no 8% indent on a 390 px screen. */
+	.cemeti-single { --col: 100%; }
+	.cemeti-single__head,
+	.cemeti-single__info,
+	.cemeti-single__body { max-width: none; }
+	.cemeti-photos__grid { gap: 0.5rem; }
+	.cemeti-bio { margin-bottom: 2rem; }
+	/* Contents bar: plain wrapped links, no bars that would start a line. */
+	.cemeti-toc__links { gap: 0.25rem 1rem; }
+	.cemeti-toc__links a,
+	.cemeti-toc__links a:first-child { padding: 0; border-left: 0; }
+}
+@media (max-width: 40rem) {
+	/* Home: one column, full-width picture, residency stacked like the others, air between sections. */
+	.cemeti-home__section,
+	.cemeti-home__section--residency { margin-bottom: 2.5rem; }
+	.cemeti-home__item,
+	.cemeti-home__section--residency .cemeti-home__item { grid-template-columns: 1fr; gap: 1rem; }
+	.cemeti-home__poster { max-width: 22rem; }
+	.cemeti-home__poster img { width: 100%; }
+	.cemeti-home__section--residency .cemeti-home__poster img { aspect-ratio: 4 / 3; }
+	.cemeti-home__title,
+	.cemeti-home__people { font-size: 1.5rem; }
+	.cemeti-home__date { font-size: 1.25rem; }
+	.cemeti-home__current { margin-top: 1rem; }
+}

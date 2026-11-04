@@ -576,6 +576,38 @@ async function open( browser, name, width, height, extra = {} ) {
 		await r.ctx.close();
 	}
 
+	/* ---- 7m. Phones (390 px): the layouts rearrange instead of shrinking. */
+	{
+		const m = await open( browser, 'single-exhibition', 390, 844, { reducedMotion: 'reduce' } );
+		const c = await m.page.locator( '.cemeti-single .cemeti-container' ).boundingBox();
+		const body = await m.page.locator( '.cemeti-single__body' ).boundingBox();
+		ok( Math.abs( body.x - c.x ) < 2 && Math.abs( body.width - c.width ) < 2, `phone: the text uses the full width, no side indent (${ Math.round( body.width ) } of ${ Math.round( c.width ) })` );
+		const bars = await m.page.locator( '.cemeti-toc__links a' ).evaluateAll( ( as ) => as.every( ( a ) => parseFloat( getComputedStyle( a ).borderLeftWidth ) === 0 ) );
+		ok( bars, 'phone: the contents links have no bars that could start a line' );
+		const cols = await m.page.locator( '.cemeti-photos__grid' ).first().evaluate( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length );
+		ok( 2 === cols, `phone: photos stay two per row (${ cols })` );
+		await m.ctx.close();
+		const a = await open( browser, 'archive-exhibition', 390, 844, { reducedMotion: 'reduce' } );
+		const gcols = await a.page.locator( '.cemeti-card-grid' ).evaluate( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length );
+		ok( 2 === gcols, `phone: cards two per row (${ gcols })` );
+		const cw = ( await a.page.locator( '.cemeti-card' ).first().boundingBox() ).width;
+		ok( cw > 140 && cw < 190, `phone: a card is about half the screen (${ Math.round( cw ) }px)` );
+		await a.ctx.close();
+		const h = await open( browser, 'home', 390, 844, { reducedMotion: 'reduce' } );
+		const items = await h.page.locator( '.cemeti-home__item' ).evaluateAll( ( els ) => els.map( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length ) );
+		ok( items.every( ( n ) => n === 1 ), `phone: every Home entry (also Residency) is one column (${ items.join( ',' ) })` );
+		await h.ctx.close();
+		const r = await open( browser, 'archive-residency', 390, 844, { reducedMotion: 'reduce' } );
+		const rcols = await r.page.locator( '.cemeti-residency-intro' ).evaluate( ( e ) => getComputedStyle( e ).gridTemplateColumns.split( ' ' ).length );
+		ok( 1 === rcols, 'phone: Regular and Research are stacked' );
+		await r.ctx.close();
+		const t = await open( browser, 'single-exhibition', 820, 900, { reducedMotion: 'reduce' } );
+		const tcol = await t.page.locator( '.cemeti-single__head' ).boundingBox();
+		const tc = await t.page.locator( '.cemeti-single .cemeti-container' ).boundingBox();
+		ok( tcol.width / tc.width > 0.8, 'tablet: the reading column keeps its design proportions' );
+		await t.ctx.close();
+	}
+
 	/* ---- 7c. Touch targets are at least 24x24 CSS px (WCAG 2.2, 2.5.8). */
 	for ( const w of [ 360, 1280 ] ) {
 		const { page, ctx } = await open( browser, 'home', w, 800 );

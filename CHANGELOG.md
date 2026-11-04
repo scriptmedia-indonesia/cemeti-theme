@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.7
+
+- Responsive pass (390 px phone, 820 px tablet): the reading column is the full width on phones (no 8% indent);
+  Home entries are one column on phones, Residency included (it stayed two cramped columns), with more space between
+  sections; archive cards are two per row from 352 px (one giant card per screen before); photos stay two per row;
+  the contents bar has no bars that start a line; the menu address has air above it. The browser tests check these.
+
 ## 0.9.6
 
 - Open Call page shows one call, in the design layout: the newest call that is ticked Active (when none is active, the
