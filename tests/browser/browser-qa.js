@@ -225,10 +225,25 @@ async function open( browser, name, width, height, extra = {} ) {
 		ok( ! grid || Math.abs( grid.x - col.x ) < 2, 'design: the photo grid lines up with the reading column' );
 		ok( 'Akzidenz-Grotesk Next' === await page.evaluate( () => getComputedStyle( document.body ).fontFamily.split( ',' )[ 0 ].replace( /"/g, '' ) ), 'design: body text uses Akzidenz-Grotesk Next' );
 		await ctx.close();
+		// QA sweep: nothing overflows, tap targets, short screens.
+		{
+			const xs = await open( browser, 'search-xss', 320, 700 );
+			ok( await xs.page.evaluate( () => document.documentElement.scrollWidth <= document.documentElement.clientWidth ), 'phone: a very long search term does not widen the page' );
+			await xs.ctx.close();
+			const ap = await open( browser, 'single-open-call', 320, 700 );
+			ok( await ap.page.evaluate( () => [ ...document.querySelectorAll( '.cemeti-apply__form input:not([type=hidden]), .cemeti-apply__form textarea' ) ].filter( ( e ) => ! e.closest( '.cemeti-apply__trap' ) ).every( ( e ) => e.getBoundingClientRect().right <= document.documentElement.clientWidth ) ), 'phone: application form fields fit at 320 px' );
+			await ap.ctx.close();
+			const tp = await open( browser, 'single-exhibition', 390, 800 );
+			ok( await tp.page.evaluate( () => [ ...document.querySelectorAll( '.cemeti-back, .cemeti-toc__links a' ) ].every( ( e ) => e.getBoundingClientRect().height >= 24 ) ), 'phone: Back and contents links are at least 24 px tall' );
+			await tp.ctx.close();
+			const ls = await open( browser, 'single-exhibition', 844, 390 );
+			ok( await ls.page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-header' ) ).position !== 'sticky' && getComputedStyle( document.querySelector( '.cemeti-single__nav--sticky' ) ).position === 'static' ), 'landscape phone: header and contents bar are not pinned' );
+			await ls.ctx.close();
+		}
 		const phone = await open( browser, 'archive-exhibition', 360, 740 );
 		const hb = await phone.page.locator( '.cemeti-page-head .cemeti-heading' ).boundingBox();
 		const bb = await phone.page.locator( '.cemeti-page-head .cemeti-back' ).boundingBox();
-		ok( bb.y + bb.height <= hb.y + 2, `phone: the Back link sits above the heading, not squeezed beside it (${ Math.round( bb.y ) } vs ${ Math.round( hb.y ) })` );
+		ok( bb.y + bb.height <= hb.y + 14, `phone: the Back link sits above the heading, not squeezed beside it (${ Math.round( bb.y ) } vs ${ Math.round( hb.y ) })` );
 		await phone.ctx.close();
 	}
 

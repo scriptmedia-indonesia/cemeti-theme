@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.8
+
+- Pre-release QA sweep (every page fixture at 11 widths from 320 to 1920 px plus landscape phones): a very long search
+  term no longer widens the page; application form fields fit 320 px screens; Back and contents links have 24 px+
+  tap targets (larger on touch screens) without changing the look; on landscape phones the header, contents bar and
+  section titles are not pinned (they used to cover 40% of the screen). New browser tests cover each of these.
+
 ## 0.9.7
 
 - Responsive pass (390 px phone, 820 px tablet): the reading column is the full width on phones (no 8% indent);

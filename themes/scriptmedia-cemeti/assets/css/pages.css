@@ -221,6 +221,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
 	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
+	.cemeti-header { position: relative; }
 }
 .cemeti-home .cemeti-btn { width: min(100%, 17rem); }
 
@@ -300,7 +301,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 	/* Contents bar: plain wrapped links, no bars that would start a line. */
 	.cemeti-toc__links { gap: 0.25rem 1rem; }
 	.cemeti-toc__links a,
-	.cemeti-toc__links a:first-child { padding: 0; border-left: 0; }
+	.cemeti-toc__links a:first-child { padding-inline: 0; border-left: 0; }
 }
 @media (max-width: 40rem) {
 	/* Home: one column, full-width picture, residency stacked like the others, air between sections. */
@@ -315,4 +316,21 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 	.cemeti-home__people { font-size: 1.5rem; }
 	.cemeti-home__date { font-size: 1.25rem; }
 	.cemeti-home__current { margin-top: 1rem; }
+}
+
+/* ---- QA sweep fixes (v0.9.8): long words, form fields, tap targets, short screens ---- */
+.cemeti-heading, .cemeti-search, .cemeti-search *, .cemeti-results, .cemeti-back, .cemeti-page-head { overflow-wrap: anywhere; min-width: 0; }
+.cemeti-apply__form label, .cemeti-apply__form p { min-width: 0; max-width: 100%; }
+.cemeti-apply__form input, .cemeti-apply__form textarea { max-width: 100%; min-width: 0; box-sizing: border-box; }
+.cemeti-apply__form input[type="file"] { box-sizing: border-box; overflow: hidden; }
+/* Tap targets of at least 24 px without changing the look. */
+.cemeti-back { padding-block: 0.4rem; margin-block: -0.4rem; }
+.cemeti-toc__links a, .cemeti-toc-back a { display: inline-block; padding-block: 0.35rem; margin-block: -0.35rem; }
+@media (pointer: coarse) { .cemeti-back { padding-block: 0.7rem; margin-block: -0.7rem; } }
+/* Landscape phones: nothing stays pinned, the page needs the room. */
+@media (max-height: 37.5rem) {
+	.cemeti-single__nav--sticky { position: static; }
+	html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); }
+	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
+	.cemeti-header { position: relative; }
 }
