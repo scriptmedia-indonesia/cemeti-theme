@@ -41,7 +41,7 @@ On the real export the posts mention 10,087 pictures: 6,406 have a Media Library
 2. **Fix posts**: every picture written in a post's text gets a Media Library item (downloaded if needed); a post without
    a valid featured image gets the first picture of its text.
 
-Both run in steps of about 20 seconds and continue by themselves; run them again any time (finished work is skipped).
+Both run in steps of about 12 seconds and continue by themselves; run them again any time (finished work is skipped).
 A report shows restored / failed files and the last problems (usually: the old site no longer has the file, or the
 uploads folder is not writable). If a conversion was already done before the media was repaired, press **Revert all**
 and **Convert** again: the gallery and documentation are then built from the repaired pictures.

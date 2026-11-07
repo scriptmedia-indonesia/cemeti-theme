@@ -127,8 +127,13 @@ class WP_Post {
 
 class WP_Error {
 	public $message;
+	public $code;
 	public function __construct( $code = '', $message = '' ) {
 		$this->message = $message;
+		$this->code    = $code;
+	}
+	public function get_error_code() {
+		return $this->code;
 	}
 	public function get_error_message() {
 		return $this->message;

@@ -11,6 +11,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.20
+
+- "0. Media → Fix posts" ended in a Cloudflare 524 timeout: one post with 20+ pictures could keep the page waiting for
+  minutes. Now every download checks a 12 second clock (the limit is per step, not per post): an unfinished post is left
+  unmarked and continues in the next step, a download waits at most 10 s, and after three connection timeouts in a row
+  the step stops with "this server could not connect to the old site" instead of repeating the same wait forever.
+
 ## 0.9.19
 
 - Revert + Convert again is proven safe: new test `flows-reconvert` (convert, convert again, revert, convert, three more

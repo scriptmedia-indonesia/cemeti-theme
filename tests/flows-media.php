@@ -13,6 +13,9 @@ if ( ! function_exists( 'wp_get_upload_dir' ) ) {
 	function untrailingslashit( $s ) { return rtrim( $s, '/' ); }
 	function download_url( $url, $timeout = 300 ) {
 		$GLOBALS['qa_downloads'][] = $url;
+		if ( false !== strpos( $url, '/neterr' ) ) {
+			return new WP_Error( 'http_request_failed', 'cURL error 28: Connection timed out' );
+		}
 		if ( ! isset( $GLOBALS['qa_remote'][ $url ] ) ) {
 			return new WP_Error( 'http_404', 'Not Found' );
 		}
@@ -102,6 +105,23 @@ $p7 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Seven', 'po
 $seven = cemeti_media_repair_post( $p7 );
 ok( 1 === $seven['created'] && 0 === $seven['missing'] && is_file( $uploads . '/2021/06/moved.jpg' ) && 1 === $seven['thumb'], 'repair post: a picture whose address names this site is downloaded from the old site' );
 ok( 1 === count( $four['failed'] ) && false !== strpos( $four['failed'][0], 'Skipped' ), 'repair post: a skipped picture says why (never silent)' );
+
+/* ---- a step never runs past its time (Cloudflare cuts a page after 100 s) and never marks what it did not finish */
+cemeti_media_clock( 'set', microtime( true ) - 1 ); // The time is already up.
+$dl = count( $GLOBALS['qa_downloads'] );
+$p8 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Eight', 'post_content' => '<img src="https://cemeti.art/wp-content/uploads/2021/06/a.jpg"><img src="https://cemeti.art/wp-content/uploads/2021/06/b.jpg">' ) );
+$eight = cemeti_media_repair_post( $p8 );
+ok( $eight['incomplete'] && count( $GLOBALS['qa_downloads'] ) === $dl && '' === (string) get_post_meta( $p8, '_thumbnail_id', true ), 'time: out of time the post is left unfinished, nothing is downloaded or changed' );
+cemeti_media_clock( 'reset' );
+$step_posts = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Nine', 'post_content' => '<img src="https://cemeti.art/wp-content/uploads/2021/06/neterr1.jpg"><img src="https://cemeti.art/wp-content/uploads/2021/06/neterr2.jpg"><img src="https://cemeti.art/wp-content/uploads/2021/06/neterr3.jpg"><img src="https://cemeti.art/wp-content/uploads/2021/06/neterr4.jpg"><img src="https://cemeti.art/wp-content/uploads/2021/06/neterr5.jpg">' ) );
+foreach ( CemetiWP::$meta as $mid => $mm ) { unset( CemetiWP::$meta[ $mid ]['_cemeti_media_post'] ); }
+delete_option( 'cemeti_media_report' );
+$dl = count( $GLOBALS['qa_downloads'] );
+$left = cemeti_media_step( 'posts', 12.0 );
+$tries = array_filter( array_slice( $GLOBALS['qa_downloads'], $dl ), static function ( $u ) { return false !== strpos( $u, '/neterr' ); } );
+ok( -1 === $left && count( $tries ) <= 3 && '' === (string) get_post_meta( $step_posts, '_cemeti_media_post', true ), 'network: after three timeouts the step stops (no more waiting), the post stays unmarked (' . count( $tries ) . ' tries)' );
+ok( false !== strpos( implode( ' ', cemeti_media_report()['errors'] ), 'could not connect' ), 'network: the report says the server cannot reach the old site' );
+CemetiWP::$posts[ $step_posts ]['post_content'] = '<p>done</p>';
 
 /* ---- the original text of a converted post is used (its pictures are not in the shortened body) */
 $p6 = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Six', 'post_content' => '<p>short</p>', 'meta' => array( '_cemeti_original_content' => '<h2>Foto Karya</h2><img src="https://cemeti.art/wp-content/uploads/2021/06/a.jpg">' ) ) );

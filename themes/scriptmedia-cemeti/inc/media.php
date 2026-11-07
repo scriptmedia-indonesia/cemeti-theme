@@ -181,6 +181,36 @@ function cemeti_media_is_old_site( $url ) {
 }
 
 /**
+ * The time limit of the running repair step and its network trouble, shared by the functions below.
+ * A web host (and Cloudflare, which cuts a request after 100 s) will not wait for a page that downloads
+ * hundreds of pictures, so every download checks the clock first.
+ *
+ * @param string     $what 'set' (float deadline), 'passed', 'net_fail' (add one), 'net_count', 'reset'.
+ * @param float|null $value Deadline for 'set'.
+ * @return mixed
+ */
+function cemeti_media_clock( $what, $value = null ) {
+	static $deadline = 0.0;
+	static $net      = 0;
+	switch ( $what ) {
+		case 'set':
+			$deadline = (float) $value;
+			$net      = 0;
+			return null;
+		case 'passed':
+			return $deadline > 0 && microtime( true ) >= $deadline;
+		case 'net_fail':
+			return ++$net;
+		case 'net_count':
+			return $net;
+		default:
+			$deadline = 0.0;
+			$net      = 0;
+			return null;
+	}
+}
+
+/**
  * Make sure the file of an upload exists on this site, downloading it from the old site when it does not.
  *
  * @param string $rel Path relative to the uploads folder.
@@ -196,10 +226,16 @@ function cemeti_media_fetch( $rel ) {
 	if ( file_exists( $dest ) ) {
 		return $dest;
 	}
+	if ( cemeti_media_clock( 'passed' ) || cemeti_media_clock( 'net_count' ) >= 3 ) {
+		return new WP_Error( 'cemeti_media_deadline', 'Out of time for this step.' );
+	}
 	require_once ABSPATH . 'wp-admin/includes/file.php';
 	$remote = cemeti_media_remote_base() . '/wp-content/uploads/' . implode( '/', array_map( 'rawurlencode', explode( '/', $rel ) ) );
-	$tmp    = download_url( $remote, 25 );
+	$tmp    = download_url( $remote, 10 );
 	if ( is_wp_error( $tmp ) ) {
+		if ( 'http_request_failed' === $tmp->get_error_code() ) {
+			cemeti_media_clock( 'net_fail' ); // The server could not even reach the old site.
+		}
 		return new WP_Error( 'cemeti_media_download', $remote . ' - ' . $tmp->get_error_message() );
 	}
 	if ( preg_match( '/\.(jpe?g|png|gif|webp)$/i', $rel ) && ! @getimagesize( $tmp ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
@@ -311,7 +347,7 @@ function cemeti_media_create_from_url( $url, $parent ) {
  */
 function cemeti_media_repair_post( $post_id ) {
 	$post   = get_post( $post_id );
-	$result = array( 'created' => 0, 'thumb' => 0, 'failed' => array(), 'missing' => 0 );
+	$result = array( 'created' => 0, 'thumb' => 0, 'failed' => array(), 'missing' => 0, 'incomplete' => false );
 	if ( ! $post ) {
 		return $result;
 	}
@@ -320,6 +356,10 @@ function cemeti_media_repair_post( $post_id ) {
 	$ids  = array();
 	if ( preg_match_all( '/<img\b[^>]*>/i', $html, $tags ) ) {
 		foreach ( $tags[0] as $tag ) {
+			if ( cemeti_media_clock( 'passed' ) || cemeti_media_clock( 'net_count' ) >= 3 ) {
+				$result['incomplete'] = true; // Out of time: the post is looked at again in the next step.
+				return $result;
+			}
 			$src   = preg_match( '/\bsrc=["\']([^"\']+)["\']/i', $tag, $s ) ? html_entity_decode( $s[1] ) : '';
 			$class = preg_match( '/\bclass=["\']([^"\']+)["\']/i', $tag, $c ) ? $c[1] : '';
 			$id    = cemeti_media_img_id( $src, $class );
@@ -412,6 +452,9 @@ function cemeti_media_report() {
  * @return array
  */
 function cemeti_media_report_error( array $report, $message ) {
+	if ( false !== strpos( (string) $message, 'Out of time for this step' ) ) {
+		return $report; // Not a problem of the picture: the step simply ended.
+	}
 	$report['errors'][] = (string) $message;
 	$report['errors']   = array_slice( array_values( array_unique( $report['errors'] ) ), -15 );
 	return $report;
@@ -468,13 +511,20 @@ function cemeti_media_unrepaired_posts( $limit ) {
  * @param float  $budget Seconds a step may take.
  * @return int Items still to do.
  */
-function cemeti_media_step( $phase, $budget = 18.0 ) {
+function cemeti_media_step( $phase, $budget = 12.0 ) {
 	$report = cemeti_media_report();
 	$start  = microtime( true );
+	cemeti_media_clock( 'set', $start + $budget );
 	if ( 'files' === $phase ) {
 		$batch = cemeti_media_unchecked_attachments( 200 );
 		foreach ( $batch['ids'] as $id ) {
 			$state = cemeti_media_restore_attachment( $id );
+			if ( cemeti_media_clock( 'passed' ) && 'ok' !== $state && 'restored' !== $state ) {
+				break; // Not checked, not marked: it is done again in the next step.
+			}
+			if ( cemeti_media_clock( 'net_count' ) >= 3 ) {
+				break;
+			}
 			if ( 'ok' === $state ) {
 				++$report['ok'];
 				update_post_meta( $id, '_cemeti_media_state', 'ok' );
@@ -486,16 +536,18 @@ function cemeti_media_step( $phase, $budget = 18.0 ) {
 				update_post_meta( $id, '_cemeti_media_state', 'failed' );
 				$report = cemeti_media_report_error( $report, $state );
 			}
-			if ( microtime( true ) - $start > $budget ) {
+			if ( cemeti_media_clock( 'passed' ) ) {
 				break;
 			}
 		}
-		update_option( 'cemeti_media_report', $report, false );
-		return cemeti_media_unchecked_attachments( 1 )['total'];
+		return cemeti_media_finish_step( $report, cemeti_media_unchecked_attachments( 1 )['total'] );
 	}
 	$batch = cemeti_media_unrepaired_posts( 50 );
 	foreach ( $batch['ids'] as $post_id ) {
 		$one = cemeti_media_repair_post( $post_id );
+		if ( $one['incomplete'] ) {
+			break; // Out of time or the old site cannot be reached: not marked, done again next step.
+		}
 		update_post_meta( $post_id, '_cemeti_media_post', 1 );
 		++$report['posts'];
 		$report['created'] += $one['created'];
@@ -503,12 +555,29 @@ function cemeti_media_step( $phase, $budget = 18.0 ) {
 		foreach ( $one['failed'] as $message ) {
 			$report = cemeti_media_report_error( $report, $message );
 		}
-		if ( microtime( true ) - $start > $budget ) {
+		if ( cemeti_media_clock( 'passed' ) ) {
 			break;
 		}
 	}
+	return cemeti_media_finish_step( $report, cemeti_media_unrepaired_posts( 1 )['total'] );
+}
+
+/**
+ * Save the report at the end of a step. -1 = stop: the server could not reach the old site (three times in a row),
+ * so going on would only make every step wait for the same timeouts.
+ *
+ * @param array $report    Report.
+ * @param int   $remaining Items left.
+ * @return int
+ */
+function cemeti_media_finish_step( array $report, $remaining ) {
+	$stopped = cemeti_media_clock( 'net_count' ) >= 3;
+	if ( $stopped ) {
+		$report = cemeti_media_report_error( $report, 'This server could not connect to ' . cemeti_media_remote_base() . ' (timeouts). Ask the hosting to allow outgoing connections to it, or try again later.' );
+	}
 	update_option( 'cemeti_media_report', $report, false );
-	return cemeti_media_unrepaired_posts( 1 )['total'];
+	cemeti_media_clock( 'reset' );
+	return $stopped ? -1 : (int) $remaining;
 }
 
 /**
@@ -576,11 +645,11 @@ function cemeti_media_panel() {
 		<li><strong>Restore files</strong>: every item of the Media Library (<?php echo (int) $attachments; ?>) whose file is missing on this site is downloaded again from the old site and its sizes are made.</li>
 		<li><strong>Fix posts</strong>: every picture written in a post's text gets a Media Library item (downloaded if needed) and a post without a valid featured image gets the first picture of its text.</li>
 	</ol>
-	<p class="description">It works in steps of about 20 seconds and continues by itself. It is safe to run again; pictures already there are not downloaded twice. Afterwards use <strong>Revert all</strong> and <strong>Convert</strong> again, so the gallery and documentation are built from the repaired pictures.</p>
+	<p class="description">It works in steps of about 12 seconds and continues by itself. It is safe to run again; pictures already there are not downloaded twice. Afterwards use <strong>Revert all</strong> and <strong>Convert</strong> again, so the gallery and documentation are built from the repaired pictures.</p>
 	<?php if ( $phase && 'reset' !== $phase ) : ?>
 		<div class="notice notice-info"><p>
 			<?php echo 'posts' === $phase ? 'Fixing posts' : 'Restoring files'; ?>: <?php echo (int) $left; ?> left
-			<?php echo $left > 0 ? ' — continuing automatically…' : ' — finished.'; ?>
+			<?php echo $left < 0 ? ' — STOPPED: this server cannot reach the old site (see the problem below).' : ( $left > 0 ? ' — continuing automatically…' : ' — finished.' ); ?>
 		</p></div>
 		<?php if ( $left > 0 ) : ?>
 			<meta http-equiv="refresh" content="1;url=<?php echo esc_url( $url( $phase ) ); ?>">
