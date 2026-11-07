@@ -56,8 +56,20 @@ function cemeti_pre_get_posts( $query ) {
 		$slug     = sanitize_title( wp_unslash( $_GET['type'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$slug     = 'reguler' === $slug ? 'regular' : $slug; // The term was called Reguler before 0.8.
 		if ( '' !== $slug ) {
-			// Polylang names the copy of a term in the second language "solo-en": accept both.
-			$query->set( 'tax_query', array( array( 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => array( $slug, $slug . '-en', $slug . '-id' ) ) ) );
+			// Polylang names the copy of a term in the second language "solo-en": accept both, and every translation
+			// of the term, so /id/residency/?type=research finds the Indonesian Research entries.
+			$slugs = array( $slug, $slug . '-en', $slug . '-id' );
+			$ids   = array();
+			foreach ( $slugs as $candidate ) {
+				$found = get_term_by( 'slug', $candidate, $taxonomy );
+				if ( $found ) {
+					$ids[] = (int) $found->term_id;
+					if ( function_exists( 'pll_get_term_translations' ) ) {
+						$ids = array_merge( $ids, array_map( 'intval', array_values( (array) pll_get_term_translations( $found->term_id ) ) ) );
+					}
+				}
+			}
+			$query->set( 'tax_query', array( $ids ? array( 'taxonomy' => $taxonomy, 'field' => 'term_id', 'terms' => array_values( array_unique( $ids ) ) ) : array( 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => $slugs ) ) );
 		}
 	}
 

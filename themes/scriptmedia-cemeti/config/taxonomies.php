@@ -31,6 +31,10 @@ return array(
 			'Regular'  => 'In each residency period we host one Indonesian artist and one or two artists from outside Indonesia.',
 			'Research' => 'Selected participants are facilitated by an assistant during the residency.',
 		),
+		'descriptions_id' => array(
+			'Regular'  => 'Pada setiap periode residensi, kami menerima satu seniman Indonesia dan satu atau dua seniman dari luar Indonesia.',
+			'Research' => 'Peserta terpilih difasilitasi oleh seorang asisten selama masa residensi.',
+		),
 		'renamed'      => array( 'Reguler' => 'Regular' ),
 	),
 	'journal_category' => array(

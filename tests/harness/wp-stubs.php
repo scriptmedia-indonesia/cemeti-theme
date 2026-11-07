@@ -727,7 +727,7 @@ function term_exists( $term, $tax = '' ) {
 }
 function wp_insert_term( $name, $tax, $args = array() ) {
 	$id                           = CemetiWP::$next_term++;
-	CemetiWP::$terms[ $tax ][ $id ] = array( 'name' => $name, 'slug' => sanitize_title( $name ), 'description' => isset( $args['description'] ) ? $args['description'] : '' );
+	CemetiWP::$terms[ $tax ][ $id ] = array( 'name' => $name, 'slug' => isset( $args['slug'] ) ? $args['slug'] : sanitize_title( $name ), 'description' => isset( $args['description'] ) ? $args['description'] : '' );
 	return array( 'term_id' => $id );
 }
 function wp_update_term( $id, $tax, $args = array() ) {
@@ -736,12 +736,24 @@ function wp_update_term( $id, $tax, $args = array() ) {
 	}
 	return array( 'term_id' => $id );
 }
+function get_term_by( $field, $value, $tax ) {
+	foreach ( isset( CemetiWP::$terms[ $tax ] ) ? CemetiWP::$terms[ $tax ] : array() as $id => $t ) {
+		if ( ( 'slug' === $field && $t['slug'] === $value ) || ( 'name' === $field && $t['name'] === $value ) ) {
+			return term_obj( $tax, $id );
+		}
+	}
+	return false;
+}
 function get_term( $id, $tax = '' ) {
 	return isset( CemetiWP::$terms[ $tax ][ $id ] ) ? term_obj( $tax, $id ) : null;
 }
 function wp_set_object_terms( $id, $terms, $tax, $append = false ) {
 	$ids = array();
 	foreach ( (array) $terms as $t ) {
+		if ( is_int( $t ) ) {
+			$ids[] = $t; // WordPress takes term IDs as integers.
+			continue;
+		}
 		$e     = term_exists( $t, $tax );
 		$ids[] = $e ? $e['term_id'] : wp_insert_term( $t, $tax )['term_id'];
 	}

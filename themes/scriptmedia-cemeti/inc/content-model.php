@@ -120,6 +120,126 @@ function cemeti_seed_terms() {
 add_action( 'init', 'cemeti_seed_terms', 20 );
 
 /**
+ * Indonesian (or other-language) description of a default term: the text of descriptions_id for "id", the
+ * English text otherwise.
+ *
+ * @param string $taxonomy Taxonomy.
+ * @param string $term     Term name.
+ * @param string $lang     Language code ("id", "en" ...).
+ * @return string
+ */
+function cemeti_default_term_description( $taxonomy, $term, $lang ) {
+	$args = cemeti_config( 'taxonomies' );
+	$args = isset( $args[ $taxonomy ] ) ? $args[ $taxonomy ] : array();
+	$key  = 'id' === cemeti_lang_code( $lang ) ? 'descriptions_id' : 'descriptions';
+	if ( isset( $args[ $key ][ $term ] ) ) {
+		return $args[ $key ][ $term ];
+	}
+	return isset( $args['descriptions'][ $term ] ) ? $args['descriptions'][ $term ] : '';
+}
+
+/**
+ * With Polylang, make the second language's copy of every default term (Regular / Research, Solo / Group, News ...),
+ * linked as translations. Without it the post editor of an Indonesian entry offers no terms at all, so a Research
+ * residency could not be translated. Runs once per version and set of languages, in the admin.
+ */
+function cemeti_seed_term_translations() {
+	if ( ! cemeti_registers_content_model() || ! function_exists( 'pll_languages_list' ) || ! function_exists( 'pll_set_term_language' ) || ! function_exists( 'pll_save_term_translations' ) ) {
+		return;
+	}
+	$langs = array_values( array_map( 'strval', (array) pll_languages_list() ) );
+	if ( count( $langs ) < 2 ) {
+		return;
+	}
+	$sig = CEMETI_VERSION . '|' . implode( ',', $langs );
+	if ( get_option( 'cemeti_term_tr_sig' ) === $sig ) {
+		return;
+	}
+	$default = function_exists( 'pll_default_language' ) && pll_default_language() ? (string) pll_default_language() : $langs[0];
+	foreach ( cemeti_config( 'taxonomies' ) as $taxonomy => $args ) {
+		foreach ( isset( $args['terms'] ) ? $args['terms'] : array() as $term ) {
+			$found = term_exists( $term, $taxonomy );
+			if ( ! $found ) {
+				continue;
+			}
+			$base         = (int) ( is_array( $found ) ? $found['term_id'] : $found );
+			$translations = function_exists( 'pll_get_term_translations' ) ? (array) pll_get_term_translations( $base ) : array();
+			if ( function_exists( 'pll_get_term_language' ) && ! pll_get_term_language( $base ) ) {
+				pll_set_term_language( $base, $default );
+			}
+			$group = array_merge( array( $default => $base ), $translations );
+			foreach ( $langs as $lang ) {
+				if ( ! empty( $group[ $lang ] ) ) {
+					continue;
+				}
+				$new  = array( 'slug' => sanitize_title( $term ) . '-' . $lang, 'description' => cemeti_default_term_description( $taxonomy, $term, $lang ) );
+				$made = function_exists( 'pll_insert_term' ) ? pll_insert_term( $term, $taxonomy, $lang, $new ) : wp_insert_term( $term, $taxonomy, $new );
+				if ( is_wp_error( $made ) || empty( $made['term_id'] ) ) {
+					continue;
+				}
+				pll_set_term_language( (int) $made['term_id'], $lang );
+				$group[ $lang ] = (int) $made['term_id'];
+			}
+			pll_save_term_translations( $group );
+		}
+	}
+	update_option( 'cemeti_term_tr_sig', $sig );
+}
+add_action( 'admin_init', 'cemeti_seed_term_translations', 30 );
+add_action( 'after_switch_theme', 'cemeti_seed_term_translations', 30 );
+
+/**
+ * An entry takes the term of its own language (the Indonesian Research residency carries the Indonesian
+ * "Research"), whichever copy was ticked or imported.
+ *
+ * @param int $post_id Post ID.
+ */
+function cemeti_sync_terms_to_language( $post_id ) {
+	if ( ! function_exists( 'pll_get_post_language' ) || ! function_exists( 'pll_get_term' ) ) {
+		return;
+	}
+	$lang = (string) pll_get_post_language( $post_id );
+	if ( '' === $lang ) {
+		return;
+	}
+	foreach ( array_keys( cemeti_config( 'taxonomies' ) ) as $taxonomy ) {
+		$terms = get_the_terms( $post_id, $taxonomy );
+		if ( ! is_array( $terms ) || ! $terms ) {
+			continue;
+		}
+		$ids     = array();
+		$changed = false;
+		foreach ( $terms as $term ) {
+			$mine = (int) pll_get_term( $term->term_id, $lang );
+			if ( $mine && $mine !== (int) $term->term_id ) {
+				$changed = true;
+			}
+			$ids[] = $mine ? $mine : (int) $term->term_id;
+		}
+		if ( $changed ) {
+			wp_set_object_terms( $post_id, array_values( array_unique( $ids ) ), $taxonomy );
+		}
+	}
+}
+add_action( 'save_post', 'cemeti_sync_terms_to_language', 40 );
+
+/**
+ * Text under a term on the Residency page, in the current language: what the editor wrote, else the default text.
+ *
+ * @param WP_Term $term Term.
+ * @return string
+ */
+function cemeti_term_description( $term ) {
+	$text = trim( (string) $term->description );
+	$lang = cemeti_current_lang();
+	if ( '' === $text || ( 'id' === cemeti_lang_code( $lang ) && $text === cemeti_default_term_description( $term->taxonomy, $term->name, 'en' ) ) ) {
+		$default = cemeti_default_term_description( $term->taxonomy, $term->name, $lang );
+		return '' !== $default ? $default : $text;
+	}
+	return $text;
+}
+
+/**
  * Flush rewrite rules once after the theme is updated, so new types and slugs work
  * without a visit to Settings → Permalinks.
  */

@@ -2,7 +2,7 @@
 // Run: php tests/flows-polylang.php — the theme with Polylang active (language switch, strings, translations).
 require __DIR__ . '/harness/bootstrap.php';
 
-$GLOBALS['pll'] = array( 'current' => 'id', 'registered' => array(), 'lang' => array(), 'groups' => array(), 'override' => array() );
+$GLOBALS['pll'] = array( 'current' => 'id', 'registered' => array(), 'lang' => array(), 'groups' => array(), 'override' => array(), 'tgroups' => array(), 'tlang' => array() );
 function pll_default_language() { return 'id'; }
 function pll_current_language() { return $GLOBALS['pll']['current']; }
 function pll_home_url( $lang = null ) { $l = $lang ? $lang : $GLOBALS['pll']['current']; return 'http://cemeti.test/' . ( 'id' === $l ? '' : $l . '/' ); }
@@ -161,6 +161,39 @@ $before = $count_id();
 foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'contact-us' === $pp['post_name'] ) { unset( CemetiWP::$posts[ $pid ] ); break; } }
 do_action( 'admin_init' );
 ok( $before - 1 === $count_id(), 'update: it runs once per version, a page deleted on purpose stays deleted' );
+
+// ---- Research / Regular (and every default term) exist in the second language too
+qa_reset_data();
+function pll_set_term_language( $id, $lang ) { $GLOBALS['pll']['tlang'][ $id ] = $lang; }
+function pll_get_term_language( $id ) { return isset( $GLOBALS['pll']['tlang'][ $id ] ) ? $GLOBALS['pll']['tlang'][ $id ] : ''; }
+function pll_save_term_translations( $arr ) { $GLOBALS['pll']['tgroups'][] = $arr; }
+function pll_get_term_translations( $id ) { foreach ( $GLOBALS['pll']['tgroups'] as $g ) { if ( in_array( $id, $g, true ) ) { return $g; } } return array(); }
+function pll_get_term( $id, $lang ) { $g = pll_get_term_translations( $id ); return isset( $g[ $lang ] ) ? $g[ $lang ] : 0; }
+function pll_get_post_language( $id ) { return isset( $GLOBALS['pll']['lang'][ $id ] ) ? $GLOBALS['pll']['lang'][ $id ] : ''; }
+$GLOBALS['pll']['tlang'] = $GLOBALS['pll']['tgroups'] = array();
+CemetiWP::$caps = true;
+do_action( 'admin_init' );
+$research = term_exists( 'Research', 'residency_type' );
+$tr = pll_get_term_translations( $research['term_id'] );
+ok( 2 === count( $tr ) && ! empty( $tr['en'] ) && ! empty( $tr['id'] ), 'terms: "Research" exists in both languages and they are linked (' . json_encode( $tr ) . ')' );
+$en_term = CemetiWP::$terms['residency_type'][ $tr['en'] ];
+ok( 'research-en' === $en_term['slug'] && 'Research' === $en_term['name'] && false !== strpos( $en_term['description'], 'facilitated' ), 'terms: the second language copy has its own slug and the default description' );
+$n_groups = count( $GLOBALS['pll']['tgroups'] );
+do_action( 'admin_init' );
+ok( count( $GLOBALS['pll']['tgroups'] ) === $n_groups, 'terms: run once per version and set of languages' );
+$GLOBALS['pll']['lang'] = array();
+$rid = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Riset' ) );
+wp_set_object_terms( $rid, array( $research['term_id'] ), 'residency_type' );
+$GLOBALS['pll']['lang'][ $rid ] = 'en';
+do_action( 'save_post', $rid );
+$have = get_the_terms( $rid, 'residency_type' );
+ok( 1 === count( $have ) && (int) $have[0]->term_id === (int) $tr['en'], 'terms: an entry in the second language takes the term of its own language on save' );
+$GLOBALS['pll']['current'] = 'id';
+$t = term_obj( 'residency_type', $research['term_id'] );
+ok( 'Peserta terpilih difasilitasi oleh seorang asisten selama masa residensi.' === cemeti_term_description( (object) array( 'taxonomy' => 'residency_type', 'name' => 'Research', 'description' => $t->description ) ), 'terms: the Residency page shows the Indonesian text when the term still has the English default' );
+ok( 'Edited by the team' === cemeti_term_description( (object) array( 'taxonomy' => 'residency_type', 'name' => 'Research', 'description' => 'Edited by the team' ) ), 'terms: a description edited by the team is never replaced' );
+$GLOBALS['pll']['current'] = 'en';
+ok( false !== strpos( cemeti_term_description( (object) array( 'taxonomy' => 'residency_type', 'name' => 'Research', 'description' => '' ) ), 'facilitated' ), 'terms: English default when the term has no text' );
 
 // ---- a person without a language is not lost on the About page
 qa_reset_data();

@@ -299,6 +299,9 @@ function cemeti_convert_post( $post_id, array $settings ) {
 	if ( 'exhibition' === $type && '' === $info['term'] ) {
 		cemeti_fill_exhibition_type( $post_id ); // Solo/Group from the title or the number of artists.
 	}
+	if ( function_exists( 'cemeti_sync_terms_to_language' ) ) {
+		cemeti_sync_terms_to_language( $post_id ); // The term of the post's own language (Polylang).
+	}
 	// Project / series terms from the other categories.
 	if ( $info['projects'] ) {
 		wp_set_object_terms( $post_id, $info['projects'], 'project' );

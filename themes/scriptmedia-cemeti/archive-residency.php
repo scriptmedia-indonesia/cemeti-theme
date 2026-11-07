@@ -20,7 +20,7 @@ $cemeti_terms = get_terms( array( 'taxonomy' => 'residency_type', 'hide_empty' =
 			<?php foreach ( $cemeti_terms as $cemeti_term ) : ?>
 				<section>
 					<h2 class="cemeti-script"><a href="<?php echo esc_url( add_query_arg( 'type', $cemeti_term->slug, get_post_type_archive_link( 'residency' ) ) ); ?>"><?php echo esc_html( $cemeti_term->name ); ?></a></h2>
-					<?php echo wp_kses_post( wpautop( $cemeti_term->description ) ); ?>
+					<?php echo wp_kses_post( wpautop( cemeti_term_description( $cemeti_term ) ) ); ?>
 				</section>
 			<?php endforeach; ?>
 		</div>

@@ -3,6 +3,16 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.16
+
+- Residency: "Research" (and "Regular") could not be translated: with Polylang the Indonesian entry's editor offered no
+  term at all, because the terms existed only in the first language. Now an administrator opening the admin after the
+  update gets the second-language copy of every default term (Regular / Research, Solo / Group, News / Essay /
+  Curatorial Essay, Advisory Board / Team), linked as translations, with the Indonesian description for Regular and
+  Research. An entry takes the term of its own language when saved or converted. The Residency page shows the
+  Indonesian description (unless the team edited the text) and `/id/residency/?type=research` finds entries through
+  every translation of the term. Tip: on existing Indonesian residencies open the entry once and tick the type.
+
 ## 0.9.15
 
 - Import / converter, checked against the full real export (561 posts, 10,087 pictures):
