@@ -1,0 +1,352 @@
+/* Page templates (M3): archives, details, Home, About, Open Archive, Support Us. */
+
+/* ---- Page head: centered script heading, Back link at the right ---- */
+.cemeti-page-head {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem);   /* heading bottom to first row: 40 px in Figma */
+}
+.cemeti-page-head .cemeti-heading { grid-column: 2; margin: 0; }
+.cemeti-page-head .cemeti-back { grid-column: 3; justify-self: end; }
+@media (max-width: 30rem) {
+	.cemeti-page-head { grid-template-columns: 1fr; justify-items: center; row-gap: 0.25rem; }
+	.cemeti-page-head .cemeti-back { grid-column: 1; grid-row: 1; justify-self: end; }
+	.cemeti-page-head .cemeti-heading { grid-column: 1; grid-row: 2; }
+}
+.cemeti-heading a { color: inherit; text-decoration: none; }
+.cemeti-heading a:hover,
+.cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }   /* prototype: blue #1C75BC and underlined on hover */
+.cemeti-container--wide { width: 100%; padding-inline: 0; }
+.cemeti-container--wide .cemeti-page-head { padding-inline: var(--gutter); }
+.cemeti-empty { text-align: center; }
+.cemeti-btn--inline { display: inline-block; }
+
+/* ---- Pagination ---- */
+.pagination { margin-top: 2rem; }
+.pagination .nav-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; font-weight: 500; }
+.pagination a { text-decoration: none; }
+.pagination a:hover { color: var(--c-salmon); text-decoration: underline; }
+.pagination .current { text-decoration: underline; text-underline-offset: 0.2em; }
+.cemeti-card__image--empty { display: block; background: var(--c-panel); }
+
+/* ---- Residency intro ---- */
+/* Residency page (Figma): Regular / Research side by side inside the reading column (columns 2-11),
+   each title centred over its text, smaller than the page title (40 vs 64); the text is regular weight. */
+.cemeti-residency-intro {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 2rem 2.5rem;
+	width: 83.333%;
+	margin: 0 auto clamp(2rem, 1.5rem + 2.5vw, 3.5rem);
+	font-size: var(--fs-single);
+	font-weight: 400;
+	line-height: 1.4167;
+}
+.cemeti-residency-intro h2 { margin: 0 0 0.6em; text-align: center; font-size: var(--fs-single-lead); line-height: 1.1; color: var(--c-ink); }
+.cemeti-residency-intro h2 a { text-decoration: none; }
+.cemeti-residency-intro h2 a:hover { color: var(--c-blue); text-decoration: underline; }
+.cemeti-residency-intro p { margin: 0 0 1em; }
+@media (max-width: 47.99rem) { .cemeti-residency-intro { width: 100%; } }
+@media (min-width: 48rem) { .cemeti-residency-intro { grid-template-columns: 1fr 1fr; } }
+
+/* ---- Home (Figma): header 64 px script; poster 272 x 340 + 52 px gap + text; green button 272 x 31 under the
+   poster; 40 px between a button and the next heading; residency picture 416 x 333 + 16 px gap. ---- */
+.cemeti-home__section { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
+.cemeti-home .cemeti-heading { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
+.cemeti-home__item {
+	display: grid;
+	grid-template-columns: minmax(7rem, 17rem) 1fr;
+	gap: 1rem clamp(1rem, 0.5rem + 3.6vw, 3.25rem);
+	align-items: start;
+}
+.cemeti-home__section--residency .cemeti-home__item { grid-template-columns: minmax(7rem, 26rem) 1fr; gap: 1rem; }
+.cemeti-home__poster .cemeti-btn { margin-top: 0.75rem; max-width: 17rem; }
+.cemeti-home__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-home__section--residency .cemeti-home__poster img { aspect-ratio: 5 / 4; }
+.cemeti-home__title { margin: 0; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; }
+.cemeti-home__title a { text-decoration: none; }
+.cemeti-home__title a:hover { color: var(--c-salmon); }
+.cemeti-home__people { margin: 0 0 0.83em; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; }
+.cemeti-home__date { margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 1.2; }
+.cemeti-home__text > p:not([class]) { font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-home__current { margin: 1.4167em 0 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-home__section--journal .cemeti-row-list { margin-bottom: 0.75rem; }
+.cemeti-home__section--journal { margin-inline: calc(-1 * var(--gutter)); }
+.cemeti-home__section--journal .cemeti-heading,
+.cemeti-home__section--journal > .cemeti-btn { margin-inline: var(--gutter); }
+.cemeti-home__section--journal > .cemeti-btn { max-width: 17rem; }
+@media (max-width: 40rem) { .cemeti-home__item { grid-template-columns: 1fr; } .cemeti-home__poster { max-width: 15rem; } }
+
+/* ---- Detail pages ----
+   Exact values from the Figma frame "EXHIBITION ARTICLE TEMPLATE" (1440 px wide): 12-column grid in the 80rem
+   container; reading column = columns 2-11 (1064 px); poster 524 x 655 starting 216 px into the column;
+   title 64 / date and names 40 / labels 24 Medium / text 24 on 34 / small text 18 / script headings 64.
+   Sizes shrink with the viewport (clamp) and reach the design value at 1440 px. */
+.cemeti-single { --col: 83.333%; font-size: var(--fs-single); line-height: 1.4167; }
+.cemeti-single strong { font-weight: 500; }
+.cemeti-single__nav { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: clamp(1.25rem, 0.5rem + 2vw, 1.875rem); font-size: var(--fs-single-small); }
+.cemeti-single__nav .cemeti-back { margin-left: auto; font-size: var(--fs-single-small); }
+.cemeti-toc { font-size: var(--fs-single-small); line-height: 1.3; }
+.cemeti-toc__label { display: block; margin-bottom: 0.8333em; text-decoration: underline; }
+.cemeti-toc__links { display: flex; flex-wrap: wrap; align-items: center; row-gap: 0.4rem; }
+.cemeti-toc__links a { padding: 0 0.6667em; color: var(--c-salmon); border-left: 1px solid var(--c-ink); line-height: 1.1; }
+.cemeti-toc__links a:first-child { padding-left: 0; border-left: 0; }
+.cemeti-toc__links a[aria-current] { font-weight: 500; }
+.cemeti-toc__links a:hover { color: var(--c-ink); }
+.cemeti-single__head,
+.cemeti-single__info,
+.cemeti-single__body { max-width: var(--col); margin-inline: auto; }
+.cemeti-single__head { margin-bottom: 0; text-align: left; }
+/* Poster inside the column: centred on phones; from 48rem it is 524/1064 of the column, 216/1064 in. */
+.cemeti-single__poster { width: min(100%, 25rem); margin: 0 auto clamp(1.5rem, 1rem + 1.5vw, 2.375rem); }
+@media (min-width: 48rem) { .cemeti-single__poster { width: 49.25%; margin-left: 20.3%; margin-right: 0; } }
+.cemeti-single__hero { width: min(100%, 36rem); margin: 0 auto 1.5rem; }
+.cemeti-single__title { margin: 0 0 0.73em; font-size: var(--fs-single-title); font-weight: 500; line-height: 1.2; }
+.cemeti-single__date { margin: 0 0 1.175em; font-size: var(--fs-single-lead); font-weight: 500; line-height: 1.2; }
+.cemeti-single__people { margin: 0 0 1.2em; font-size: var(--fs-single-lead); font-weight: 500; line-height: 1.2; }
+.cemeti-single__time { margin: 0 0 1.4167em; }
+.cemeti-single__info p,
+.cemeti-single__body p { margin: 0 0 1.4167em; }
+.cemeti-single__body .has-text-align-right { text-align: right; }
+.cemeti-single__body .has-text-align-center { text-align: center; }
+.cemeti-single__body img { margin-block: 1.5rem; }
+.cemeti-single__body figcaption { font-size: var(--fs-single-small); text-align: center; }
+.cemeti-single__section { margin-top: clamp(1.75rem, 1rem + 2.4vw, 3rem); }
+.cemeti-section-heading { margin: 0 0 clamp(0.75rem, 0.4rem + 1.3vw, 1.25rem); color: var(--c-blue); font-size: var(--fs-single-script); font-weight: 400; line-height: 1.1; }
+.cemeti-toc-back { margin: 0.75rem 0 0; text-align: right; font-size: var(--fs-single-small); }
+.cemeti-toc-back a { color: var(--c-salmon); }
+.cemeti-photos { margin: 0; }
+.cemeti-photos__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8125rem 1rem; max-width: var(--col); margin-inline: auto; }
+.cemeti-photos__grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.cemeti-photos figcaption { margin: 0.6rem 0 0; font-size: var(--fs-single-small); }
+/* Biography: 308 px square photo, 16 px gap, text 24 on 34; 80 px between artists. */
+.cemeti-bio { display: grid; grid-template-columns: 1fr; gap: 1rem; max-width: var(--col); margin: 0 auto clamp(2.5rem, 1.5rem + 3vw, 5rem); }
+.cemeti-bio__photo { width: min(100%, 19.25rem); aspect-ratio: 1; object-fit: cover; }
+.cemeti-bio__text p { margin: 0 0 1.4167em; }
+.cemeti-bio__text p:last-child { margin-bottom: 0; }
+@media (min-width: 40rem) { .cemeti-bio { grid-template-columns: minmax(8rem, 28.95%) 1fr; } .cemeti-bio__photo { width: 100%; } }
+/* Related publications: cards 324 wide, 20 px padding, image 331:260, label 18 salmon, title 20 Medium. */
+.cemeti-related { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.9375rem; }
+.cemeti-related li { padding: clamp(0.75rem, 0.5rem + 0.8vw, 1.25rem); }
+.cemeti-related a { display: flex; flex-direction: column; gap: 1rem; text-decoration: none; }
+.cemeti-related img { width: 100%; aspect-ratio: 331 / 260; object-fit: cover; }
+.cemeti-related__label { display: block; color: var(--c-salmon); font-size: var(--fs-single-small); }
+.cemeti-related__title { display: block; font-size: var(--fs-single-card); font-weight: 500; line-height: 1.2; }
+.cemeti-related a:hover .cemeti-related__title { text-decoration: underline; }
+@media (min-width: 48rem) { .cemeti-related { grid-template-columns: repeat(4, 1fr); } }
+.cemeti-share { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 2rem; font-size: var(--fs-single-small); }
+.cemeti-share__label { color: rgba(74, 74, 77, 0.75); }
+.cemeti-share__btn {
+	appearance: none; padding: 0.2rem 0.6rem; border: 1px solid var(--c-ink); border-radius: 999px;
+	background: none; color: inherit; font: inherit; text-decoration: none; cursor: pointer;
+}
+.cemeti-share__btn:hover { background: var(--c-ink); color: var(--c-cream); }
+
+/* Open Call */
+/* Figma: picture 416 x 520, text 848 wide 16 px to its right; title 48, text 24 (Medium); blue button 272 wide
+   level with the bottom of the picture. */
+.cemeti-opencall { display: grid; grid-template-columns: 1fr; gap: 1.5rem 1rem; align-items: stretch; }
+.cemeti-opencall__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-opencall__text { display: flex; flex-direction: column; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-opencall__text .cemeti-single__title { max-width: none; margin: 0 0 0.83em; font-size: var(--fs-xl); }
+.cemeti-opencall__text .cemeti-single__body { max-width: none; margin-inline: 0; }
+.cemeti-opencall__text .cemeti-btn { margin-top: auto; max-width: 17rem; }
+@media (min-width: 48rem) { .cemeti-opencall { grid-template-columns: 32.5% 1fr; } }
+
+/* ---- About ---- */
+.cemeti-people { margin-top: clamp(2rem, 1rem + 4vw, 4rem); }
+.cemeti-people__heading { margin: 0 0 1.5rem; text-align: center; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; text-transform: uppercase; }
+.cemeti-people__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem var(--gap); }
+.cemeti-people__grid img { width: 100%; aspect-ratio: 1; object-fit: cover; margin-bottom: 0.5rem; }
+.cemeti-people__grid strong,
+.cemeti-people__grid span { display: block; font-size: var(--fs-card-title); }
+@media (min-width: 48rem) { .cemeti-people__grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---- Open Archive A–Z ---- */
+/* Figma: two columns 18 px apart; letter 48 Medium, entries 24 indented 33 px, 30 px apart. */
+.cemeti-az { display: grid; grid-template-columns: 1fr; gap: 0 1.125rem; margin-top: 2rem; }
+.cemeti-az__letter { margin: 1.25rem 0 0.5rem; font-size: var(--fs-xl); font-weight: 500; line-height: 1; }
+.cemeti-az ul { list-style: none; margin: 0; padding: 0 0 0 2.0625rem; font-size: var(--fs-single); line-height: 1.25; }
+.cemeti-az li { margin-bottom: 0.25em; }
+.cemeti-az a { text-decoration: none; }
+.cemeti-az a:hover { color: var(--c-salmon); text-decoration: underline; }
+@media (min-width: 40rem) { .cemeti-az { grid-template-columns: 1fr 1fr; } }
+
+/* ---- Support Us accordion ---- */
+.cemeti-accordion { margin-top: 2rem; border-top: var(--rule); }
+.cemeti-accordion__row { border-bottom: var(--rule); }
+.cemeti-accordion__row summary {
+	padding: 0.6rem var(--gutter); list-style: none; cursor: pointer;
+	font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; text-transform: uppercase;
+}
+.cemeti-accordion__row summary::-webkit-details-marker { display: none; }
+.cemeti-accordion__row summary:hover { color: var(--c-blue); }
+.cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
+
+/* ---- Contact, 404 ---- */
+.cemeti-contact { font-style: normal; max-width: var(--col, 83.333%); margin: 1.5rem auto 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+.cemeti-contact p { margin: 0 0 1.4167em; }
+.cemeti-notfound { text-align: center; }
+
+/* ---- Open Call application form ---- */
+.cemeti-apply { max-width: 40rem; margin: clamp(2rem, 1rem + 4vw, 4rem) auto 0; scroll-margin-top: calc(var(--header-h) + 1rem); }
+.cemeti-apply__form p { margin: 0 0 1rem; }
+.cemeti-apply__form label { display: block; margin-bottom: 0.25rem; font-weight: 500; }
+.cemeti-apply__form small { font-weight: 400; color: var(--c-muted); }
+.cemeti-apply__form input[type="text"],
+.cemeti-apply__form input[type="email"],
+.cemeti-apply__form input[type="url"],
+.cemeti-apply__form textarea {
+	width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--c-ink); border-radius: 0;
+	background: var(--c-white); color: var(--c-ink); font: inherit;
+}
+.cemeti-apply__form input[type="file"] { width: 100%; font: inherit; }
+.cemeti-apply__trap { position: absolute; left: -9999px; height: 0; overflow: hidden; }
+.cemeti-apply__notice { padding: 0.6rem 0.8rem; border: 1px solid var(--c-ink); }
+.cemeti-apply__notice--ok { border-color: var(--c-green); }
+.cemeti-apply__notice--error { border-color: var(--c-salmon); }
+
+/* About and Support Us (Figma): the picture / lead text is 848 wide and centred; the rest keeps the reading column. */
+.cemeti-single--about .cemeti-single__hero { width: min(100%, 53rem); aspect-ratio: 848 / 602; object-fit: cover; margin-bottom: 2.5rem; }
+/* Journal (Figma): the picture is 848 wide like About, the caption sits under it, indented from the left. */
+.cemeti-single__figure { width: min(100%, 53rem); margin: 0 auto 2.5rem; }
+.cemeti-single__figure .cemeti-single__hero { display: block; width: 100%; aspect-ratio: 848 / 602; object-fit: cover; margin: 0; }
+.cemeti-single__figure figcaption { margin: 0.75rem 0 0; padding-inline: 12.7%; font-size: var(--fs-single-small); line-height: 1.35; text-align: left; }
+.cemeti-single--support .cemeti-single__body { max-width: 53rem; }
+
+/* ---- Section titles stay pinned under the header while their section scrolls; the content slides underneath
+   and the title stays ON TOP of it (prototype behaviour). The title box lets clicks through except on the link. ---- */
+@media (min-width: 48rem) {
+	.cemeti-page-head { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
+	.cemeti-page-head a { pointer-events: auto; }
+	.cemeti-home .cemeti-heading { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
+	.cemeti-home .cemeti-heading a { pointer-events: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
+	.cemeti-header { position: relative; }
+}
+.cemeti-home .cemeti-btn { width: min(100%, 17rem); }
+
+/* ---- Detail page: the contents bar stays at the top while reading ---- */
+.cemeti-single__nav--sticky { position: sticky; top: var(--header-h); z-index: 50; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
+html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 6rem); }
+@media (max-width: 40rem) { .cemeti-single__nav--sticky { position: static; } html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); } }
+.cemeti-single__lead { max-width: var(--col); margin: 0 auto 1.4167em; font-weight: 500; }
+
+/* ---- Share buttons with the app icon and name (Figma "Share this") ---- */
+.cemeti-share__btn { display: inline-flex; align-items: center; gap: 0.4em; }
+.cemeti-share__icon { flex: none; }
+
+/* ---- Files and downloads inside a text: a small button, not a block ---- */
+.cemeti-single__body .wp-block-file { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 0 0 1.4167em; font-size: var(--fs-single-small); }
+.cemeti-single__body .wp-block-file a:not(.wp-block-file__button) { font-weight: 500; }
+.cemeti-single__body .wp-block-file__button,
+.cemeti-single__body a.wp-element-button { display: inline-block; padding: 0.3em 0.9em; border: 0; border-radius: 0; background: var(--c-green); color: var(--c-cream); font-family: var(--font-script); font-size: 1rem; line-height: 1.4; text-decoration: none; }
+.cemeti-single__body .wp-block-file__button:hover { background: var(--c-salmon); color: var(--c-ink); }
+
+/* ---- Text in one column: the old site's two-column language blocks are not used ---- */
+.cemeti-single__body .wp-block-columns { display: block; }
+.cemeti-single__body .wp-block-column { margin: 0; }
+
+/* ---- Open Call list ---- */
+.cemeti-opencalls .cemeti-opencall { margin-bottom: clamp(2.5rem, 2rem + 3vw, 5rem); }
+.cemeti-opencalls .cemeti-single__title a { text-decoration: none; }
+
+/* ---- About: Advisory Board in three columns, photo (square) left, name / title / quote right ---- */
+.cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: 1fr; }
+@media (min-width: 40rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(3, 1fr); } }
+.cemeti-people--advisory-board .cemeti-people__grid li { display: grid; grid-template-columns: minmax(5rem, 38%) 1fr; gap: 1rem; align-items: start; }
+.cemeti-people--advisory-board .cemeti-people__grid img { margin: 0; }
+.cemeti-people--advisory-board .cemeti-people__role { color: var(--c-ink); font-weight: 400; }
+.cemeti-people__quote { margin-top: 0.5rem; font-style: italic; font-size: var(--fs-body); }
+.cemeti-people__text { display: block; }
+
+/* Home: the whole text block is one link; hovering it turns title, names and date salmon and underlined (prototype). */
+.cemeti-home__text { position: relative; }
+.cemeti-home__title a::after { content: ""; position: absolute; inset: 0; }
+.cemeti-home__text:hover .cemeti-home__title a,
+.cemeti-home__text:hover .cemeti-home__people,
+.cemeti-home__text:hover .cemeti-home__date { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }
+
+/* ---- Public Program and Open Studio (Figma "PUBLIC ARTICLE TEMPLATE"): no contents bar; speakers 40 Medium, then the
+   day and time 24 Medium; the poster keeps its own proportions, at most 655 px high. ---- */
+.cemeti-single__when { margin: 0 0 1.4167em; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
+@media (min-width: 48rem) {
+	.cemeti-single--public_program .cemeti-single__poster,
+	.cemeti-single--open_studio .cemeti-single__poster { width: auto; max-width: 43.5%; max-height: 40.9375rem; margin-left: 25.5%; }
+}
+
+/* ---- About, compact: Advisory Board cards fill their cell (bigger photo, bigger text, tighter rows);
+   Team = roles in bold with their names under them, centred between two rules. ---- */
+.cemeti-people--advisory-board .cemeti-people__grid { gap: 1.5rem 2rem; }
+.cemeti-people--advisory-board .cemeti-people__grid li { grid-template-columns: minmax(6rem, 46%) 1fr; gap: 1rem; align-items: start; }
+.cemeti-people--advisory-board .cemeti-people__text strong { display: block; font-size: var(--fs-single-card); font-weight: 500; line-height: 1.2; }
+.cemeti-people--advisory-board .cemeti-people__role { margin-top: 0.35rem; font-size: var(--fs-body); line-height: 1.3; }
+.cemeti-people--advisory-board .cemeti-people__quote { margin-top: 0.6rem; font-size: var(--fs-body); line-height: 1.35; }
+.cemeti-people--team { margin-top: clamp(1.5rem, 1rem + 2vw, 3rem); }
+.cemeti-team { max-width: 45rem; margin: 0 auto; padding: clamp(1.5rem, 1rem + 2vw, 3rem) 0; border-block: 1px solid var(--c-ink); text-align: center; font-size: var(--fs-single); line-height: 1.35; }
+.cemeti-team__role { margin: 0 0 1.5em; }
+.cemeti-team__role:last-child { margin-bottom: 0; }
+.cemeti-team__role strong { display: block; font-weight: 500; }
+.cemeti-team__role span { display: block; }
+
+/* ---- Phones and small tablets (QA: responsive) ---- */
+@media (max-width: 47.99rem) {
+	/* The reading column is the whole width: no 8% indent on a 390 px screen. */
+	.cemeti-single { --col: 100%; }
+	.cemeti-single__head,
+	.cemeti-single__info,
+	.cemeti-single__body { max-width: none; }
+	.cemeti-photos__grid { gap: 0.5rem; }
+	.cemeti-bio { margin-bottom: 2rem; }
+	/* Contents bar: plain wrapped links, no bars that would start a line. */
+	.cemeti-toc__links { gap: 0.25rem 1rem; }
+	.cemeti-toc__links a,
+	.cemeti-toc__links a:first-child { padding-inline: 0; border-left: 0; }
+}
+@media (max-width: 40rem) {
+	/* Home: one column, full-width picture, residency stacked like the others, air between sections. */
+	.cemeti-home__section,
+	.cemeti-home__section--residency { margin-bottom: 2.5rem; }
+	.cemeti-home__item,
+	.cemeti-home__section--residency .cemeti-home__item { grid-template-columns: 1fr; gap: 1rem; }
+	.cemeti-home__poster { max-width: 22rem; }
+	.cemeti-home__poster img { width: 100%; }
+	.cemeti-home__section--residency .cemeti-home__poster img { aspect-ratio: 4 / 3; }
+	.cemeti-home__title,
+	.cemeti-home__people { font-size: 1.5rem; }
+	.cemeti-home__date { font-size: 1.25rem; }
+	.cemeti-home__current { margin-top: 1rem; }
+}
+
+/* ---- QA sweep fixes (v0.9.8): long words, form fields, tap targets, short screens ---- */
+.cemeti-heading, .cemeti-search, .cemeti-search *, .cemeti-results, .cemeti-back, .cemeti-page-head { overflow-wrap: anywhere; min-width: 0; }
+.cemeti-apply__form label, .cemeti-apply__form p { min-width: 0; max-width: 100%; }
+.cemeti-apply__form input, .cemeti-apply__form textarea { max-width: 100%; min-width: 0; box-sizing: border-box; }
+.cemeti-apply__form input[type="file"] { box-sizing: border-box; overflow: hidden; }
+/* Tap targets of at least 24 px without changing the look. */
+.cemeti-back { padding-block: 0.4rem; margin-block: -0.4rem; }
+.cemeti-toc__links a, .cemeti-toc-back a { display: inline-block; padding-block: 0.35rem; margin-block: -0.35rem; }
+@media (pointer: coarse) { .cemeti-back { padding-block: 0.7rem; margin-block: -0.7rem; } }
+/* Landscape phones: nothing stays pinned, the page needs the room. */
+@media (max-height: 37.5rem) {
+	.cemeti-single__nav--sticky { position: static; }
+	html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); }
+	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
+	.cemeti-header { position: relative; }
+}
+
+/* ---- QA round 2 ---- */
+.cemeti-home__text > p:not([class]) { font-weight: 400; }                          /* residency excerpt: regular, not bold */
+.cemeti-home__title + .cemeti-home__date { margin-top: 0.6em; }                    /* public programme: air between title and date */
+.cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: 1fr; gap: 2.5rem 2rem; }
+@media (min-width: 40rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 64rem) { .cemeti-people--advisory-board .cemeti-people__grid { grid-template-columns: repeat(3, 1fr); } }
+.cemeti-people--advisory-board .cemeti-people__grid li { display: block; text-align: center; }
+.cemeti-people--advisory-board .cemeti-people__grid img { width: 100%; aspect-ratio: 1; object-fit: cover; margin: 0 0 1rem; }
+.cemeti-people--advisory-board .cemeti-people__text { text-align: center; }
+/* Bigger screens: the archive cards grow with the page instead of staying at the 1440 px size. */
+@media (min-width: 100rem) { .cemeti-card-grid { width: min(100%, 1520px); margin-inline: auto; } }

@@ -1,0 +1,25 @@
+/* Cemeti "Details" box on the edit screen. Loaded only on Cemeti post types (inc/fields.php). */
+.cemeti-fields th { width: 200px; }
+.cemeti-fields__section th { width: auto; padding: 18px 0 4px; border-top: 1px solid #c3c4c7; }
+.cemeti-fields__section:first-child th { border-top: 0; padding-top: 0; }
+.cemeti-fields__section h3 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: .04em; }
+.cemeti-fields__intro { margin: 0 0 8px; }
+
+.cemeti-row__up, .cemeti-row__down, .cemeti-row__remove { min-width: 24px; min-height: 24px; text-align: center; text-decoration: none; cursor: pointer; }
+.cemeti-row__remove { color: #b32d2e; }
+
+.cemeti-list__row { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; }
+.cemeti-list__row input { flex: 1; max-width: 25em; }
+
+.cemeti-media__thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; }
+.cemeti-media__item { display: inline-flex; flex-direction: column; align-items: center; padding: 4px; border: 1px solid #c3c4c7; background: #fff; }
+.cemeti-media__item img { display: block; width: 80px; height: 80px; object-fit: cover; }
+.cemeti-media__thumbs > img { margin: 0 6px 6px 0; vertical-align: top; }
+.cemeti-file__name { margin-right: 8px; font-weight: 600; }
+
+.cemeti-repeater__row { margin: 0 0 14px; padding: 0 14px 6px; border: 1px solid #c3c4c7; background: #fff; }
+.cemeti-repeater__bar { display: flex; align-items: center; gap: 4px; margin: 0 -14px 8px; padding: 8px 14px; background: #f0f0f1; border-bottom: 1px solid #c3c4c7; }
+.cemeti-repeater__title { flex: 1; }
+.cemeti-repeater__label { display: inline-block; margin-bottom: 2px; font-weight: 600; }
+.cemeti-repeater__field textarea { font-weight: 400; }
+.cemeti-repeater__field { margin: 0 0 12px; }
