@@ -48,6 +48,7 @@ ok( 0 === cemeti_media_find_by_url( 'https://cemeti.art/wp-content/uploads/2021/
 $scaled = CemetiWP::post( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'post_title' => 's', 'meta' => array( '_wp_attached_file' => '2021/07/big-scaled.jpg' ) ) );
 ok( $scaled === cemeti_media_find_by_url( 'https://cemeti.art/wp-content/uploads/2021/07/big.jpg' ), 'media: the "-scaled" original is found for the plain name' );
 ok( 0 === cemeti_media_find_by_url( 'https://cemeti.art/wp-content/uploads/../../etc/passwd' ), 'media: a path with ".." is refused' );
+ok( '2020/01/museum-2017..jpg' === cemeti_media_rel_path( 'https://x.test/cemeti/wp-content/uploads/2020/01/museum-2017..jpg?w=853' ) && '' === cemeti_media_rel_path( 'https://x.test/wp-content/uploads/a/../b.jpg' ), 'media: a file name with two dots is fine (it was refused), a folder ".." is not' );
 
 /* ---- the old wp-image number is only trusted when it is the same file */
 $other = CemetiWP::post( array( 'post_type' => 'attachment', 'post_status' => 'inherit', 'post_title' => 'x', 'meta' => array( '_wp_attached_file' => '2020/01/something-else.jpg' ) ) );

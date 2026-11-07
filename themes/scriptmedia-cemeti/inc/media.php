@@ -18,6 +18,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Does a path climb out of its folder ("../x", "a/../b")? A file NAME with two dots ("photo-2017..jpg") is fine.
+ *
+ * @param string $rel Relative path.
+ * @return bool
+ */
+function cemeti_media_path_climbs( $rel ) {
+	return 1 === preg_match( '#(^|/)\.\.(/|$)#', str_replace( '\\', '/', (string) $rel ) );
+}
+
+/**
  * Path of an upload relative to the uploads folder ("2021/06/photo.jpg"), whatever the host.
  *
  * @param string $url Address.
@@ -29,7 +39,7 @@ function cemeti_media_rel_path( $url ) {
 		return '';
 	}
 	$rel = rawurldecode( $m[1] );
-	return false !== strpos( $rel, '..' ) ? '' : $rel;
+	return cemeti_media_path_climbs( $rel ) ? '' : $rel;
 }
 
 /**
@@ -218,7 +228,7 @@ function cemeti_media_clock( $what, $value = null ) {
  */
 function cemeti_media_fetch( $rel ) {
 	$rel = ltrim( str_replace( '\\', '/', (string) $rel ), '/' );
-	if ( '' === $rel || false !== strpos( $rel, '..' ) ) {
+	if ( '' === $rel || cemeti_media_path_climbs( $rel ) ) {
 		return new WP_Error( 'cemeti_media_path', 'Unusable file path.' );
 	}
 	$uploads = wp_get_upload_dir();

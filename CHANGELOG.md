@@ -11,6 +11,12 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.21
+
+- Media repair refused pictures whose file name contains two dots ("museum-of-the-ordinary-things-cemeti-2017..jpg"):
+  the safety check against `../` looked for ".." anywhere. It now refuses only a folder called "..".
+  Run "2. Fix posts" again after updating (it re-checks the posts that still have missing pictures).
+
 ## 0.9.20
 
 - "0. Media → Fix posts" ended in a Cloudflare 524 timeout: one post with 20+ pictures could keep the page waiting for
