@@ -156,7 +156,8 @@ function cemeti_media_remote_base() {
 }
 
 /**
- * Is an address on the old site (or a path on it)?
+ * Is an address one the repair may download from the old site for: the old site's, or this site's own (the
+ * address of a file that was never imported)? Other websites never are.
  *
  * @param string $url Address.
  * @return bool
@@ -166,8 +167,17 @@ function cemeti_media_is_old_site( $url ) {
 	if ( '' === $host ) {
 		return 0 === strpos( (string) $url, '/wp-content/uploads/' );
 	}
-	$old = (string) wp_parse_url( cemeti_media_remote_base(), PHP_URL_HOST );
-	return preg_replace( '/^www\./i', '', strtolower( $host ) ) === preg_replace( '/^www\./i', '', strtolower( $old ) );
+	// The old site, and this site: after a search-and-replace of the address (or an importer that rewrote it) the
+	// text names THIS site for files that only exist on the old one.
+	$norm    = static function ( $h ) {
+		return preg_replace( '/^www\./i', '', strtolower( (string) $h ) );
+	};
+	$allowed = array(
+		$norm( wp_parse_url( cemeti_media_remote_base(), PHP_URL_HOST ) ),
+		$norm( wp_parse_url( home_url(), PHP_URL_HOST ) ),
+		$norm( wp_parse_url( site_url(), PHP_URL_HOST ) ),
+	);
+	return in_array( $norm( $host ), $allowed, true );
 }
 
 /**
@@ -331,6 +341,8 @@ function cemeti_media_repair_post( $post_id ) {
 				} else {
 					$result['failed'][] = $made;
 				}
+			} elseif ( '' !== $src ) {
+				$result['failed'][] = 'Skipped (not an address of the old site or of this site): ' . $src;
 			}
 			if ( $id ) {
 				$ids[] = $id;
@@ -532,7 +544,14 @@ function cemeti_media_run() {
 		wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => 'reset' ), admin_url( 'tools.php' ) ) );
 		exit;
 	}
-	$phase     = 'posts' === $phase ? 'posts' : 'files';
+	$phase = 'posts' === $phase ? 'posts' : 'files';
+	if ( 'posts' === $phase && ! empty( $_GET['fresh'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		// Pressing the button again looks at the posts that still have missing pictures once more.
+		$again = new WP_Query( array( 'post_type' => cemeti_media_post_types(), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_media_missing' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		foreach ( $again->posts as $id ) {
+			delete_post_meta( (int) $id, '_cemeti_media_post' );
+		}
+	}
 	$remaining = cemeti_media_step( $phase );
 	wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => $phase, 'media_left' => (int) $remaining ), admin_url( 'tools.php' ) ) );
 	exit;
@@ -591,7 +610,7 @@ function cemeti_media_panel() {
 	<?php endif; ?>
 	<p>
 		<a class="button button-primary" href="<?php echo esc_url( $url( 'files' ) ); ?>">1. Restore files</a>
-		<a class="button button-primary" href="<?php echo esc_url( $url( 'posts' ) ); ?>">2. Fix posts</a>
+		<a class="button button-primary" href="<?php echo esc_url( $url( 'posts' ) . '&fresh=1' ); ?>">2. Fix posts</a>
 		<a class="button" href="<?php echo esc_url( $url( 'retry' ) ); ?>">Retry the failed files</a>
 		<a class="button" href="<?php echo esc_url( $url( 'reset' ) ); ?>" onclick="return confirm('Forget what was checked and start again?');">Start over</a>
 	</p>

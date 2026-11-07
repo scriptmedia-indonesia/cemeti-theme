@@ -34,6 +34,7 @@ $GLOBALS['qa_remote'] = array(
 	'https://cemeti.art/wp-content/uploads/2021/06/a.jpg'  => $png,
 	'https://cemeti.art/wp-content/uploads/2021/06/b.jpg'  => $png,
 	'https://cemeti.art/wp-content/uploads/2021/06/html.jpg' => '<html>not an image</html>',
+	'https://cemeti.art/wp-content/uploads/2021/06/moved.jpg' => $png,
 );
 
 /* ---- finding a picture by its file path, whatever the host or the size */
@@ -95,6 +96,12 @@ $p5 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Five', 'pos
 $dl = count( $GLOBALS['qa_downloads'] );
 $four = cemeti_media_repair_post( $p5 );
 ok( count( $GLOBALS['qa_downloads'] ) === $dl && 1 === $four['missing'], 'repair post: pictures of other websites are never downloaded' );
+
+/* ---- a text whose address was replaced by THIS site's (search-and-replace / importer): the file is still fetched from the old site */
+$p7 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Seven', 'post_content' => '<img src="http://cemeti.test/cemeti/wp-content/uploads/2021/06/moved.jpg">' ) );
+$seven = cemeti_media_repair_post( $p7 );
+ok( 1 === $seven['created'] && 0 === $seven['missing'] && is_file( $uploads . '/2021/06/moved.jpg' ) && 1 === $seven['thumb'], 'repair post: a picture whose address names this site is downloaded from the old site' );
+ok( 1 === count( $four['failed'] ) && false !== strpos( $four['failed'][0], 'Skipped' ), 'repair post: a skipped picture says why (never silent)' );
 
 /* ---- the original text of a converted post is used (its pictures are not in the shortened body) */
 $p6 = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Six', 'post_content' => '<p>short</p>', 'meta' => array( '_cemeti_original_content' => '<h2>Foto Karya</h2><img src="https://cemeti.art/wp-content/uploads/2021/06/a.jpg">' ) ) );

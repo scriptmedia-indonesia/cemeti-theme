@@ -1120,3 +1120,7 @@ function wp_count_posts( $type = 'post' ) {
 function get_edit_post_link( $id ) {
 	return 'http://cemeti.test/wp-admin/post.php?post=' . (int) $id . '&action=edit';
 }
+
+function site_url( $path = '' ) {
+	return home_url( $path );
+}

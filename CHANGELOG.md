@@ -11,6 +11,14 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.18
+
+- "0. Media → Fix posts" did nothing on a site where the pictures' addresses had been changed to the new site's (search
+  and replace or importer): such a picture was counted as missing without a word. Now an address of this site is
+  treated like the old site's for files that do not exist here (they are downloaded from the old site), other websites
+  are skipped **with the reason in the report**, and pressing "2. Fix posts" again re-checks the posts that still have
+  missing pictures (no need for "Start over").
+
 ## 0.9.17 (addition)
 
 - Residency page in Indonesian showed only "Reguler": "Research" was missing because the page listed only the terms of
