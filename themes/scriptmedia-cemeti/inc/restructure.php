@@ -377,7 +377,9 @@ function cemeti_restructure_post( $post_id, $type ) {
 		update_post_meta( $post_id, 'cemeti_' . $key, $value );
 		$written[] = 'cemeti_' . $key;
 	}
-	update_post_meta( $post_id, '_cemeti_original_content', $post->post_content );
+	if ( '' === (string) get_post_meta( $post_id, '_cemeti_original_content', true ) ) {
+		update_post_meta( $post_id, '_cemeti_original_content', $post->post_content ); // Never overwrite the real original with an already shortened text.
+	}
 	$written[] = '_cemeti_original_content';
 	if ( ! empty( $split['missing'] ) ) {
 		update_post_meta( $post_id, '_cemeti_media_missing', (int) $split['missing'] ); // Pictures not in the Media Library: they stay in the text.

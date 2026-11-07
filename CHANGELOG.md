@@ -11,6 +11,12 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.19
+
+- Revert + Convert again is proven safe: new test `flows-reconvert` (convert, convert again, revert, convert, three more
+  rounds) checks that nothing is repeated, a revert gives every post back exactly as imported and the second conversion
+  equals the first. The saved original text is never overwritten by an already shortened text.
+
 ## 0.9.18
 
 - "0. Media → Fix posts" did nothing on a site where the pictures' addresses had been changed to the new site's (search

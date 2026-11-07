@@ -89,6 +89,13 @@ After moving, the entry lives under its own menu (Exhibition, Residency …) whe
    skipped and posts without a readable date. Nothing changes yet.
 7. **Convert.** Runs 50 posts per step and continues by itself. **Revert all** undoes it.
 
+**Converting again is safe** (tested): Convert never touches a post that is already converted, so pressing it twice
+repeats nothing. **Revert all** brings every post back exactly as imported (type, text, categories, tags; the converter's
+fields and terms are removed), and Convert after it gives the same result as the first time, however many rounds you do.
+One thing a Revert cannot keep: **text or gallery you edited by hand on a converted entry** goes back to the imported
+text, so do the bulk conversion first and the hand editing after. Pictures added by "0. Media" and featured images
+stay (they are the point of repeating).
+
 ## What is kept
 
 - Slug, text, featured image and publish date (the post is the same post).
