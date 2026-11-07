@@ -63,4 +63,27 @@ $off = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Plain', 'p
 cemeti_move_post( $off, 'exhibition|Solo' );
 ok( $old === CemetiWP::$posts[ $off ]['post_content'] && '' === (string) get_post_meta( $off, 'cemeti_gallery', true ), 'switched off: the text is moved as it is' );
 
+/* ---- QA round 5: shapes found in the real export (full text of all 561 posts) */
+$G = static function ( $n ) { return '<figure class="wp-block-image"><img src="https://cemeti.art/wp-content/uploads/2022/01/g' . $n . '.jpg" class="wp-image-' . $n . '"></figure>'; };
+// Headings inside block groups / columns used to be invisible to the split.
+$nested = '<div class="wp-block-group"><div class="wp-block-group__inner-container"><h1>Re-reading</h1><p>Opening text of the show.</p><h2>Dokumentasi</h2>' . $G( 51 ) . $G( 52 ) . '</div></div>';
+$r = cemeti_restructure_content( $nested, 0 );
+ok( $r && array( 51, 52 ) === $r['documentation'] && false !== strpos( $r['foreword'], 'Opening text' ), 'nested: headings inside block groups are found and their pictures placed' );
+// "Fota Karya" (a typo of the old site), curly apostrophe, a heading that is the back-to-top arrow.
+ok( 'gallery' === cemeti_restructure_heading_kind( 'Fota Karya' ) && 'biography' === cemeti_restructure_heading_kind( "Artists\u{2019} Profile (in alphabetical order)" ) && 'toc' === cemeti_restructure_heading_kind( 'Daftar Isi RN x RK' ), 'vocabulary: "Fota Karya", curly apostrophes, "Daftar Isi <name>"' );
+$r = cemeti_restructure_content( '<h2>Foto Karya</h2>' . $G( 61 ) . '<h2>&#x21EA;</h2>' . $G( 62 ) . '<h2>Dokumentasi</h2>' . $G( 63 ), 0 );
+ok( $r && array( 61, 62 ) === $r['gallery'] && array( 63 ) === $r['documentation'] && false === strpos( $r['foreword'], '21EA' ) && false === strpos( $r['foreword'], '⇪' ), 'a back-to-top arrow written as a heading is dropped' );
+// Biographies whose artist names are headings.
+$r = cemeti_restructure_content( '<h2>Biografi Seniman</h2><h3>MANSHUR ZIKRI</h3>' . $G( 71 ) . '<p>Lahir di Bandung.</p><h3>Arum Dayu (Indonesia)</h3><p>Tinggal di Solo.</p><h2>Dokumentasi</h2>' . $G( 72 ) . '<p>Practical info stays.</p>', 0 );
+ok( $r && 2 === count( $r['biographies'] ) && 'Manshur Zikri' === $r['biographies'][0]['name'] && 71 === $r['biographies'][0]['photo'] && false !== strpos( $r['biographies'][0]['bio'], 'Bandung' ) && 'Arum Dayu (Indonesia)' === $r['biographies'][1]['name'], 'biographies: artist names written as headings start each biography (' . json_encode( $r['biographies'] ) . ')' );
+ok( array( 72 ) === $r['documentation'] && 'Practical info stays.' === $r['documentation_caption'], 'biographies: a later section heading ends the biographies' );
+$r = cemeti_restructure_content( '<h2>Biografi Seniman</h2><p><strong>A Artist</strong> bio.</p><h3>Cemeti - Institut untuk Seni dan Masyarakat</h3><p>Jl. D.I. Panjaitan 41</p>', 0 );
+ok( 1 === count( $r['biographies'] ) && false !== strpos( $r['foreword'], 'Panjaitan' ), 'biographies: the address heading at the end is not taken for an artist' );
+// Artwork titles between pictures keep the section going.
+$r = cemeti_restructure_content( '<h2>Foto Karya</h2><h4>Physis - 01</h4>' . $G( 81 ) . '<h4>Physis - 02</h4>' . $G( 82 ) . '<h2>Dokumentasi</h2>' . $G( 83 ), 0 );
+ok( $r && array( 81, 82 ) === $r['gallery'], 'gallery: artwork titles written as headings between the pictures do not end the section' );
+// Nothing is dropped silently: descriptions of the works and videos stay in the text.
+$r = cemeti_restructure_content( '<h2>Foto Karya</h2>' . $G( 91 ) . '<p>This is a long description of the work that is certainly more than two hundred and twenty characters, because the old site wrote the essay of the exhibition under the pictures, and the new gallery has no place for it, so it has to stay in the text. ' . str_repeat( 'More words. ', 6 ) . '</p><figure class="wp-block-embed"><iframe src="https://www.youtube.com/embed/abc"></iframe></figure><h2>Dokumentasi</h2>' . $G( 92 ), 0 );
+ok( $r && array( 91 ) === $r['gallery'] && false !== strpos( $r['foreword'], 'long description of the work' ) && false !== strpos( $r['foreword'], 'youtube.com/embed/abc' ), 'long text and embeds inside picture sections stay in the text (nothing is lost)' );
+
 qa_done();

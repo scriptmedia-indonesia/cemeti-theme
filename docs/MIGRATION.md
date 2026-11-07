@@ -20,9 +20,31 @@ headings and splits the body (option "Split the old text into the new structure"
 | everything else (curatorial statement, essay, practical information) | stays in the text (Foreword) |
 
 A post with no recognised section headings is left untouched. The original text is kept in the post and returns on
-**Revert**. Checked on the real export: 167 of 561 published posts have such sections (41 gallery, 118 documentation,
-60 with biographies = 125 artists, 17 of them without a readable name: check those). Run a small batch first and look
-at five entries before converting everything.
+**Revert**. Checked on the full real export (561 published posts): **245 posts have such sections** (61 gallery,
+192 documentation, 167 with biographies). Sections inside block groups/columns, headings written as `h1`, artist names
+written as headings, "Fota Karya", curly apostrophes, artwork titles between pictures and a "⇪" heading are handled.
+**Nothing is dropped silently**: descriptions of the works, videos and embeds inside a picture section stay in the text,
+and a picture that is not in the Media Library stays in the text (counted per post, listed under "0. Media").
+Run a small batch first and look at five entries before converting everything.
+
+## Pictures: do "0. Media" first
+
+The importer brings the pictures only when it can download them from the old site, and it gives them new IDs. The old
+text still says `cemeti.art/wp-content/uploads/…` and `wp-image-123`, so the theme recognises a picture **by its file
+path** (host and size suffix ignored); an old `wp-image` number is trusted only when it is the same file.
+On the real export the posts mention 10,087 pictures: 6,406 have a Media Library item in the export, and 2,388 do not
+(they were never in the library), so they cannot appear unless they are downloaded.
+
+**Tools → Cemeti Converter → "0. Media"** (old site host is set in section 2, default `cemeti.art`):
+
+1. **Restore files**: every Media Library item whose file is missing is downloaded again and its sizes are made.
+2. **Fix posts**: every picture written in a post's text gets a Media Library item (downloaded if needed); a post without
+   a valid featured image gets the first picture of its text.
+
+Both run in steps of about 20 seconds and continue by themselves; run them again any time (finished work is skipped).
+A report shows restored / failed files and the last problems (usually: the old site no longer has the file, or the
+uploads folder is not writable). If a conversion was already done before the media was repaired, press **Revert all**
+and **Convert** again: the gallery and documentation are then built from the repaired pictures.
 
 ## Where to set the category of imported posts
 
@@ -40,8 +62,9 @@ After moving, the entry lives under its own menu (Exhibition, Residency …) whe
 
 1. **Back up** the database of the site you convert on.
 2. Get the old posts into the new site: on the old site use *Tools → Export → All content*,
-   then on the new site *Tools → Import → WordPress*. (Or install this theme on a copy of
-   the old site and convert there.) Media and categories come with the export.
+   then on the new site *Tools → Import → WordPress*, tick **Download and import file attachments** (or install this
+   theme on a copy of the old site and convert there). If the importer stops or the pictures do not show, do not
+   re-run it: use **"0. Media"** below.
 3. Activate this theme and open **Tools → Cemeti Converter**.
 4. **Choose the mode.** For the old cemeti.art site use **Cemeti rules** (default): the sorting is already
    built from its export, see `docs/CATEGORY-MAPPING.md` for what it does and the decisions to confirm.

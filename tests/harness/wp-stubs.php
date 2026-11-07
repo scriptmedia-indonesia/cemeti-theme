@@ -11,7 +11,15 @@
  * do_action( 'after_setup_theme' ) and do_action( 'init' ), seed data, then render.
  */
 
-define( 'ABSPATH', '/wp/' );
+define( 'ABSPATH', dirname( __DIR__, 2 ) . '/build/wp/' );
+foreach ( array( 'file', 'image' ) as $qa_inc ) { // The theme loads these admin files before it downloads or resizes a picture.
+	if ( ! is_dir( ABSPATH . 'wp-admin/includes' ) ) {
+		mkdir( ABSPATH . 'wp-admin/includes', 0777, true );
+	}
+	if ( ! file_exists( ABSPATH . 'wp-admin/includes/' . $qa_inc . '.php' ) ) {
+		file_put_contents( ABSPATH . 'wp-admin/includes/' . $qa_inc . '.php', "<?php\n" );
+	}
+}
 define( 'HOUR_IN_SECONDS', 3600 );
 define( 'DAY_IN_SECONDS', 86400 );
 
@@ -121,6 +129,9 @@ class WP_Error {
 	public $message;
 	public function __construct( $code = '', $message = '' ) {
 		$this->message = $message;
+	}
+	public function get_error_message() {
+		return $this->message;
 	}
 }
 
@@ -1080,4 +1091,20 @@ function get_header() {
 }
 function get_footer() {
 	include CEMETI_THEME_DIR . '/footer.php';
+}
+
+function delete_option( $k ) {
+	unset( CemetiWP::$options[ $k ] );
+	return true;
+}
+
+function wp_count_posts( $type = 'post' ) {
+	$n = 0;
+	foreach ( CemetiWP::$posts as $p ) {
+		$n += $type === $p['post_type'] ? 1 : 0;
+	}
+	return (object) array( 'inherit' => $n, 'publish' => $n );
+}
+function get_edit_post_link( $id ) {
+	return 'http://cemeti.test/wp-admin/post.php?post=' . (int) $id . '&action=edit';
 }

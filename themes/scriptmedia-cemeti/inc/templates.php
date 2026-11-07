@@ -239,13 +239,8 @@ function cemeti_take_leading_image( $html ) {
 	if ( ! preg_match( $re, $html, $m ) ) {
 		return array( 0, $html );
 	}
-	$id = 0;
-	if ( preg_match( '#wp-image-(\d+)#', $m[1], $c ) && 'attachment' === get_post_type( (int) $c[1] ) ) {
-		$id = (int) $c[1];
-	}
-	if ( ! $id && function_exists( 'attachment_url_to_postid' ) && preg_match( '#<img[^>]+src=["\']([^"\']+)["\']#i', $m[1], $s ) ) {
-		$id = (int) attachment_url_to_postid( preg_replace( '/-\d+x\d+(\.[a-z]+)$/i', '$1', preg_replace( '/\?.*$/', '', $s[1] ) ) );
-	}
+	$ids = cemeti_media_ids_in_html( $m[1], 1 );
+	$id  = $ids ? (int) $ids[0] : 0;
 	if ( ! $id || 1 === preg_match( '#<figcaption[^>]*>\s*[^\s<]#i', $m[1] ) || '' !== trim( wp_strip_all_tags( preg_replace( '#<figcaption.*?</figcaption>#is', '', $m[1] ) ) ) ) {
 		return array( 0, $html ); // Unknown picture, or a picture with text around it: leave it where it is.
 	}
@@ -401,11 +396,9 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 	if ( isset( $cache[ $post->ID ] ) ) {
 		return $cache[ $post->ID ] ? $cache[ $post->ID ] : $thumbnail_id;
 	}
-	$found   = 0;
 	$content = (string) $post->post_content;
-	if ( preg_match( '/wp-image-(\d+)/', $content, $match ) ) {
-		$found = (int) $match[1];
-	}
+	$in_text = cemeti_media_ids_in_html( $content, 1 );
+	$found   = $in_text ? (int) $in_text[0] : 0;
 	if ( ! $found ) {
 		$attached = get_posts(
 			array(
@@ -421,9 +414,6 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 			)
 		);
 		$found = $attached ? (int) $attached[0] : 0;
-	}
-	if ( ! $found && function_exists( 'attachment_url_to_postid' ) && preg_match( '/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $match ) ) {
-		$found = (int) attachment_url_to_postid( $match[1] );
 	}
 	$cache[ $post->ID ] = $found;
 	return $found ? $found : $thumbnail_id;

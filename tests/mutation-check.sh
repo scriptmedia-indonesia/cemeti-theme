@@ -71,6 +71,16 @@ mutate "pages: Indonesian page not recognised"      $T/inc/pages.php "\$aliases 
 mutate "open call: the Active tick ignored"         $T/inc/applications.php "return '1' === \$flag; // The team's choice" "return true; // The team's choice" m4-logic flows-content
 mutate "home: the <h1> removed"                    $T/front-page.php '<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( '"'"'institution_name'"'"' ) ); ?></h1>' "" render-pages
 mutate "header: logo without alt text"             $T/header.php 'fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( '"'"'institution_name'"'"' ) ); ?>">' 'fetchpriority="high">' render-pages
+mutate "media: picture found only by the old number"  $T/inc/media.php "	if ( ! \$id ) {
+		\$id = cemeti_media_find_by_url( \$src );
+	}" "" flows-media flows-content
+mutate "media: any old wp-image number is trusted"    $T/inc/media.php "if ( '' === \$src || '' === \$file || cemeti_media_basename_key( \$file ) === cemeti_media_basename_key( \$src ) ) {" "if ( true ) {" flows-media
+mutate "media: downloads from any website"            $T/inc/media.php "	\$host = (string) wp_parse_url( (string) \$url, PHP_URL_HOST );" "	return true;
+	\$host = (string) wp_parse_url( (string) \$url, PHP_URL_HOST );" flows-media
+mutate "split: missing pictures dropped from the text" $T/inc/restructure.php "\$total_missing += count( \$unfound );
+			\$keep[]         = '<p>' . implode( ' ', \$unfound ) . '</p>';" "\$total_missing += count( \$unfound );" flows-restructure flows-media
+mutate "split: headings inside block groups ignored"  $T/inc/restructure.php "if ( \$div->parentNode && false === strpos( \$class, 'spacer' )" "if ( false && \$div->parentNode && false === strpos( \$class, 'spacer' )" flows-restructure
+mutate "split: long text in picture sections dropped" $T/inc/restructure.php "} elseif ( ! \$ids && '' !== trim( \$node->textContent ) ) {" "} elseif ( false ) {" flows-restructure
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: Escape no longer closes panels"      $T/assets/js/navigation.js "if ( event.key === 'Escape' ) {" "if ( event.key === 'F13' ) {" browser

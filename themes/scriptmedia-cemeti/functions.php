@@ -36,6 +36,7 @@ $cemeti_includes = array(
 	'migration-rules',
 	'migration',
 	'restructure',
+	'media',
 	'move-posts',
 	'applications',
 	'search',

@@ -610,6 +610,8 @@ function cemeti_convert_page() {
 			<div class="notice notice-success"><p>Settings saved. Check the preview below.</p></div>
 		<?php endif; ?>
 
+		<?php cemeti_media_panel(); ?>
+
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="cemeti_convert_save">
 			<?php wp_nonce_field( 'cemeti_convert_save' ); ?>

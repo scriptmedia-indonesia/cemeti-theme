@@ -29,26 +29,41 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function cemeti_restructure_heading_kind( $text ) {
 	$t = strtolower( trim( preg_replace( '/\s+/u', ' ', html_entity_decode( wp_strip_all_tags( (string) $text ), ENT_QUOTES, 'UTF-8' ) ) ) );
+	$t = str_replace( array( "\u{2019}", "\u{2018}" ), "'", $t );
 	$t = trim( $t, " \t:.-–" );
 	if ( '' === $t || mb_strlen( $t ) > 60 ) {
 		return '';
 	}
-	if ( preg_match( '/^(daftar isi|table of contents?|contents?)$/u', $t ) ) {
+	if ( preg_match( '/^(daftar isi( .*)?|table of contents?( .*)?|contents?)$/u', $t ) ) {
 		return 'toc';
 	}
 	if ( preg_match( '/terbitan terkait|publikasi terkait|related publications?|khazanah pendukung/u', $t ) ) {
 		return 'related';
 	}
-	if ( preg_match( '/biograf|biography|profil seniman|artist\'?s? profile/u', $t ) ) {
+	if ( preg_match( '/biograf|biography|profil seniman|artist(s\'|\'s|s)? profile/u', $t ) ) {
 		return 'biography';
 	}
 	if ( preg_match( '/dokumentasi|documentation/u', $t ) ) {
 		return 'documentation';
 	}
-	if ( preg_match( '/foto karya|artworks? images?|^galeri$|^gallery$|exhibition view|installation views?|tampak pameran|foto pameran/u', $t ) ) {
+	if ( preg_match( '/fo(to|ta) karya|artworks? images?|^galeri$|^gallery$|exhibition view|installation views?|tampak pameran|foto pameran/u', $t ) ) {
 		return 'gallery';
 	}
 	return '';
+}
+
+/**
+ * Does a heading read like a person's name (so it starts a biography) rather than a title or an address?
+ *
+ * @param string $text Heading text.
+ * @return bool
+ */
+function cemeti_restructure_looks_like_name( $text ) {
+	$t = trim( preg_replace( '/\s+/u', ' ', (string) $text ) );
+	if ( '' === $t || mb_strlen( $t ) > 70 || str_word_count( $t ) > 9 ) {
+		return false;
+	}
+	return 1 !== preg_match( '/cemeti|jl\.|jalan|yogyakarta|\d{1,2}[:.]\d{2}|\b20\d\d\b|@|instagram|www\.|:$/iu', $t );
 }
 
 /**
@@ -59,13 +74,8 @@ function cemeti_restructure_heading_kind( $text ) {
  * @return int
  */
 function cemeti_restructure_image_id( DOMElement $img ) {
-	$src = (string) $img->getAttribute( 'src' );
-	$src = preg_replace( '/\?.*$/', '', $src );
-	$src = preg_replace( '/-\d+x\d+(\.[a-z]+)$/i', '$1', (string) $src );
-	$id  = function_exists( 'attachment_url_to_postid' ) && '' !== $src ? (int) attachment_url_to_postid( $src ) : 0;
-	if ( ! $id && preg_match( '/wp-image-(\d+)/', (string) $img->getAttribute( 'class' ), $m ) && 'attachment' === get_post_type( (int) $m[1] ) ) {
-		$id = (int) $m[1];
-	}
+	// By the file path (any host), then by the old wp-image-ID only when it is the same file (see inc/media.php).
+	$id = cemeti_media_img_id( (string) $img->getAttribute( 'src' ), (string) $img->getAttribute( 'class' ) );
 	/**
 	 * Filters the attachment ID found for a picture of the old text.
 	 *
@@ -114,7 +124,7 @@ function cemeti_restructure_is_navigation( DOMNode $node ) {
  *
  * @param string $html   Old post content.
  * @param int    $thumb  Featured image ID: the same picture inside the text is dropped.
- * @return array{foreword:string,gallery:int[],gallery_caption:string,documentation:int[],documentation_caption:string,biographies:array,booklet:string,found:string[]}|null
+ * @return array{missing:int,foreword:string,gallery:int[],gallery_caption:string,documentation:int[],documentation_caption:string,biographies:array,booklet:string,found:string[]}|null
  */
 function cemeti_restructure_content( $html, $thumb = 0 ) {
 	$html = preg_replace( '/<!--.*?-->/s', '', (string) $html );
@@ -130,6 +140,18 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 		return null;
 	}
 
+	// Block groups and columns wrap the headings of many old posts: take them apart so every heading is a direct
+	// child. Inner wrappers first; spacers and separators stay.
+	foreach ( array_reverse( iterator_to_array( $wrap->getElementsByTagName( 'div' ) ) ) as $div ) {
+		$class = (string) $div->getAttribute( 'class' );
+		if ( $div->parentNode && false === strpos( $class, 'spacer' ) && false === strpos( $class, 'separator' ) ) {
+			while ( $div->firstChild ) {
+				$div->parentNode->insertBefore( $div->firstChild, $div );
+			}
+			$div->parentNode->removeChild( $div );
+		}
+	}
+
 	$out = array(
 		'foreword'              => '',
 		'gallery'               => array(),
@@ -139,12 +161,15 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 		'biographies'           => array(),
 		'booklet'               => '',
 		'found'                 => array(),
+		'missing'               => 0,
 	);
 	$mode    = 'keep';
 	$keep    = array();
 	$photo   = 0;
 
-	$pictures = static function ( DOMNode $node ) {
+	// Pictures that are not in the Media Library are never dropped: they stay in the text and are counted.
+	$unfound  = array();
+	$pictures = static function ( DOMNode $node ) use ( &$unfound, $dom ) {
 		$ids = array();
 		if ( $node instanceof DOMElement ) {
 			$imgs = 'img' === $node->nodeName ? array( $node ) : iterator_to_array( $node->getElementsByTagName( 'img' ) );
@@ -152,10 +177,20 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 				$id = cemeti_restructure_image_id( $img );
 				if ( $id ) {
 					$ids[] = $id;
+				} else {
+					$unfound[] = $dom->saveHTML( $img );
 				}
 			}
 		}
 		return $ids;
+	};
+	$total_missing = 0;
+	$keep_unfound  = static function () use ( &$unfound, &$keep, &$total_missing ) {
+		if ( $unfound ) {
+			$total_missing += count( $unfound );
+			$keep[]         = '<p>' . implode( ' ', $unfound ) . '</p>';
+			$unfound        = array();
+		}
 	};
 
 	foreach ( iterator_to_array( $wrap->childNodes ) as $node ) {
@@ -164,12 +199,35 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 		}
 		$name = $node instanceof DOMElement ? $node->nodeName : '';
 
-		if ( preg_match( '/^h[2-6]$/', $name ) ) {
+		if ( preg_match( '/^h[1-6]$/', $name ) && cemeti_restructure_is_navigation( $node ) ) {
+			continue; // A "⇪" or "Kembali ke Daftar Isi" written as a heading.
+		}
+		if ( preg_match( '/^h[1-6]$/', $name ) ) {
 			$kind = cemeti_restructure_heading_kind( $node->textContent );
 			if ( '' !== $kind ) {
 				$mode            = $kind;
 				$out['found'][]  = $kind;
 				continue; // The new site writes these titles itself.
+			}
+			if ( 'biography' === $mode && cemeti_restructure_looks_like_name( $node->textContent ) ) {
+				// Some biographies name each artist in a heading instead of a bold first word.
+				$name_text = trim( preg_replace( '/\s+/u', ' ', $node->textContent ) );
+				if ( $name_text === mb_strtoupper( $name_text ) ) {
+					$name_text = mb_convert_case( mb_strtolower( $name_text ), MB_CASE_TITLE );
+				}
+				$out['biographies'][] = array( 'name' => $name_text, 'photo' => $photo, 'bio' => '' );
+				$photo                = 0;
+				continue;
+			}
+			if ( in_array( $mode, array( 'gallery', 'documentation' ), true ) && cemeti_restructure_looks_like_name( $node->textContent ) ) {
+				// An artwork title written as a heading between its pictures: the pictures still belong to the section.
+				$next = $node->nextSibling;
+				while ( $next && cemeti_restructure_is_filler( $next ) ) {
+					$next = $next->nextSibling;
+				}
+				if ( $next instanceof DOMElement && ( 'img' === $next->nodeName || $next->getElementsByTagName( 'img' )->length ) ) {
+					continue; // The original text keeps the title (Revert).
+				}
 			}
 			$mode = 'keep';
 		}
@@ -200,15 +258,26 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 				break;
 			case 'gallery':
 			case 'documentation':
+				// Videos and embeds cannot go into a picture field: they stay in the text.
+				if ( $node instanceof DOMElement && ( $node->getElementsByTagName( 'iframe' )->length || $node->getElementsByTagName( 'video' )->length || $node->getElementsByTagName( 'audio' )->length || $node->getElementsByTagName( 'embed' )->length ) ) {
+					$keep[] = $dom->saveHTML( $node );
+					break;
+				}
 				$ids = $pictures( $node );
+				$had_unfound = (bool) $unfound;
+				$keep_unfound();
 				if ( $ids ) {
 					$out[ $mode ] = array_merge( $out[ $mode ], $ids );
-				} elseif ( '' === $out[ $mode . '_caption' ] && mb_strlen( trim( $node->textContent ) ) <= 220 ) {
+				} elseif ( ! $had_unfound && '' === $out[ $mode . '_caption' ] && mb_strlen( trim( $node->textContent ) ) <= 220 ) {
 					$out[ $mode . '_caption' ] = trim( preg_replace( '/\s+/u', ' ', $node->textContent ) );
+				} elseif ( ! $ids && '' !== trim( $node->textContent ) ) {
+					// Text that is not the one-line caption (descriptions of the works, essays) stays in the text.
+					$keep[] = $dom->saveHTML( $node );
 				}
 				break;
 			case 'biography':
 				$ids = $pictures( $node );
+				$keep_unfound();
 				if ( $ids ) {
 					$photo = $ids[0];
 					if ( $out['biographies'] && 0 === $out['biographies'][ count( $out['biographies'] ) - 1 ]['photo'] ) {
@@ -246,8 +315,12 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 					}
 				}
 				// The cover picture is the featured image already.
-				if ( $thumb && $node instanceof DOMElement && in_array( $thumb, $pictures( $node ), true ) && 0 === mb_strlen( trim( $node->textContent ) ) ) {
-					break;
+				if ( $thumb && $node instanceof DOMElement ) {
+					$here   = $pictures( $node );
+					$unfound = array(); // These pictures stay in the text anyway.
+					if ( in_array( $thumb, $here, true ) && 0 === mb_strlen( trim( $node->textContent ) ) ) {
+						break;
+					}
 				}
 				$keep[] = $dom->saveHTML( $node );
 		}
@@ -257,6 +330,7 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
 		return null; // No section headings: nothing to split, the text stays as it is.
 	}
 	$out['foreword']      = trim( implode( "\n", $keep ) );
+	$out['missing']       = $total_missing;
 	$out['gallery']       = array_values( array_unique( $out['gallery'] ) );
 	$out['documentation'] = array_values( array_unique( $out['documentation'] ) );
 	return $out;
@@ -305,6 +379,10 @@ function cemeti_restructure_post( $post_id, $type ) {
 	}
 	update_post_meta( $post_id, '_cemeti_original_content', $post->post_content );
 	$written[] = '_cemeti_original_content';
+	if ( ! empty( $split['missing'] ) ) {
+		update_post_meta( $post_id, '_cemeti_media_missing', (int) $split['missing'] ); // Pictures not in the Media Library: they stay in the text.
+		$written[] = '_cemeti_media_missing';
+	}
 	wp_update_post( array( 'ID' => $post_id, 'post_content' => $split['foreword'] ) );
 	return $written;
 }

@@ -3,6 +3,23 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.15
+
+- Import / converter, checked against the full real export (561 posts, 10,087 pictures):
+  - **Pictures are found by their file path**, not by the old address or the old `wp-image-123` number (the importer
+    changes both: only 2,708 of the 10,087 pictures matched before, 6,406 do now). An old number is only trusted when it
+    is the same file, so a card can no longer show a wrong picture. Cards, About and the converter all use this.
+  - **Tools → Cemeti Converter → "0. Media"** repairs a failed import: downloads missing files from the old site,
+    makes the sizes, creates Media Library items for the 2,388 pictures that were never in the library, and gives posts
+    without a valid featured image the first picture of their text. Time-boxed steps that continue by themselves, a
+    report with the last problems, and only the old site's host is ever downloaded from.
+  - **Split of the old text**: 245 posts are recognised instead of 167 (gallery 61 instead of 41, documentation 192
+    instead of 118, biographies 167 instead of 60) because headings inside block groups/columns, `h1` headings, artist
+    names written as headings, "Fota Karya", curly apostrophes and "Daftar Isi <name>" are now understood.
+  - **Nothing is lost silently**: pictures that are not in the library, descriptions of the works, videos/embeds in a
+    picture section stay in the text (they used to disappear from the page and live only in the revert copy).
+  - New test suite `flows-media`, more `flows-restructure` cases, 6 more mutation checks.
+
 ## 0.9.14
 
 - Deep functional QA on phones, tablets (portrait and landscape), laptop, 1920 and 2560 px with touch emulation

@@ -297,6 +297,7 @@ do_action( 'init' );
 ok( 'Edited by the team' === CemetiWP::$terms['residency_type'][900]['description'], 'an edited description is never overwritten' );
 
 /* ------------------------------------------------------------ pictures of moved entries */
+CemetiWP::post( array( 'ID' => 777, 'post_type' => 'attachment', 'post_status' => 'inherit', 'post_title' => 'a', 'meta' => array( '_wp_attached_file' => '2021/06/a.jpg' ) ) );
 $old = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Moved from the old site', 'post_content' => '<p>Text</p><img class="alignnone wp-image-777 size-large" src="http://old.test/a.jpg"><img class="wp-image-778">' ) );
 ok( has_post_thumbnail( $old ) && 777 === get_post_thumbnail_id( $old ), 'no featured image: the first picture of the text is used' );
 $own = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'With cover', 'post_content' => '<img class="wp-image-777">', 'meta' => array( '_thumbnail_id' => 5 ) ) );
