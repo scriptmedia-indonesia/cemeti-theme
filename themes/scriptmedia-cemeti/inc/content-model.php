@@ -224,6 +224,55 @@ function cemeti_sync_terms_to_language( $post_id ) {
 add_action( 'save_post', 'cemeti_sync_terms_to_language', 40 );
 
 /**
+ * Which default term a term is, whatever its language: "Reguler"/"Regular" -> Regular, "Research"/"Riset" -> Research.
+ *
+ * @param WP_Term $term Term.
+ * @return string The default term's name, or the term's own name when it is not a default one.
+ */
+function cemeti_term_key( $term ) {
+	$text = strtolower( $term->name . ' ' . $term->slug );
+	if ( preg_match( '/regul/', $text ) ) {
+		return 'Regular';
+	}
+	if ( preg_match( '/research|riset|penelitian/', $text ) ) {
+		return 'Research';
+	}
+	return $term->name;
+}
+
+/**
+ * Terms for the intro of the Residency page: every default term (Regular, Research) exactly once, in order.
+ * The term of the current language when there is one, else the other language's term, so "Research" never
+ * disappears from the Indonesian page just because its translation was not made yet.
+ *
+ * @param string $taxonomy Taxonomy.
+ * @return WP_Term[]
+ */
+function cemeti_intro_terms( $taxonomy ) {
+	$mine = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'orderby' => 'term_id' ) );
+	$mine = is_wp_error( $mine ) || ! is_array( $mine ) ? array() : $mine;
+	$all  = function_exists( 'pll_languages_list' ) ? get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'orderby' => 'term_id', 'lang' => '' ) ) : array();
+	$all  = is_wp_error( $all ) || ! is_array( $all ) ? array() : $all;
+	$out  = array();
+	foreach ( array_merge( $mine, $all ) as $term ) {
+		$key = cemeti_term_key( $term );
+		if ( ! isset( $out[ $key ] ) ) {
+			$out[ $key ] = $term; // The current language's terms come first.
+		}
+	}
+	$args  = cemeti_config( 'taxonomies' );
+	$order = isset( $args[ $taxonomy ]['terms'] ) ? $args[ $taxonomy ]['terms'] : array();
+	$sorted = array();
+	foreach ( $order as $name ) {
+		if ( isset( $out[ $name ] ) ) {
+			$sorted[] = $out[ $name ];
+			unset( $out[ $name ] );
+		}
+	}
+	return array_merge( $sorted, array_values( $out ) );
+}
+
+/**
  * Text under a term on the Residency page, in the current language: what the editor wrote, else the default text.
  *
  * @param WP_Term $term Term.

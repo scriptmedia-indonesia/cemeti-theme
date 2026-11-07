@@ -10,12 +10,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-$cemeti_terms = get_terms( array( 'taxonomy' => 'residency_type', 'hide_empty' => false, 'orderby' => 'term_id' ) );
+$cemeti_terms = cemeti_intro_terms( 'residency_type' );
 ?>
 <div class="cemeti-container">
 	<?php cemeti_page_head( cemeti_archive_heading() ); ?>
 
-	<?php if ( ! is_wp_error( $cemeti_terms ) && $cemeti_terms ) : ?>
+	<?php if ( $cemeti_terms ) : ?>
 		<div class="cemeti-residency-intro">
 			<?php foreach ( $cemeti_terms as $cemeti_term ) : ?>
 				<section>

@@ -3,6 +3,21 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.17
+
+- Polylang's "+" next to a language only reloaded the page for the Indonesian version. New box **"Cemeti: translation"**
+  (right column of every entry and page): **"Create ID version (copy)"** makes the other-language draft itself, with the
+  title, text, picture, dates, artists, galleries, biographies, booklet and the terms of the new language, links it as the
+  translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
+  fields. The related-publications list is not copied (those are other entries).
+
+## 0.9.17 (addition)
+
+- Residency page in Indonesian showed only "Reguler": "Research" was missing because the page listed only the terms of
+  the current language. It now lists Regular and Research every time (Indonesian term when there is one, else the other
+  language's term with the Indonesian description), "Reguler"/"Regular" and "Research"/"Riset" counting as the same
+  term, so a translation that is not made yet never hides one.
+
 ## 0.9.16
 
 - Residency: "Research" (and "Regular") could not be translated: with Polylang the Indonesian entry's editor offered no

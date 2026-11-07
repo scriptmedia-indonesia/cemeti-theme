@@ -195,6 +195,46 @@ ok( 'Edited by the team' === cemeti_term_description( (object) array( 'taxonomy'
 $GLOBALS['pll']['current'] = 'en';
 ok( false !== strpos( cemeti_term_description( (object) array( 'taxonomy' => 'residency_type', 'name' => 'Research', 'description' => '' ) ), 'facilitated' ), 'terms: English default when the term has no text' );
 
+// ---- "Create EN version": the copy that works when Polylang's "+" only reloads the page
+if ( ! function_exists( 'get_current_user_id' ) ) { function get_current_user_id() { return 1; } }
+$GLOBALS['pll']['groups'] = array();
+$src = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Residensi Riset', 'post_content' => 'Isi teks', 'thumb' => 501, 'meta' => array( 'cemeti_gallery' => array( 601, 602 ), 'cemeti_start_date' => '20260301', 'cemeti_artists' => "A\nB", 'cemeti_related' => array( 5 ) ) ) );
+$GLOBALS['pll']['lang'][ $src ] = 'id';
+wp_set_object_terms( $src, array( $research['term_id'] ), 'residency_type' );
+$copy = cemeti_translate_create( $src, 'en' );
+ok( $copy && $copy !== $src && 'residency' === CemetiWP::$posts[ $copy ]['post_type'] && 'draft' === CemetiWP::$posts[ $copy ]['post_status'] && 'Residensi Riset' === CemetiWP::$posts[ $copy ]['post_title'], 'translate: a draft of the same type with the title and text is made' );
+ok( 'en' === $GLOBALS['pll']['lang'][ $copy ] && array( 601, 602 ) === get_post_meta( $copy, 'cemeti_gallery', true ) && '20260301' === get_post_meta( $copy, 'cemeti_start_date', true ) && 501 === (int) get_post_meta( $copy, '_thumbnail_id', true ), 'translate: language set, galleries, dates and picture copied' );
+ok( '' === get_post_meta( $copy, 'cemeti_related', true ), 'translate: the related list (other entries) is not copied' );
+$ct = get_the_terms( $copy, 'residency_type' );
+ok( $ct && (int) $ct[0]->term_id === (int) $tr['en'], 'translate: the copy carries the term of its own language (Research)' );
+ok( in_array( array( 'id' => $src, 'en' => $copy ), $GLOBALS['pll']['groups'], true ) || in_array( array( 'en' => $copy, 'id' => $src ), $GLOBALS['pll']['groups'], true ), 'translate: the two are linked as translations' );
+ok( $copy === cemeti_translate_create( $src, 'en' ), 'translate: asking again opens the existing translation (no second copy)' );
+ok( 0 === cemeti_translate_create( $src, 'xx' ), 'translate: an unknown language makes nothing' );
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes' );
+ok( isset( CemetiWP::$meta_boxes['residency']['cemeti_translate'] ), 'translate: the box is on Residency' );
+$other = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Lain' ) );
+$GLOBALS['pll']['lang'][ $other ] = 'id';
+ob_start(); call_user_func( CemetiWP::$meta_boxes['residency']['cemeti_translate'], CemetiWP::obj( $other ) ); $box = ob_get_clean();
+ok( false !== strpos( $box, 'action=cemeti_translate' ) && false !== strpos( $box, 'Create EN version' ), 'translate: the box offers the button for the missing language' );
+ob_start(); call_user_func( CemetiWP::$meta_boxes['residency']['cemeti_translate'], CemetiWP::obj( $src ) ); $box = ob_get_clean();
+ok( false !== strpos( $box, 'edit translation' ) && false === strpos( $box, 'Create EN version' ), 'translate: an existing translation is linked, not offered again' );
+ok( in_array( 'cemeti_gallery', apply_filters( 'pll_copy_post_metas', array() ), true ) && in_array( '_thumbnail_id', apply_filters( 'pll_copy_post_metas', array() ), true ), 'translate: Polylang\'s own "+" copies the Cemeti fields too' );
+
+// ---- the Residency page lists Regular AND Research in every language (a missing translation never hides one)
+qa_reset_data();
+CemetiWP::$terms['residency_type'] = array();
+wp_insert_term( 'Research', 'residency_type', array( 'description' => 'Selected participants are facilitated by an assistant during the residency.' ) );
+wp_insert_term( 'Reguler', 'residency_type', array( 'slug' => 'reguler', 'description' => 'Program Residensi Reguler ...' ) );
+wp_insert_term( 'Regular', 'residency_type', array( 'slug' => 'regular-en' ) );
+$intro = cemeti_intro_terms( 'residency_type' );
+ok( 2 === count( $intro ) && 'Reguler' === $intro[0]->name && 'Research' === $intro[1]->name, 'residency page: Regular (as "Reguler") first, Research second, each once (' . implode( ',', array_map( static function ( $t ) { return $t->name; }, $intro ) ) . ')' );
+ok( 'Regular' === cemeti_term_key( (object) array( 'name' => 'Reguler', 'slug' => 'reguler' ) ) && 'Research' === cemeti_term_key( (object) array( 'name' => 'Riset', 'slug' => 'riset-id' ) ) && 'Custom' === cemeti_term_key( (object) array( 'name' => 'Custom', 'slug' => 'custom' ) ), 'terms: Reguler/Regular and Research/Riset are the same default terms' );
+$GLOBALS['pll']['current'] = 'id';
+$html = qa_render( 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ) ) );
+ok( false !== strpos( $html, '>Research<' ) && false !== strpos( $html, '>Reguler<' ) && false !== strpos( $html, 'Peserta terpilih difasilitasi' ), 'residency page (Indonesian): Research is shown with its Indonesian text' );
+$GLOBALS['pll']['current'] = 'en';
+
 // ---- a person without a language is not lost on the About page
 qa_reset_data();
 $GLOBALS['pll']['lang'] = array();
