@@ -162,6 +162,35 @@ foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'contact-us' === $pp['post_na
 do_action( 'admin_init' );
 ok( $before - 1 === $count_id(), 'update: it runs once per version, a page deleted on purpose stays deleted' );
 
+// ---- an update never makes a second Indonesian page: the existing "Tentang" is found, linked, and keeps its text
+qa_reset_data();
+$GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();
+CemetiWP::$options = array();
+// The site before the update: English pages by the theme, Indonesian ones made by hand.
+$en_about = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'About', 'post_name' => 'about', 'post_content' => 'English text' ) );
+$GLOBALS['pll']['lang'][ $en_about ] = 'en';
+$tentang_real = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Tentang', 'post_name' => 'tentang', 'post_content' => 'Teks Indonesia yang sudah diisi tim.', 'post_date' => '2026-11-07 03:25:00' ) );
+$tentang_dup  = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Tentang', 'post_name' => 'tentang-2', 'post_content' => '', 'post_date' => '2026-11-09 05:49:00' ) );
+$GLOBALS['pll']['lang'][ $tentang_real ] = $GLOBALS['pll']['lang'][ $tentang_dup ] = 'id';
+$contact_id = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Kontak Kami', 'post_name' => 'kontak-kami', 'post_content' => 'Hubungi kami.' ) );
+$GLOBALS['pll']['lang'][ $contact_id ] = 'id';
+$before_pages = count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) );
+$id_about_found = cemeti_find_page( 'about', 'id' );
+ok( $tentang_real === $id_about_found, 'update: the Indonesian About is the existing "Tentang" that has text, not the empty copy (' . $id_about_found . ')' );
+ok( $contact_id === cemeti_find_page( 'contact-us', 'id' ), 'update: "Kontak Kami" is found as the Indonesian Contact Us' );
+CemetiWP::$caps = true;
+do_action( 'admin_init' );
+$ids_about = array_keys( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type'] && in_array( $p['post_name'], array( 'about', 'tentang', 'tentang-2' ), true ); } ) );
+ok( 3 === count( $ids_about ), 'update: no extra About page was made (' . count( $ids_about ) . ')' );
+ok( 'Teks Indonesia yang sudah diisi tim.' === CemetiWP::$posts[ $tentang_real ]['post_content'] && 'English text' === CemetiWP::$posts[ $en_about ]['post_content'], 'update: the text of existing pages is untouched' );
+$linked = pll_get_post_translations( $en_about );
+ok( isset( $linked['id'] ) && (int) $linked['id'] === $tentang_real, 'update: the English About is linked to the existing Indonesian "Tentang" (the pencil icon comes back)' );
+$lc = pll_get_post_translations( $contact_id );
+ok( count( $lc ) > 1, 'update: "Kontak Kami" is linked to the English Contact Us' );
+$pre = pll_get_post_translations( $en_about );
+cemeti_create_missing_pages();
+ok( $pre === pll_get_post_translations( $en_about ), 'update: running again rearranges nothing' );
+
 // ---- Research / Regular (and every default term) exist in the second language too
 qa_reset_data();
 function pll_set_term_language( $id, $lang ) { $GLOBALS['pll']['tlang'][ $id ] = $lang; }

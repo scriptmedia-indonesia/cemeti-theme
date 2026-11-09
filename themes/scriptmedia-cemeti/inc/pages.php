@@ -77,27 +77,49 @@ function cemeti_page_languages() {
 }
 
 /**
- * Find a page by slug (and language, with Polylang), whatever its status except the trash.
+ * Find the page of a fixed Cemeti page in a language, whatever its status except the trash.
  *
- * @param string $slug Page slug.
+ * First by slug. When there is none, by what the page IS: the design chosen in the editor, the slug the Indonesian
+ * copy usually has ("tentang", "kontak-kami", "dukung-kami"), "about-2" or a page titled like it. So an existing
+ * Indonesian page is never made a second time (and never lost: its text is untouched). With several candidates the
+ * one that has text wins, then the oldest.
+ *
+ * @param string $slug Page slug (the English slug / page key).
  * @param string $lang Language slug.
  * @return int Page ID, 0 when there is none.
  */
 function cemeti_find_page( $slug, $lang ) {
-	$args = array(
+	$base = array(
 		'post_type'        => 'page',
-		'name'             => $slug,
 		'post_status'      => array( 'publish', 'draft', 'pending', 'private', 'future' ),
-		'posts_per_page'   => 1,
 		'fields'           => 'ids',
 		'no_found_rows'    => true,
 		'suppress_filters' => false,
 	);
 	if ( function_exists( 'pll_languages_list' ) ) {
-		$args['lang'] = $lang;
+		$base['lang'] = $lang;
 	}
-	$found = get_posts( $args );
-	return $found ? (int) ( is_object( $found[0] ) ? $found[0]->ID : $found[0] ) : 0;
+	$found = get_posts( array_merge( $base, array( 'name' => $slug, 'posts_per_page' => 1 ) ) );
+	if ( $found ) {
+		return (int) ( is_object( $found[0] ) ? $found[0]->ID : $found[0] );
+	}
+	if ( ! array_key_exists( $slug, cemeti_default_pages() ) ) {
+		return 0; // A row of Support Us: found by its slug only.
+	}
+	$best     = 0;
+	$best_len = -1;
+	foreach ( get_posts( array_merge( $base, array( 'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC' ) ) ) as $candidate ) {
+		$candidate = (int) ( is_object( $candidate ) ? $candidate->ID : $candidate );
+		if ( cemeti_page_key( $candidate ) !== $slug ) {
+			continue;
+		}
+		$len = strlen( trim( wp_strip_all_tags( (string) get_post_field( 'post_content', $candidate ) ) ) );
+		if ( $len > $best_len ) {
+			$best     = $candidate;
+			$best_len = $len;
+		}
+	}
+	return $best;
 }
 
 /**
@@ -189,11 +211,34 @@ function cemeti_create_missing_pages() {
 			}
 		}
 	}
-	if ( function_exists( 'pll_save_post_translations' ) && count( cemeti_page_languages() ) > 1 ) {
+	if ( function_exists( 'pll_save_post_translations' ) && function_exists( 'pll_get_post_translations' ) && count( cemeti_page_languages() ) > 1 ) {
 		foreach ( $translations as $group ) {
 			$group = array_filter( $group );
-			if ( count( $group ) > 1 ) {
-				pll_save_post_translations( $group );
+			if ( count( $group ) < 2 ) {
+				continue;
+			}
+			// Link only what is not linked yet: a pair the team linked by hand is never rearranged.
+			$default = cemeti_default_lang();
+			$base_id = isset( $group[ $default ] ) ? (int) $group[ $default ] : (int) reset( $group );
+			$linked  = (array) pll_get_post_translations( $base_id );
+			$changed = false;
+			foreach ( $group as $lang => $page_id ) {
+				$page_id = (int) $page_id;
+				if ( $page_id === $base_id || ! empty( $linked[ $lang ] ) ) {
+					continue;
+				}
+				if ( count( (array) pll_get_post_translations( $page_id ) ) > 1 ) {
+					continue; // That page already belongs to another pair.
+				}
+				$linked[ $lang ] = $page_id;
+				$changed         = true;
+			}
+			if ( $changed ) {
+				$own = function_exists( 'pll_get_post_language' ) ? (string) pll_get_post_language( $base_id ) : '';
+				if ( '' !== $own && empty( $linked[ $own ] ) ) {
+					$linked[ $own ] = $base_id;
+				}
+				pll_save_post_translations( $linked );
 			}
 		}
 	}

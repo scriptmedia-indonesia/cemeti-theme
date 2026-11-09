@@ -18,6 +18,15 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.29
+
+- Pages (About, Open Archive, Support Us, Contact Us) after an update or install: the theme now recognises the Indonesian
+  pages that already exist ("Tentang", "Kontak Kami", "Dukung Kami", "tentang-2" …, by chosen design, slug or title) instead
+  of making a second, empty one that had to be filled again, and it **links them as translations** of the English pages
+  (the pencil icon in the Pages list comes back). With several candidates the one that has text wins. The text of
+  existing pages is never touched, and a pair the team linked by hand is never rearranged.
+  Empty duplicates made by version 0.9.13–0.9.28 can simply be moved to the trash (the page with text is the one linked).
+
 ## 0.9.28
 
 - Cross-check with Figma (file node geometry at 1440 px, plus the text styles of the Journal article and the Related
