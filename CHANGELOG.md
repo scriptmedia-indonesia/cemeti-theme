@@ -11,6 +11,12 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.24
+
+- Full visual re-check (69 page fixtures x 13 screen sizes from 320 to 2560 px plus landscape phone, with screenshots of
+  desktop and iPhone): no overflow, no script errors. One finding fixed: on archive cards a landscape picture, now shown
+  whole, sat in the middle and its bottom edge went under the title panel; it now sits at the top of the card.
+
 ## 0.9.23
 
 - Thumbnails (Home posters, archive cards, related, Open Call poster, gallery grids) show the whole picture instead of a

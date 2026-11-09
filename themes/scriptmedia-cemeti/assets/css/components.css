@@ -52,7 +52,7 @@
 }
 .cemeti-card { position: relative; }
 .cemeti-card a { display: block; position: relative; aspect-ratio: 308 / 386; overflow: hidden; text-decoration: none; }
-.cemeti-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--c-panel); } /* the whole picture, same box */
+.cemeti-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; background: var(--c-panel); } /* the whole picture, same box; landscape ones sit at the top, clear of the title panel */
 .cemeti-card__body {
 	position: absolute;
 	inset: auto 0 0 0;
