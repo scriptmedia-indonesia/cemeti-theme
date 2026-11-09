@@ -323,8 +323,22 @@ function cemeti_page_key( $post_id ) {
 		}
 	}
 	$aliases = cemeti_page_slug_aliases();
-	$slug    = (string) get_post_field( 'post_name', $post_id );
-	return isset( $aliases[ $slug ] ) && array_key_exists( $aliases[ $slug ], $known ) ? $aliases[ $slug ] : '';
+	// A translation made by Polylang's "+" or by hand often has a slug like "kontak-kami-2" or "contact-us-id":
+	// try the slug as it is, without a trailing number/language, and the title.
+	$slug       = (string) get_post_field( 'post_name', $post_id );
+	$candidates = array( $slug, preg_replace( '/-(\d+|id|en)$/', '', $slug ), sanitize_title( (string) get_post_field( 'post_title', $post_id ) ) );
+	foreach ( $candidates as $candidate ) {
+		if ( '' === $candidate ) {
+			continue;
+		}
+		if ( isset( $aliases[ $candidate ] ) && array_key_exists( $aliases[ $candidate ], $known ) ) {
+			return $aliases[ $candidate ];
+		}
+		if ( array_key_exists( $candidate, $known ) ) {
+			return $candidate;
+		}
+	}
+	return '';
 }
 
 /**

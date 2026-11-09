@@ -11,6 +11,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.26
+
+- The "Contact details" box was empty/missing on the Indonesian page "Kontak Kami": the theme only knew the page by its
+  exact slug. A copy made by Polylang ("kontak-kami-2", "contact-us-id") or a page simply titled "Kontak Kami" is now
+  recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
+  recognised, choose it in the side box "Cemeti page design" and save.
+
 ## 0.9.25
 
 - Contact Us is edited on the page itself, like About: **Pages → Contact Us** (and its Indonesian copy). The editor is the
