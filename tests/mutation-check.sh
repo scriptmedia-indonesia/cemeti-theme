@@ -71,6 +71,7 @@ mutate "pages: Indonesian page not recognised"      $T/inc/pages.php "\$aliases 
 mutate "open call: the Active tick ignored"         $T/inc/applications.php "return '1' === \$flag; // The team's choice" "return true; // The team's choice" m4-logic flows-content
 mutate "home: the <h1> removed"                    $T/front-page.php '<h1 class="screen-reader-text"><?php echo esc_html( cemeti_option( '"'"'institution_name'"'"' ) ); ?></h1>' "" render-pages
 mutate "header: logo without alt text"             $T/header.php 'fetchpriority="high" alt="<?php echo esc_attr( cemeti_option( '"'"'institution_name'"'"' ) ); ?>">' 'fetchpriority="high">' render-pages
+mutate "css: Back may break letter by letter"        $T/assets/css/pages.css ".cemeti-back { white-space: nowrap; flex: none; overflow-wrap: normal; word-break: normal; }" ".cemeti-back { overflow-wrap: anywhere; }" browser
 mutate "media: a step ignores its time limit"        $T/inc/media.php "if ( cemeti_media_clock( 'passed' ) || cemeti_media_clock( 'net_count' ) >= 3 ) {
 				\$result['incomplete'] = true;" "if ( false ) {
 				\$result['incomplete'] = true;" flows-media

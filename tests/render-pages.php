@@ -143,6 +143,9 @@ $h = page( 'single-open-call-sent', 'single-open_call.php', array( 'singular' =>
 ok( false !== strpos( $h, 'cemeti-apply__notice--ok' ) && false === strpos( $h, 'cemeti-apply__form' ), 'open call ?apply=sent: thank-you instead of the form' );
 $h = page( 'single-open-call-error', 'single-open_call.php', array( 'singular' => true ), array( 'post' => $ids['oc_open'], 'path' => '/open-call/x/?apply=file', 'get' => array( 'apply' => 'file' ) ) );
 ok( false !== strpos( $h, 'role="alert"' ) && false !== strpos( $h, 'cemeti-apply__form' ), 'open call ?apply=file: error message and the form again' );
+// Real editor content: a very long link, a wide table, an embed (they widened the page on iPhone).
+$long = CemetiWP::post( array( 'post_type' => 'open_call', 'post_title' => 'Rotating AiRs Open Call: Global Artist-in-Residency Programme 2027-2028', 'thumb' => 505, 'post_content' => 'Rotating AiRs adalah platform transnasional. Info: <a href="https://example.org/' . str_repeat( 'very-long-address-segment/', 12 ) . '">https://example.org/' . str_repeat( 'very-long-address-segment/', 12 ) . '</a>' . "\n\n" . '<table><tr><td>' . str_repeat( 'wide cell ', 40 ) . '</td><td>' . str_repeat( 'wide cell ', 40 ) . '</td></tr></table>' . "\n\n" . '<iframe src="https://example.org/embed" width="900" height="500"></iframe>' . "\n\n" . '' . str_repeat( 'Superlongwordwithoutanybreak', 8 ), 'meta' => array( 'cemeti_deadline' => '20260814' ) ) );
+page( 'single-open-call-longcontent', 'single-open_call.php', array( 'singular' => true ), array( 'post' => $long, 'path' => '/open-call/long/' ) );
 $h = page( 'single-open-call-xss', 'single-open_call.php', array( 'singular' => true ), array( 'post' => $ids['oc_open'], 'path' => '/open-call/x/?apply=%3Cscript%3E', 'get' => array( 'apply' => '<script>alert(1)</script>' ) ) );
 ok( false === strpos( $h, '<script>alert' ), 'open call: ?apply= value never echoed raw' );
 

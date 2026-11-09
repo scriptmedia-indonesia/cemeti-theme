@@ -11,6 +11,18 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.22
+
+- iPhone (Safari): a long web address, a wide table or an embed in the text of an Open Call (or any entry) stretched
+  the whole page, so Safari zoomed out and the poster looked huge and cropped. All grids now use `minmax(0, 1fr)`, text
+  from the editor wraps (links break anywhere, tables scroll inside themselves, embeds shrink) and the page clips
+  sideways overflow instead of letting Safari zoom out.
+- "Back / Kembali" broke letter by letter ("Kemba li") next to the contents bar on phones: it now stays on one line and
+  the contents links wrap instead.
+- Indonesian entries with no gallery, documentation or booklet of their own show the other language's (the pictures are
+  the same), so their contents bar and sections are no longer missing.
+- Tests: a fixture with real-world long content at 320/390 px, the Back button, the translation fallback.
+
 ## 0.9.21
 
 - Media repair refused pictures whose file name contains two dots ("museum-of-the-ordinary-things-cemeti-2017..jpg"):

@@ -235,6 +235,15 @@ $html = qa_render( 'archive-residency.php', array( 'pta' => 'residency' ), array
 ok( false !== strpos( $html, '>Research<' ) && false !== strpos( $html, '>Reguler<' ) && false !== strpos( $html, 'Peserta terpilih difasilitasi' ), 'residency page (Indonesian): Research is shown with its Indonesian text' );
 $GLOBALS['pll']['current'] = 'en';
 
+// ---- an Indonesian entry without pictures of its own shows the other language's (sections and contents bar not missing)
+$GLOBALS['pll']['groups'] = array();
+$en_ex = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'EN show', 'meta' => array( 'cemeti_gallery' => array( 601, 602 ), 'cemeti_documentation' => array( 611 ), 'cemeti_booklet_url' => 'https://example.org/b.pdf' ) ) );
+$id_ex = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Pameran ID', 'meta' => array( 'cemeti_documentation' => array( 700 ) ) ) );
+$GLOBALS['pll']['groups'][] = array( 'en' => $en_ex, 'id' => $id_ex );
+ok( array( 601, 602 ) === cemeti_get_field( 'gallery', $id_ex ) && 'https://example.org/b.pdf' === cemeti_get_field( 'booklet_url', $id_ex ), 'translation: an entry with no gallery or booklet shows the other language\'s' );
+ok( array( 700 ) === cemeti_get_field( 'documentation', $id_ex ), 'translation: its own pictures always win' );
+ok( array() === cemeti_get_field( 'gallery', CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Alone' ) ) ), 'translation: no translation, no gallery' );
+
 // ---- a person without a language is not lost on the About page
 qa_reset_data();
 $GLOBALS['pll']['lang'] = array();

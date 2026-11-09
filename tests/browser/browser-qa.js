@@ -522,6 +522,20 @@ async function open( browser, name, width, height, extra = {} ) {
 			await lm.ctx.close();
 		}
 		{
+			// iPhone: long links, tables and embeds in the text never widen the page; Back never breaks letter by letter.
+			for ( const w of [ 320, 390 ] ) {
+				const lc = await open( browser, 'single-open-call-longcontent', w, 800 );
+				const over = await lc.page.evaluate( () => document.documentElement.scrollWidth - document.documentElement.clientWidth );
+				const img = await lc.page.locator( '.cemeti-opencall__poster img' ).boundingBox();
+				ok( over <= 0 && img.width <= w, `qa5: a long link / table / embed does not widen the page at ${ w } px (over ${ over }, poster ${ Math.round( img.width ) })` );
+				await lc.ctx.close();
+			}
+			const bk = await open( browser, 'single-exhibition', 390, 800 );
+			const bb2 = await bk.page.locator( '.cemeti-single__nav .cemeti-back' ).boundingBox();
+			ok( bb2.height < 40 && bb2.width > 50, `qa5: "Back" stays on one line next to the contents (${ Math.round( bb2.width ) } x ${ Math.round( bb2.height ) })` );
+			await bk.ctx.close();
+		}
+		{
 			// QA round 4: the link just clicked is the one marked, also on a tall screen where the next section is on show.
 			for ( const [ w, h ] of [ [ 1440, 900 ], [ 2560, 1440 ], [ 820, 1180 ] ] ) {
 				const tc = await open( browser, 'single-residency-full', w, h );

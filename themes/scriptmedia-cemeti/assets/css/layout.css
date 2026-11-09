@@ -17,7 +17,7 @@
 .cemeti-header__bar {
 	position: relative;
 	display: grid;
-	grid-template-columns: 1fr auto 1fr;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	align-items: end;
 	min-height: var(--header-h);
 	/* Figma: logo 36 px from the top, Menu / language baseline 18 px from the bottom (140 px header). */
@@ -140,7 +140,7 @@
 .cemeti-menu.is-open { opacity: 1; transform: none; }
 .cemeti-menu__inner {
 	display: grid;
-	grid-template-columns: 14.5rem 1fr;
+	grid-template-columns: 14.5rem minmax(0, 1fr);
 	padding: 0.8rem 1.3rem;
 }
 .cemeti-menu__col { display: flex; flex-direction: column; }
@@ -170,7 +170,7 @@
 @media (max-width: 40rem) {
 	.cemeti-menu__address { margin-top: 0.75rem; }
 	.cemeti-menu { right: var(--gutter); width: auto; }
-	.cemeti-menu__inner { grid-template-columns: 1fr; gap: 0; }
+	.cemeti-menu__inner { grid-template-columns: minmax(0, 1fr); gap: 0; }
 	.cemeti-menu__list--bottom { margin-top: 0; }
 	.cemeti-menu__col + .cemeti-menu__col { margin-top: 0; }
 }

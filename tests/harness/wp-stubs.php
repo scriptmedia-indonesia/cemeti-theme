@@ -496,7 +496,12 @@ function wpautop( $s ) {
 	if ( '' === $s ) {
 		return '';
 	}
-	return '<p>' . implode( "</p>\n<p>", preg_split( '/\n\s*\n/', $s ) ) . '</p>';
+	$blocks = preg_split( '/\n\s*\n/', $s );
+	foreach ( $blocks as $i => $block ) {
+		// Like WordPress, blocks that already are block elements are not wrapped in a paragraph.
+		$blocks[ $i ] = preg_match( '/^<(table|iframe|div|figure|ul|ol|h[1-6]|p)\b/i', trim( $block ) ) ? $block : '<p>' . $block . '</p>';
+	}
+	return implode( "\n", $blocks );
 }
 function wp_trim_words( $s, $n = 55, $more = '…' ) {
 	$w = preg_split( '/\s+/', trim( strip_tags( (string) $s ) ) );
