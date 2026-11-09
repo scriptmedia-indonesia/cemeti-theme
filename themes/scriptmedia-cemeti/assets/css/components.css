@@ -27,7 +27,7 @@
 	color: var(--c-cream);
 	font-family: var(--font-script);
 	font-size: 1rem;
-	line-height: 0.65;
+	line-height: 0.7;            /* box 272 x 31 */
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
@@ -85,9 +85,9 @@
 /* Journal-style row list (Home, Journal archive, Search). */
 .cemeti-row-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule); }
 .cemeti-row { border-bottom: var(--rule); }
-.cemeti-row a { display: block; padding: 0.625rem var(--gutter) 0.875rem; text-decoration: none; }
+.cemeti-row a { display: block; padding: calc(0.625rem - 6px) var(--gutter) calc(0.875rem - 7px); text-decoration: none; }   /* ink-to-ink spacing: date top 10 px under the rule, 14 px above the next one */
 /* Figma: date 24, title 40 Medium, category 24, 10 px between them. */
 .cemeti-row__date { display: block; font-size: var(--fs-single); line-height: 1.2; }
-.cemeti-row__title { display: block; margin: 0.25em 0; font-size: var(--fs-title); font-weight: 500; line-height: 1.15; }
+.cemeti-row__title { display: block; margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 0.94; }
 .cemeti-row__cat { display: block; font-size: var(--fs-single); font-weight: 500; line-height: 1.2; }
 .cemeti-row a:hover .cemeti-row__title { color: var(--c-salmon); }

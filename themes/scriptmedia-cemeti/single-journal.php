@@ -34,7 +34,6 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 			<?php if ( '' !== $cemeti_author ) : ?>
 				<p class="cemeti-single__people"><?php echo esc_html( $cemeti_author ); ?></p>
 			<?php endif; ?>
-			<p class="cemeti-single__time"><?php echo esc_html( get_the_date( 'd-m-Y' ) . ' · ' . cemeti_post_label( get_post() ) ); ?></p>
 		</header>
 		<?php if ( has_excerpt() ) : ?>
 			<p class="cemeti-single__lead"><?php echo esc_html( get_the_excerpt() ); ?></p>

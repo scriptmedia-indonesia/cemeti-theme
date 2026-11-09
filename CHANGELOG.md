@@ -18,6 +18,25 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.28
+
+- Cross-check with Figma (file node geometry at 1440 px, plus the text styles of the Journal article and the Related
+  card). Measured and aligned, with 16 new geometry tests (`figma:` in browser-qa):
+  - Page head: the title and Back sit 8 px higher (title ink y 180, Back y 197) and the first row / card / picture of every
+    page starts at y 265 (it was 12 px lower): Exhibition, Residency, About, Support Us, Open Call, Journal, Open Archive, Home.
+  - Home: sections 508 px apart, button 272 x 31 (all green buttons are 31 high now).
+  - Header: Menu, EN/ID and search sit 10 px lower, baseline at y 122 like the design.
+  - Residency page: two 524 px columns at x 176 and 740, titles at x 357 / 921, text 79 px under the title, cards 63 px under the text.
+  - About: the text block is 1064 px wide (x 188). All detail pages use the 1064 px column (was 1067).
+  - Support Us rows 82 px apart; Journal list rows: date, title and category spaced as in the design; Open Archive letters
+    and entries (30 px apart, blocks of three 144 px apart).
+  - Detail pages: the contents bar is the 107 px band under the header and the poster starts at y 247; Public Program and
+    Open Studio posters are a centred 524 x 655 box; gallery and documentation rows 12 px apart; titles 85 px above the photos.
+  - Journal article: picture at y 247, caption 605 wide and 121 px in (18 px), title 64, author 40 with the design's spacing,
+    no date line under the author (it is not in the design), text block 1064, pictures in the text 906 wide, wide ones 1067.
+  - Related publications: a row of 324 px cards 15 px apart that scrolls sideways and fades out at the right edge, like the
+    design's slider (it was a grid of four).
+
 ## 0.9.27
 
 - Final QA before hand-over: every page fixture at 14 screen sizes (320 to 2560 px, landscape phones) and touch tests on

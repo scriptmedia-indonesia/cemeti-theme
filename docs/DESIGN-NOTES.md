@@ -148,3 +148,15 @@ Calibration used for text boxes: Figma trims text to its cap height (0.72 of the
 Cream text on the green button is 3.21:1 (below AA); it is the design colour pair and is listed as known.
 
 Not read from Figma yet (the Figma plan's tool-call limit was reached): text sizes of the Journal page and article, About, Support, Open Archive, the Public Program and Open Studio article templates, the menu overlay and the search strip. Their geometry (positions, widths) is in the file and was applied; their type sizes follow the calibration above.
+
+
+## Figma cross-check (v0.9.28)
+
+Measured from the node geometry of the Figma file (every frame is 1440 wide; header 140, footer 254):
+page title ink y 180 and Back y 197; first row / card / picture y 265; detail poster y 247 (524 x 655); reading column x 188,
+1064 wide; galleries 524 x 351 in two columns 16 px apart, rows 12 px apart; biography photo 308, text 740 at x 512;
+Related cards 324 wide, 15 px apart; Journal article picture 848 x 602 at y 247, in-text pictures 906 (wide 1067);
+Support rows 82 px; Open Archive entries 30 px, letter blocks 144 px; Residency columns 524 at x 176 / 740.
+`tests/browser/browser-qa.js` keeps these as `figma:` checks.
+Not read from Figma (no access to those nodes at the time): the icons of the Share block ("Share this:" label with an image of
+icons), the overlay menu and search frames, interactions of the prototype.

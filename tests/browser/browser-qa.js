@@ -522,6 +522,50 @@ async function open( browser, name, width, height, extra = {} ) {
 			await lm.ctx.close();
 		}
 		{
+			// Figma geometry (node metadata of the file, 1440 px frames): where things start, how wide they are.
+			const fg = await open( browser, 'home', 1440, 900 );
+			const box = async ( pg, sel ) => pg.locator( sel ).first().evaluate( ( e ) => { const r = e.getBoundingClientRect(); return [ Math.round( r.x ), Math.round( r.y + scrollY ), Math.round( r.width ), Math.round( r.height ) ]; } );
+			const near = ( got, want, tol = 1 ) => got.every( ( v, i ) => null === want[ i ] || Math.abs( v - want[ i ] ) <= tol );
+			const chk = async ( name, page, sel, want, tol, label ) => { const g = await box( page, sel ); ok( near( g, want, tol ), `figma: ${ name } ${ label } ${ JSON.stringify( want ) } (got ${ JSON.stringify( g ) })` ); };
+			await chk( 'Home', fg.page, '.cemeti-home__section:nth-of-type(1) .cemeti-home__poster img', [ 80, 265, 272, 340 ], 1, 'first poster' );
+			await chk( 'Home', fg.page, '.cemeti-home__section:nth-of-type(1) .cemeti-btn', [ 80, 617, 272, 31 ], 1, 'button' );
+			await chk( 'Home', fg.page, '.cemeti-home__section--residency .cemeti-home__poster img', [ 80, 773, 416, 333 ], 1, 'residency picture' );
+			await chk( 'Header', fg.page, '.cemeti-logo img', [ 620, 36, 200, 85 ], 1, 'logo' );
+			const lbl = await box( fg.page, '.cemeti-menu-toggle__label' );
+			ok( Math.abs( lbl[ 1 ] - 96 ) <= 1 && Math.abs( lbl[ 1 ] + lbl[ 3 ] - 132 ) <= 1, `figma: Menu label baseline at y 122 (box ${ lbl })` );
+			await fg.ctx.close();
+			for ( const [ n, sel, want, label ] of [
+				[ 'archive-exhibition', '.cemeti-card', [ 80, 265, 308, 386 ], 'Exhibition first card' ],
+				[ 'archive-residency', '.cemeti-card', [ 80, null, 308, 386 ], 'Residency card' ],
+				[ 'page-about', '.cemeti-single__hero', [ 296, 265, 848, 602 ], 'About picture' ],
+				[ 'page-about', '.cemeti-single__body', [ 188, 907, 1064, null ], 'About text block' ],
+				[ 'page-support-us', '.cemeti-single__body', [ 296, 265, 848, null ], 'Support Us text' ],
+				[ 'single-open-call', '.cemeti-opencall__poster img', [ 80, 265, 416, 520 ], 'Open Call poster' ],
+				[ 'single-open-call', '.cemeti-opencall .cemeti-btn', [ 512, null, 272, 31 ], 'Open Call button' ],
+				[ 'single-journal', '.cemeti-single__figure img', [ 296, 247, 848, 602 ], 'Journal picture' ],
+				[ 'single-journal', '.cemeti-single__body', [ 188, null, 1064, null ], 'Journal text block' ],
+				[ 'single-public-program', '.cemeti-single__poster', [ 458, 247, 524, 655 ], 'Public Program poster' ],
+				[ 'single-open-studio', '.cemeti-single__poster', [ 458, 247, 524, 655 ], 'Open Studio poster' ],
+				[ 'single-exhibition', '.cemeti-single__poster', [ 404, 247, 524, null ], 'Exhibition poster' ],
+				[ 'single-exhibition', '.cemeti-single__nav--sticky', [ 80, 140, 1280, 107 ], 'contents bar' ],
+				[ 'single-residency-full', '.cemeti-bio__photo', [ 188, null, 308, 308 ], 'biography photo' ],
+				[ 'single-residency-full', '.cemeti-bio__text', [ 512, null, 740, null ], 'biography text' ],
+				[ 'single-exhibition', '.cemeti-related li', [ null, null, 324, null ], 'related card' ],
+			] ) {
+				const fp = await open( browser, n, 1440, 900 );
+				await chk( n, fp.page, sel, want, 1, label );
+				await fp.ctx.close();
+			}
+			const rows = await open( browser, 'page-support-us', 1440, 900 );
+			const pitch = await rows.page.locator( 'details' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top ) ) );
+			ok( pitch.length > 2 && pitch.slice( 1 ).every( ( v, i ) => v - pitch[ i ] === 82 ), `figma: Support Us rows 82 px apart (${ pitch })` );
+			await rows.ctx.close();
+			const az = await open( browser, 'page-open-archive', 1440, 900 );
+			const ys = await az.page.locator( '.cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
+			ok( 144 === ys[ 4 ] - ys[ 3 ] || 144 === ys[ 5 ] - ys[ 4 ], `figma: Open Archive letter blocks of three entries are 144 px apart (${ ys })` );
+			await az.ctx.close();
+		}
+		{
 			// Thumbnails show the whole picture in an unchanged box.
 			const th = await open( browser, 'home', 1440, 900 );
 			const fits = await th.page.evaluate( () => [ '.cemeti-home__poster img' ].map( ( q ) => { const e = document.querySelector( q ); const r = e.getBoundingClientRect(); return [ getComputedStyle( e ).objectFit, Math.round( r.width / r.height * 100 ) / 100 ]; } ) );
@@ -672,9 +716,9 @@ async function open( browser, name, width, height, extra = {} ) {
 		ok( subSize < titleSize && subSize === 40, `residency: Regular / Research titles (${ subSize }px) are smaller than the page title (${ titleSize }px)` );
 		ok( 400 === await num( '.cemeti-residency-intro p', 'fontWeight' ) && 24 === await num( '.cemeti-residency-intro p', 'fontSize' ), 'residency: the text is regular weight, 24px' );
 		const cols = await rp.locator( '.cemeti-residency-intro > section' ).evaluateAll( ( els ) => els.map( ( e ) => { const b = e.getBoundingClientRect(); return [ Math.round( b.x ), Math.round( b.width ) ]; } ) );
-		ok( cols.length === 2 && Math.abs( cols[ 0 ][ 1 ] - cols[ 1 ][ 1 ] ) < 2 && Math.abs( cols[ 0 ][ 0 ] - 188 ) < 3, `residency: two equal columns inside the reading column (${ JSON.stringify( cols ) })` );
-		const centred = await rp.locator( '.cemeti-residency-intro h2' ).evaluateAll( ( els ) => els.every( ( e ) => getComputedStyle( e ).textAlign === 'center' ) );
-		ok( centred, 'residency: each title is centred over its text' );
+		ok( cols.length === 2 && Math.abs( cols[ 0 ][ 1 ] - cols[ 1 ][ 1 ] ) < 2 && cols[ 0 ][ 1 ] === 524 && cols[ 0 ][ 0 ] === 176 && cols[ 1 ][ 0 ] === 740, `figma: residency columns 524 wide at x 176 and 740 (${ JSON.stringify( cols ) })` );
+		const subx = await rp.locator( '.cemeti-residency-intro h2' ).evaluateAll( ( els ) => els.map( ( e ) => { const r = document.createRange(); r.selectNodeContents( e ); return Math.round( r.getBoundingClientRect().x ); } ) );
+		ok( Math.abs( subx[ 0 ] - 357 ) <= 2 && Math.abs( subx[ 1 ] - 921 ) <= 2, `figma: residency titles start at x 357 and 921 (${ subx })` );
 		await r.ctx.close();
 	}
 

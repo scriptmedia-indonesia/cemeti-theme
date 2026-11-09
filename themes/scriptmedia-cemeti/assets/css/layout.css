@@ -21,7 +21,7 @@
 	align-items: end;
 	min-height: var(--header-h);
 	/* Figma: logo 36 px from the top, Menu / language baseline 18 px from the bottom (140 px header). */
-	padding: calc(var(--header-h) * 0.257) var(--gutter) calc(var(--header-h) * 0.128);
+	padding: calc(var(--header-h) * 0.257) var(--gutter) calc(var(--header-h) * 0.0566);   /* baseline of Menu / EN-ID (24 px, 36 px line) at y 122 */
 }
 .cemeti-logo { justify-self: center; align-self: start; display: block; }
 .cemeti-logo img { width: clamp(7.5rem, 13.9vw, 12.5rem); }  /* 200 at 1440 */
