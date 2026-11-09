@@ -191,6 +191,28 @@ $pre = pll_get_post_translations( $en_about );
 cemeti_create_missing_pages();
 ok( $pre === pll_get_post_translations( $en_about ), 'update: running again rearranges nothing' );
 
+// ---- Fixed pages: the language switch finds the other language's page even when they are not linked ...
+$GLOBALS['pll']['groups'] = array();
+$GLOBALS['pll']['current'] = 'en';
+CemetiWP::request( '/about/', array( 'singular' => true ) );
+$GLOBALS['post'] = CemetiWP::obj( $en_about );
+$sw = cemeti_language_switcher_items();
+$id_item = array_values( array_filter( $sw, static function ( $i ) { return 'id' === $i['code']; } ) )[0];
+ok( false !== strpos( $id_item['url'], 'tentang' ) && false === strpos( $id_item['url'], 'halaman' ), 'switch: on the unlinked English About, ID leads to the Indonesian "Tentang" (not the home page) (' . $id_item['url'] . ')' );
+// ... and the table of fixed pages links what the team chooses
+CemetiWP::$caps = true;
+$_POST = array( '_wpnonce' => 'valid', 'cemeti_pair' => array( 'about' => array( 'en' => $en_about, 'id' => $tentang_real ), 'contact-us' => array( 'id' => $contact_id ) ) );
+try { do_action( 'admin_post_cemeti_save_page_pairs' ); } catch ( CemetiRedirect $e ) { parse_str( (string) parse_url( $e->url, PHP_URL_QUERY ), $q ); }
+$lk = pll_get_post_translations( $en_about );
+ok( isset( $q['cemeti_pairs_saved'] ) && 1 === (int) $q['cemeti_pairs_saved'] && (int) ( $lk['id'] ?? 0 ) === $tentang_real, 'fixed pages table: the chosen pages are linked as translations' );
+ok( 'about' === get_post_meta( $tentang_real, '_cemeti_page_key', true ), 'fixed pages table: the chosen page is remembered as About (its design and menu link)' );
+ob_start(); cemeti_render_page_pairs_box(); $box = ob_get_clean();
+ok( false !== strpos( $box, 'cemeti_pair[about][en]' ) && false !== strpos( $box, 'Tentang' ) && false !== strpos( $box, 'Save and link' ), 'fixed pages table: shown in Settings with a dropdown per language' );
+CemetiWP::$caps = false;
+$_POST = array( 'cemeti_pair' => array() );
+try { do_action( 'admin_post_cemeti_save_page_pairs' ); ok( false, 'fixed pages table: refused for non-administrators' ); } catch ( CemetiDie $e ) { ok( true, 'fixed pages table: refused for non-administrators' ); }
+CemetiWP::$caps = true; $_POST = array();
+
 // ---- Research / Regular (and every default term) exist in the second language too
 qa_reset_data();
 function pll_set_term_language( $id, $lang ) { $GLOBALS['pll']['tlang'][ $id ] = $lang; }

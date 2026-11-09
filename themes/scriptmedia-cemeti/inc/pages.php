@@ -482,3 +482,106 @@ function cemeti_support_rows( $page_id ) {
 	}
 	return $rows;
 }
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Fixed pages in both languages: link them by hand when they could not be matched by themselves
+ * ---------------------------------------------------------------------------------------------------------- */
+
+/**
+ * Link the chosen page of each language as translations of one another and remember which Cemeti page they are.
+ * An explicit choice replaces whatever link those pages had.
+ *
+ * @param string          $key     Page key ("about", "open-archive" …).
+ * @param array<string,int> $by_lang Language slug => page ID (0 = none).
+ * @return bool Whether a link was saved.
+ */
+function cemeti_pair_pages( $key, array $by_lang ) {
+	$by_lang = array_filter( array_map( 'intval', $by_lang ) );
+	if ( ! array_key_exists( $key, cemeti_default_pages() ) ) {
+		return false;
+	}
+	foreach ( $by_lang as $page_id ) {
+		if ( 'page' === get_post_type( $page_id ) ) {
+			update_post_meta( $page_id, '_cemeti_page_key', $key );
+		}
+	}
+	if ( count( $by_lang ) > 1 && function_exists( 'pll_save_post_translations' ) ) {
+		pll_save_post_translations( $by_lang );
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Save the choices of the "Fixed pages" table.
+ */
+function cemeti_handle_save_page_pairs() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'cemeti_save_page_pairs' );
+	$posted = isset( $_POST['cemeti_pair'] ) && is_array( $_POST['cemeti_pair'] ) ? wp_unslash( $_POST['cemeti_pair'] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+	$linked = 0;
+	foreach ( cemeti_default_pages() as $key => $page ) {
+		if ( ! isset( $posted[ $key ] ) || ! is_array( $posted[ $key ] ) ) {
+			continue;
+		}
+		$by_lang = array();
+		foreach ( cemeti_page_languages() as $lang ) {
+			$by_lang[ $lang ] = isset( $posted[ $key ][ $lang ] ) ? absint( $posted[ $key ][ $lang ] ) : 0;
+		}
+		$linked += cemeti_pair_pages( $key, $by_lang ) ? 1 : 0;
+	}
+	wp_safe_redirect( add_query_arg( 'cemeti_pairs_saved', $linked, admin_url( 'options-general.php?page=cemeti-settings' ) ) );
+	exit;
+}
+add_action( 'admin_post_cemeti_save_page_pairs', 'cemeti_handle_save_page_pairs' );
+
+/**
+ * The "Fixed pages" table (inside Settings → Cemeti).
+ */
+function cemeti_render_page_pairs_box() {
+	$languages = cemeti_page_languages();
+	if ( count( $languages ) < 2 ) {
+		return;
+	}
+	if ( isset( $_GET['cemeti_pairs_saved'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( sprintf( /* translators: %d: number of pages */ _n( '%d page linked.', '%d pages linked.', (int) $_GET['cemeti_pairs_saved'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_pairs_saved'] ) ) . '</p></div>'; // phpcs:ignore WordPress.Security.NonceVerification
+	}
+	echo '<h2>' . esc_html__( 'Fixed pages in both languages', 'scriptmedia-cemeti' ) . '</h2>';
+	echo '<p class="description">' . esc_html__( 'Choose which page is About / Open Archive / Support Us / Contact Us in each language and press Save: they are linked as translations (language switch, pencil icon) and the language\'s menu opens the page you chose. The text of the pages is never changed.', 'scriptmedia-cemeti' ) . '</p>';
+	echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="cemeti_save_page_pairs">';
+	wp_nonce_field( 'cemeti_save_page_pairs' );
+	echo '<table class="widefat striped" style="max-width:900px"><thead><tr><th>' . esc_html__( 'Page', 'scriptmedia-cemeti' ) . '</th>';
+	foreach ( $languages as $lang ) {
+		echo '<th>' . esc_html( strtoupper( $lang ) ) . '</th>';
+	}
+	echo '<th>' . esc_html__( 'Linked', 'scriptmedia-cemeti' ) . '</th></tr></thead><tbody>';
+	foreach ( cemeti_default_pages() as $key => $page ) {
+		$current = array();
+		echo '<tr><td><strong>' . esc_html( $page['title'] ) . '</strong></td>';
+		foreach ( $languages as $lang ) {
+			$current[ $lang ] = cemeti_find_page( $key, $lang );
+			$choices          = get_posts( array( 'post_type' => 'page', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC', 'suppress_filters' => false, 'lang' => $lang ) ); // phpcs:ignore WordPressVIPMinimum
+			echo '<td><select name="cemeti_pair[' . esc_attr( $key ) . '][' . esc_attr( $lang ) . ']"><option value="0">' . esc_html__( '— none —', 'scriptmedia-cemeti' ) . '</option>';
+			foreach ( $choices as $choice ) {
+				printf( '<option value="%d"%s>%s (#%d)</option>', (int) $choice->ID, selected( (int) $choice->ID, $current[ $lang ], false ), esc_html( get_the_title( $choice ) ), (int) $choice->ID );
+			}
+			echo '</select></td>';
+		}
+		$linked = true;
+		$first  = reset( $current );
+		if ( $first && function_exists( 'pll_get_post_translations' ) ) {
+			$have = (array) pll_get_post_translations( $first );
+			foreach ( $current as $lang => $page_id ) {
+				if ( $page_id && ( empty( $have[ $lang ] ) || (int) $have[ $lang ] !== (int) $page_id ) ) {
+					$linked = false;
+				}
+			}
+		}
+		echo '<td>' . ( $linked && $first ? '✔' : '✘' ) . '</td></tr>';
+	}
+	echo '</tbody></table>';
+	submit_button( __( 'Save and link', 'scriptmedia-cemeti' ), 'secondary', 'submit', true );
+	echo '</form>';
+}

@@ -18,6 +18,16 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.30
+
+- Indonesian pages made in Pages did not show / were not linked to the English ones. Two safety nets:
+  - **Settings → Cemeti → "Fixed pages in both languages"**: a table with, for About, Open Archive, Support Us and Contact Us,
+    a dropdown of the pages of each language. Choose the page and press **Save and link**: they are linked as translations
+    (pencil icon, language switch), remembered as that Cemeti page and the Indonesian menu opens the page you chose. A ✔ /
+    ✘ shows what is linked. The text of the pages is never changed.
+  - The **language switch** (EN/ID) on a fixed page now leads to the other language's page even when they are not linked
+    (it led to the home page).
+
 ## 0.9.29
 
 - Pages (About, Open Archive, Support Us, Contact Us) after an update or install: the theme now recognises the Indonesian

@@ -210,11 +210,22 @@ function cemeti_language_switcher_items() {
 		);
 		if ( is_array( $raw ) && $raw ) {
 			$items = array();
+			// On a fixed page (About, Contact …) whose other-language page is not linked as its translation, Polylang
+			// offers the home page; the page of that language is found by what it is instead.
+			$key = function_exists( 'is_page' ) && is_page() && function_exists( 'cemeti_page_key' ) ? cemeti_page_key( get_queried_object_id() ) : '';
 			foreach ( $raw as $language ) {
+				$url = (string) $language['url'];
+				if ( '' !== $key && empty( $language['current_lang'] ) && function_exists( 'cemeti_find_page' ) ) {
+					$other = cemeti_find_page( $key, (string) $language['slug'] );
+					if ( $other && 'publish' === get_post_status( $other ) && (int) $other !== (int) get_queried_object_id() ) {
+						$linked = function_exists( 'pll_get_post' ) ? (int) pll_get_post( get_queried_object_id(), (string) $language['slug'] ) : 0;
+						$url    = $linked ? $url : (string) get_permalink( $other );
+					}
+				}
 				$items[] = array(
 					'code'    => (string) $language['slug'],
 					'label'   => strtoupper( (string) $language['slug'] ),
-					'url'     => (string) $language['url'],
+					'url'     => $url,
 					'current' => ! empty( $language['current_lang'] ),
 				);
 			}

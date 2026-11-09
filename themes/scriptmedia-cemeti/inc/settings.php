@@ -113,6 +113,7 @@ function cemeti_render_settings_page() {
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_create_pages' ), 'cemeti_create_pages' ) ); ?>"><?php echo esc_html__( 'Create missing pages', 'scriptmedia-cemeti' ); ?></a>
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_types' ), 'cemeti_fill_types' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: exhibitions without a type */ __( 'Set Solo/Group on exhibitions without a type (%d)', 'scriptmedia-cemeti' ), count( cemeti_exhibitions_without_type() ) ) ); ?></a>
 		</p>
+		<?php cemeti_render_page_pairs_box(); ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'cemeti_settings' ); ?>
 			<?php foreach ( $langs as $lang => $lang_label ) : ?>
