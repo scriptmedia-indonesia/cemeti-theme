@@ -18,6 +18,14 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.27
+
+- Final QA before hand-over: every page fixture at 14 screen sizes (320 to 2560 px, landscape phones) and touch tests on
+  iPhone, Pixel, iPad (both orientations), laptop and 2560 px profiles: no overflow, no clipped text, no tap target under
+  24 px, no missing alt, no script error, menu / search / contents links / accordion work. The sweep is now a permanent
+  script (`tests/browser/sweep.js`, run by `tests/run.sh`).
+- Tablets (768 to 1023 px) show archive cards three per row instead of two very large ones.
+
 ## 0.9.25
 
 - Contact Us is edited on the page itself, like About: **Pages → Contact Us** (and its Indonesian copy). The editor is the

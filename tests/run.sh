@@ -31,6 +31,9 @@ if [ "${1:-}" != "--no-browser" ]; then
     out=$(node tests/browser/browser-qa.js 2>&1); code=$?
     last=$(printf '%s' "$out" | grep 'checks passed' | tail -1)
     if [ $code -eq 0 ]; then ok "browser-qa: $last"; else bad "browser-qa: ${last:-crashed}"; printf '%s\n' "$out" | grep -E '^FAIL' | head -8 | sed 's/^/        /'; fi
+    out=$(node tests/browser/sweep.js 2>&1); code=$?
+    last=$(printf '%s' "$out" | head -1)
+    if [ $code -eq 0 ]; then ok "sweep: $last, no issues"; else bad "sweep: issues found"; printf '%s\n' "$out" | head -12 | sed 's/^/        /'; fi
   else
     echo "  skipped: Playwright is not installed (npm install, or NODE_PATH=\$(npm root -g))"
   fi

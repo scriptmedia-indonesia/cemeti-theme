@@ -34,6 +34,7 @@ docs/                  you are here
 | `language-admin.php` | tells the team what is missing for ID/EN (Polylang, language selector per menu) and explains each fixed page beside its editor |
 | `restructure.php` | splits an old post body into gallery / documentation / biographies / booklet / foreword (heading vocabulary is in `cemeti_restructure_heading_kind()`) |
 | `move-posts.php` | "Move to …" bulk action and box on the Posts screen (same conversion as the Converter, with the editor's choice) |
+| `tests/browser/sweep.js` | final-QA sweep: every page at 14 screen sizes (phone, tablet, laptop, 2560 px, landscape) plus touch tests of menu, search, contents links, accordion; part of `bash tests/run.sh` |
 | `contact.php` | the "Contact details" box on the Contact Us page (address, hours, email, phone, Google Maps link; empty = Settings → Cemeti) |
 | `pages.php` | creates the fixed pages (About, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
 | `core-bridge.php` | `cemeti_config()` loader + optional hand-over to Scriptmedia Core |
