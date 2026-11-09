@@ -208,7 +208,7 @@
 .cemeti-apply__notice--error { border-color: var(--c-salmon); }
 
 /* About and Support Us (Figma): the picture / lead text is 848 wide and centred; the rest keeps the reading column. */
-.cemeti-single--about .cemeti-single__hero { width: min(100%, 53rem); aspect-ratio: 848 / 602; object-fit: cover; margin-bottom: 2.5rem; }
+.cemeti-single--about .cemeti-single__hero, .cemeti-single--contact .cemeti-single__hero { width: min(100%, 53rem); aspect-ratio: 848 / 602; object-fit: cover; margin-bottom: 2.5rem; }
 /* Journal (Figma): the picture is 848 wide like About, the caption sits under it, indented from the left. */
 .cemeti-single__figure { width: min(100%, 53rem); margin: 0 auto 2.5rem; }
 .cemeti-single__figure .cemeti-single__hero { display: block; width: 100%; aspect-ratio: 848 / 602; object-fit: cover; margin: 0; }

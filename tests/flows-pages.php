@@ -123,6 +123,36 @@ ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@ceme
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
 
+/* ---- Contact Us is edited on the page itself (like About), with Settings as the fallback */
+$cp = $by_slug( 'contact-us' );
+ok( 'info@cemeti.art' === cemeti_contact_value( 'email', $cp ) && false !== strpos( cemeti_contact_value( 'address', $cp ), 'Panjaitan' ) && '' === cemeti_contact_value( 'phone', $cp ), 'contact: empty details use Settings (phone has none)' );
+CemetiWP::$caps = true;
+$_POST = array( 'cemeti_contact_nonce' => 'valid', 'cemeti_contact' => array( 'address' => "Jl. Baru 1\nYogyakarta", 'opening_hours' => "Selasa - Sabtu\n10:00", 'email' => 'halo@cemeti.art', 'phone' => '+62 274 371015', 'route_url' => 'https://maps.app.goo.gl/abc', ) );
+do_action( 'save_post_page', $cp );
+ok( "Jl. Baru 1\nYogyakarta" === cemeti_contact_value( 'address', $cp ) && 'halo@cemeti.art' === cemeti_contact_value( 'email', $cp ) && '+62 274 371015' === cemeti_contact_value( 'phone', $cp ), 'contact: details saved on the page win over Settings' );
+$_POST = array( 'cemeti_contact_nonce' => 'valid', 'cemeti_contact' => array( 'email' => 'not-an-email', 'route_url' => 'https://evil.example/x', 'address' => '', 'phone' => '<b>1</b>' ) );
+do_action( 'save_post_page', $cp );
+ok( 'info@cemeti.art' === cemeti_contact_value( 'email', $cp ) && '' === (string) get_post_meta( $cp, 'cemeti_contact_route_url', true ) && false !== strpos( cemeti_contact_value( 'address', $cp ), 'Panjaitan' ) && '1' === cemeti_contact_value( 'phone', $cp ), 'contact: bad email and non-Google-Maps link are dropped, empty = back to Settings, tags stripped' );
+$_POST = array( 'cemeti_contact' => array( 'email' => 'x@y.org' ) );
+do_action( 'save_post_page', $cp );
+ok( 'info@cemeti.art' === cemeti_contact_value( 'email', $cp ), 'contact: without the nonce nothing is saved' );
+$_POST = array( 'cemeti_contact_nonce' => 'valid', 'cemeti_contact' => array( 'phone' => '+62 274 371015', 'email' => 'halo@cemeti.art' ) );
+do_action( 'save_post_page', $cp );
+$_POST = array();
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $cp ) );
+ok( isset( CemetiWP::$meta_boxes['page']['cemeti_contact'] ), 'contact: the details box is on the Contact Us page' );
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $by_slug( 'about' ) ) );
+ok( ! isset( CemetiWP::$meta_boxes['page']['cemeti_contact'] ), 'contact: and only there' );
+$h = $render( 'contact-us', 'page-contact-us.php' );
+ok( false !== strpos( $h, 'halo@cemeti.art' ) && false !== strpos( $h, 'href="tel:+622743710' ) && false !== strpos( $h, '+62 274 371015' ), 'contact page: shows the details of the page, with a call link' );
+$att2 = CemetiWP::post( array( 'post_type' => 'attachment', 'post_title' => 'photo' ) );
+update_post_meta( $cp, '_thumbnail_id', $att2 );
+$h = $render( 'contact-us', 'page-contact-us.php' );
+ok( false !== strpos( $h, 'cemeti-single__hero' ), 'contact page: has the picture slot of About (featured image)' );
+delete_post_meta( $cp, '_thumbnail_id' );
+
 /* ---- a page called "tentang" (or marked in the editor) uses the About design in every language */
 qa_reset_data();
 do_action( 'after_switch_theme' );

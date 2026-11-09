@@ -39,6 +39,7 @@ $cemeti_includes = array(
 	'media',
 	'move-posts',
 	'translate',
+	'contact',
 	'applications',
 	'search',
 	'seo',

@@ -11,6 +11,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.25
+
+- Contact Us is edited on the page itself, like About: **Pages → Contact Us** (and its Indonesian copy). The editor is the
+  text, the Featured image (or a picture that opens the text) is the page picture at the same size as About, and a new
+  **"Contact details"** box holds the address, opening hours, email, phone / WhatsApp (call link) and the Google Maps
+  link per language. A detail left empty still uses Settings → Cemeti. Bad emails and non-Google-Maps links are dropped.
+
 ## 0.9.24
 
 - Full visual re-check (69 page fixtures x 13 screen sizes from 320 to 2560 px plus landscape phone, with screenshots of

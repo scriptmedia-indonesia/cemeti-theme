@@ -34,6 +34,7 @@ docs/                  you are here
 | `language-admin.php` | tells the team what is missing for ID/EN (Polylang, language selector per menu) and explains each fixed page beside its editor |
 | `restructure.php` | splits an old post body into gallery / documentation / biographies / booklet / foreword (heading vocabulary is in `cemeti_restructure_heading_kind()`) |
 | `move-posts.php` | "Move to …" bulk action and box on the Posts screen (same conversion as the Converter, with the editor's choice) |
+| `contact.php` | the "Contact details" box on the Contact Us page (address, hours, email, phone, Google Maps link; empty = Settings → Cemeti) |
 | `pages.php` | creates the fixed pages (About, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
 | `core-bridge.php` | `cemeti_config()` loader + optional hand-over to Scriptmedia Core |
 
@@ -152,6 +153,7 @@ PY
 |---|---|
 | The Indonesian page looks different from the English one | Page editor → "Cemeti page design" box: choose the same design (About, Open Archive, Support Us, Contact Us) on the Indonesian copy, or link it as a translation of the English page |
 | A menu has no language selector | Polylang must list the type under Languages → Settings → Custom post types; the theme registers them itself, the warning on the Dashboard / Settings → Cemeti names any that are missing |
+| Where do I edit Contact Us? | Pages → Contact Us (and its Indonesian copy): the editor = the text, Featured image = the picture (like About), box "Contact details" = address, hours, email, phone, Google Maps link; a detail left empty uses Settings → Cemeti |
 | About / Open Archive / Support Us / Contact Us give 404 | the page does not exist: Dashboard shows a "Create them" button, or Settings → Cemeti; with Polylang each language needs its own copy (the button makes both) |
 | A content type URL gives 404 | Settings → Permalinks → Save. The theme also flushes once per version (`cemeti_rewrite_version` option) |
 | "What's on" is empty | no entry is *current* today (check dates; the day is computed in the site timezone); the list is cached until content is saved |
