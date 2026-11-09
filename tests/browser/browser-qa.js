@@ -522,6 +522,17 @@ async function open( browser, name, width, height, extra = {} ) {
 			await lm.ctx.close();
 		}
 		{
+			// Thumbnails show the whole picture in an unchanged box.
+			const th = await open( browser, 'home', 1440, 900 );
+			const fits = await th.page.evaluate( () => [ '.cemeti-home__poster img' ].map( ( q ) => { const e = document.querySelector( q ); const r = e.getBoundingClientRect(); return [ getComputedStyle( e ).objectFit, Math.round( r.width / r.height * 100 ) / 100 ]; } ) );
+			ok( 'contain' === fits[ 0 ][ 0 ] && Math.abs( fits[ 0 ][ 1 ] - 0.8 ) < 0.02, `qa6: Home thumbnail shows the whole picture, box still 4:5 (${ fits[ 0 ] })` );
+			await th.ctx.close();
+			const cg = await open( browser, 'archive-exhibition', 1440, 900 );
+			const cf = await cg.page.evaluate( () => { const e = document.querySelector( '.cemeti-card__image' ); const r = e.getBoundingClientRect(); return [ getComputedStyle( e ).objectFit, Math.round( r.width ), Math.round( r.height ) ]; } );
+			ok( 'contain' === cf[ 0 ] && 308 === cf[ 1 ] && 386 === cf[ 2 ], `qa6: archive card picture whole, still 308 x 386 (${ cf })` );
+			await cg.ctx.close();
+		}
+		{
 			// iPhone: long links, tables and embeds in the text never widen the page; Back never breaks letter by letter.
 			for ( const w of [ 320, 390 ] ) {
 				const lc = await open( browser, 'single-open-call-longcontent', w, 800 );

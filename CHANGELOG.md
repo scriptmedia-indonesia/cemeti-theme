@@ -11,6 +11,12 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   translation and opens it; an existing translation is linked instead. Polylang's own "+" now also copies the Cemeti
   fields. The related-publications list is not copied (those are other entries).
 
+## 0.9.23
+
+- Thumbnails (Home posters, archive cards, related, Open Call poster, gallery grids) show the whole picture instead of a
+  cropped one: the box keeps its size (308 x 386 cards, 4:5 posters), the picture fits inside it and the free space is
+  the panel colour.
+
 ## 0.9.22
 
 - iPhone (Safari): a long web address, a wide table or an embed in the text of an Open Call (or any entry) stretched

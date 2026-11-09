@@ -62,7 +62,7 @@
 }
 .cemeti-home__section--residency .cemeti-home__item { grid-template-columns: minmax(7rem, 26rem) minmax(0, 1fr); gap: 1rem; }
 .cemeti-home__poster .cemeti-btn { margin-top: 0.75rem; max-width: 17rem; }
-.cemeti-home__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-home__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--c-panel); } /* whole poster, box unchanged */
 .cemeti-home__section--residency .cemeti-home__poster img { aspect-ratio: 5 / 4; }
 .cemeti-home__title { margin: 0; font-size: var(--fs-xl); font-weight: 500; line-height: 1.2; }
 .cemeti-home__title a { text-decoration: none; }
@@ -118,7 +118,7 @@
 .cemeti-toc-back a { color: var(--c-salmon); }
 .cemeti-photos { margin: 0; }
 .cemeti-photos__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.8125rem 1rem; max-width: var(--col); margin-inline: auto; }
-.cemeti-photos__grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.cemeti-photos__grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: contain; background: var(--c-panel); }
 .cemeti-photos figcaption { margin: 0.6rem 0 0; font-size: var(--fs-single-small); }
 /* Biography: 308 px square photo, 16 px gap, text 24 on 34; 80 px between artists. */
 .cemeti-bio { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; max-width: var(--col); margin: 0 auto clamp(2.5rem, 1.5rem + 3vw, 5rem); }
@@ -130,7 +130,7 @@
 .cemeti-related { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9375rem; }
 .cemeti-related li { padding: clamp(0.75rem, 0.5rem + 0.8vw, 1.25rem); }
 .cemeti-related a { display: flex; flex-direction: column; gap: 1rem; text-decoration: none; }
-.cemeti-related img { width: 100%; aspect-ratio: 331 / 260; object-fit: cover; }
+.cemeti-related img { width: 100%; aspect-ratio: 331 / 260; object-fit: contain; background: var(--c-panel); }
 .cemeti-related__label { display: block; color: var(--c-salmon); font-size: var(--fs-single-small); }
 .cemeti-related__title { display: block; font-size: var(--fs-single-card); font-weight: 500; line-height: 1.2; }
 .cemeti-related a:hover .cemeti-related__title { text-decoration: underline; }
@@ -147,7 +147,7 @@
 /* Figma: picture 416 x 520, text 848 wide 16 px to its right; title 48, text 24 (Medium); blue button 272 wide
    level with the bottom of the picture. */
 .cemeti-opencall { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem 1rem; align-items: stretch; }
-.cemeti-opencall__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.cemeti-opencall__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--c-panel); }
 .cemeti-opencall__text { display: flex; flex-direction: column; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-opencall__text .cemeti-single__title { max-width: none; margin: 0 0 0.83em; font-size: var(--fs-xl); }
 .cemeti-opencall__text .cemeti-single__body { max-width: none; margin-inline: 0; }
