@@ -193,6 +193,31 @@ function cemeti_register_strings() {
 add_action( 'init', 'cemeti_register_strings' );
 
 /**
+ * Where the language switch leads from an entry that is being read.
+ *
+ * @param string $lang     Target language slug.
+ * @param string $fallback Address Polylang offered.
+ * @return string
+ */
+function cemeti_switch_url_for_entry( $lang, $fallback ) {
+	$id = (int) get_queried_object_id();
+	if ( $id && function_exists( 'pll_get_post_translations' ) ) {
+		$translations = (array) pll_get_post_translations( $id );
+		$other        = isset( $translations[ $lang ] ) ? (int) $translations[ $lang ] : 0;
+		if ( $other && (int) $other !== $id && 'publish' === get_post_status( $other ) ) {
+			return (string) get_permalink( $other );
+		}
+	}
+	$type = $id ? get_post_type( $id ) : '';
+	$obj  = $type ? get_post_type_object( $type ) : null;
+	$slug = $obj && ! empty( $obj->has_archive ) ? ( is_string( $obj->has_archive ) ? $obj->has_archive : $type ) : '';
+	if ( '' !== $slug ) {
+		return trailingslashit( cemeti_home_url( $lang ) ) . trim( $slug, '/' ) . '/';
+	}
+	return $fallback;
+}
+
+/**
  * Items for the ID/EN switcher.
  * With Polylang each item links to the translation of the current page, or to
  * the target language home when no translation exists.
@@ -221,6 +246,11 @@ function cemeti_language_switcher_items() {
 						$linked = function_exists( 'pll_get_post' ) ? (int) pll_get_post( get_queried_object_id(), (string) $language['slug'] ) : 0;
 						$url    = $linked ? $url : (string) get_permalink( $other );
 					}
+				}
+				// An entry (exhibition, journal …): the translation when there is one, otherwise the same section in that language
+				// (never the other language's home page, and never a link back to the entry being read).
+				if ( empty( $language['current_lang'] ) && function_exists( 'is_singular' ) && is_singular() && ! is_page() ) {
+					$url = cemeti_switch_url_for_entry( (string) $language['slug'], $url );
 				}
 				$items[] = array(
 					'code'    => (string) $language['slug'],

@@ -206,6 +206,21 @@ $GLOBALS['post'] = CemetiWP::obj( $en_about );
 $sw = cemeti_language_switcher_items();
 $id_item = array_values( array_filter( $sw, static function ( $i ) { return 'id' === $i['code']; } ) )[0];
 ok( false !== strpos( $id_item['url'], 'tentang' ) && false === strpos( $id_item['url'], 'halaman' ), 'switch: on the unlinked English About, ID leads to the Indonesian "Tentang" (not the home page) (' . $id_item['url'] . ')' );
+// an entry (exhibition): its translation when linked, otherwise the same section of the other language
+$ex = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Switch me', 'post_name' => 'switch-me' ) );
+$GLOBALS['pll']['lang'][ $ex ] = 'en';
+CemetiWP::request( '/exhibition/switch-me/', array( 'singular' => true ) );
+$GLOBALS['post'] = CemetiWP::obj( $ex );
+$GLOBALS['pll']['current'] = 'en';
+$sw = cemeti_language_switcher_items();
+$to_id = array_values( array_filter( $sw, static function ( $i ) { return 'id' === $i['code']; } ) )[0];
+ok( false !== strpos( $to_id['url'], '/exhibition/' ) && false === strpos( $to_id['url'], 'switch-me' ) && $to_id['url'] !== cemeti_home_url( 'id' ), 'switch on an entry without translation: leads to the Exhibition section of that language (' . $to_id['url'] . ')' );
+$ex_id = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Ganti', 'post_name' => 'ganti' ) );
+$GLOBALS['pll']['lang'][ $ex_id ] = 'id';
+$GLOBALS['pll']['groups'][] = array( 'en' => $ex, 'id' => $ex_id );
+$sw = cemeti_language_switcher_items();
+$to_id = array_values( array_filter( $sw, static function ( $i ) { return 'id' === $i['code']; } ) )[0];
+ok( get_permalink( $ex_id ) === $to_id['url'], 'switch on an entry with a translation: opens that translation' );
 // ... and the table of fixed pages links what the team chooses
 CemetiWP::$caps = true;
 $_POST = array( '_wpnonce' => 'valid', 'cemeti_pair' => array( 'about' => array( 'en' => $en_about, 'id' => $tentang_real ), 'contact-us' => array( 'id' => $contact_id ) ) );

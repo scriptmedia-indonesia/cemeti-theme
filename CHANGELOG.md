@@ -18,6 +18,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.36
+
+- Language switch (EN/ID) on an **entry** (exhibition, residency, journal …) sent the reader back to a home page or to the
+  version they came from. It now opens the entry's **translation** when one is linked, otherwise **the same section in the
+  other language** (for example the Indonesian Exhibition list). Create the translation with the box "Cemeti: translation"
+  in the entry's editor.
+
 ## 0.9.35
 
 - **The Indonesian About / Open Archive / Support Us / Contact Us still opened the English pages** (the "Where the overlay
