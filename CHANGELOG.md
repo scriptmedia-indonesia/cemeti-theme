@@ -18,6 +18,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.34
+
+- **Fixed pages table: the ID dropdown went back to "— none —" after Save and the overlay menu stayed on English.** The
+  chosen Indonesian page was linked as a translation but kept no language (or the wrong one), so it was invisible to the
+  ID dropdown, the menu and the language switch. Saving now **gives each chosen page the language of its column**, and the
+  dropdowns also offer pages that have no language yet (never the other language's pages).
+
 ## 0.9.33
 
 - Overlay menu in the Indonesian version led to English pages. Menu addresses are now always built from the **language's own

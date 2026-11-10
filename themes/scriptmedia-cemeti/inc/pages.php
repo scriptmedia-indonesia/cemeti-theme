@@ -500,9 +500,14 @@ function cemeti_pair_pages( $key, array $by_lang ) {
 	if ( ! array_key_exists( $key, cemeti_default_pages() ) ) {
 		return false;
 	}
-	foreach ( $by_lang as $page_id ) {
+	foreach ( $by_lang as $lang => $page_id ) {
 		if ( 'page' === get_post_type( $page_id ) ) {
 			update_post_meta( $page_id, '_cemeti_page_key', $key );
+			// The language chosen in the table is the page's language: a page that had none (or another one) would otherwise
+			// be linked but never found for that language, and the menu / language switch would not use it.
+			if ( function_exists( 'pll_set_post_language' ) && is_string( $lang ) ) {
+				pll_set_post_language( $page_id, $lang );
+			}
 		}
 	}
 	if ( count( $by_lang ) > 1 && function_exists( 'pll_save_post_translations' ) ) {
@@ -562,7 +567,14 @@ function cemeti_render_page_pairs_box() {
 		echo '<tr><td><strong>' . esc_html( $page['title'] ) . '</strong></td>';
 		foreach ( $languages as $lang ) {
 			$current[ $lang ] = cemeti_find_page( $key, $lang );
-			$choices          = get_posts( array( 'post_type' => 'page', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC', 'suppress_filters' => false, 'lang' => $lang ) ); // phpcs:ignore WordPressVIPMinimum
+			// Pages of this language and pages without a language (they are given this one when saved); never the other language's.
+			$choices = array_filter(
+				get_posts( array( 'post_type' => 'page', 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'posts_per_page' => -1, 'orderby' => 'title', 'order' => 'ASC', 'suppress_filters' => false, 'lang' => '' ) ), // phpcs:ignore WordPressVIPMinimum
+				static function ( $candidate ) use ( $lang ) {
+					$own = function_exists( 'pll_get_post_language' ) ? (string) pll_get_post_language( $candidate->ID ) : '';
+					return '' === $own || cemeti_lang_code( $own ) === $lang;
+				}
+			);
 			echo '<td><select name="cemeti_pair[' . esc_attr( $key ) . '][' . esc_attr( $lang ) . ']"><option value="0">' . esc_html__( '— none —', 'scriptmedia-cemeti' ) . '</option>';
 			foreach ( $choices as $choice ) {
 				printf( '<option value="%d"%s>%s (#%d)</option>', (int) $choice->ID, selected( (int) $choice->ID, $current[ $lang ], false ), esc_html( get_the_title( $choice ) ), (int) $choice->ID );

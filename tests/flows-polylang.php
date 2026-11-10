@@ -209,6 +209,16 @@ ok( isset( $q['cemeti_pairs_saved'] ) && 1 === (int) $q['cemeti_pairs_saved'] &&
 ok( 'about' === get_post_meta( $tentang_real, '_cemeti_page_key', true ), 'fixed pages table: the chosen page is remembered as About (its design and menu link)' );
 ob_start(); cemeti_render_page_pairs_box(); $box = ob_get_clean();
 ok( false !== strpos( $box, 'cemeti_pair[about][en]' ) && false !== strpos( $box, 'Tentang' ) && false !== strpos( $box, 'Save and link' ), 'fixed pages table: shown in Settings with a dropdown per language' );
+// a chosen page that has no language yet is given the column's language, and the dropdown still shows it afterwards
+unset( $GLOBALS['pll']['lang'][ $tentang_real ] );
+$GLOBALS['pll']['groups'] = array();
+ob_start(); cemeti_render_page_pairs_box(); $box = ob_get_clean();
+ok( 1 === preg_match( '/name="cemeti_pair\[about\]\[id\]">.*?value="' . $tentang_real . '"/s', $box ), 'fixed pages table: a page without a language is offered in the ID dropdown' );
+$_POST = array( '_wpnonce' => 'valid', 'cemeti_pair' => array( 'about' => array( 'en' => $en_about, 'id' => $tentang_real ) ) );
+try { do_action( 'admin_post_cemeti_save_page_pairs' ); } catch ( CemetiRedirect $e ) {}
+ok( 'id' === ( $GLOBALS['pll']['lang'][ $tentang_real ] ?? '' ) && $tentang_real === cemeti_find_page( 'about', 'id' ), 'fixed pages table: saving gives the page the column\'s language, so it is found for the menu' );
+ob_start(); cemeti_render_page_pairs_box(); $box = ob_get_clean();
+ok( 1 === preg_match( '/name="cemeti_pair\[about\]\[id\]">.*?value="' . $tentang_real . '" selected/s', $box ), 'fixed pages table: after saving the ID dropdown shows the chosen page, not "none"' );
 CemetiWP::$caps = false;
 $_POST = array( 'cemeti_pair' => array() );
 try { do_action( 'admin_post_cemeti_save_page_pairs' ); ok( false, 'fixed pages table: refused for non-administrators' ); } catch ( CemetiDie $e ) { ok( true, 'fixed pages table: refused for non-administrators' ); }
