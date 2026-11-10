@@ -18,6 +18,14 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.33
+
+- Overlay menu in the Indonesian version led to English pages. Menu addresses are now always built from the **language's own
+  home address** (never from the request), and the fixed pages fall back to it only when no page of that language exists.
+  **Settings → Cemeti → "Where the overlay menu links go (per language)"** lists, for EN and ID, the address every menu
+  entry opens, so a wrong one can be seen at once (an ID entry showing an English page means that ID page is not found:
+  choose it in the "Fixed pages in both languages" table above and press Save and link).
+
 ## 0.9.32
 
 - **"Convert to blocks" (WordPress) does not move pictures into Documentation / Gallery.** It only changes the text's

@@ -584,4 +584,18 @@ function cemeti_render_page_pairs_box() {
 	echo '</tbody></table>';
 	submit_button( __( 'Save and link', 'scriptmedia-cemeti' ), 'secondary', 'submit', true );
 	echo '</form>';
+	echo '<details style="margin:1em 0"><summary>' . esc_html__( 'Where the overlay menu links go (per language)', 'scriptmedia-cemeti' ) . '</summary>';
+	foreach ( $languages as $lang ) {
+		echo '<h4>' . esc_html( strtoupper( $lang ) ) . '</h4><ul>';
+		foreach ( cemeti_default_menu() as $column ) {
+			foreach ( $column as $group ) {
+				foreach ( $group['items'] as $item ) {
+					$url = cemeti_menu_url( $item['path'], $lang );
+					echo '<li>' . esc_html( $item['label'] ) . ' → <code>' . esc_html( $url ) . '</code></li>';
+				}
+			}
+		}
+		echo '</ul>';
+	}
+	echo '</details>';
 }

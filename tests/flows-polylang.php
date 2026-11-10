@@ -139,6 +139,7 @@ ok( false !== strpos( cemeti_menu_url( 'about' ), '/tentang' ) && false !== strp
 ok( false !== strpos( cemeti_menu_url( 'support-us' ), 'support-us' ) && false !== strpos( cemeti_menu_url( 'exhibition' ), 'exhibition' ), 'menu: pages that keep their slug and program paths still link normally' );
 $GLOBALS['pll']['current'] = 'en';
 ok( false !== strpos( cemeti_menu_url( 'about' ), '/about' ), 'menu: the English About link is unchanged' );
+ok( 0 === strpos( cemeti_menu_url( 'exhibition', 'en' ), 'http://cemeti.test/en/' ) && 0 === strpos( cemeti_menu_url( 'residency', 'id' ), 'http://cemeti.test/residency' ), 'menu: a language can be asked for explicitly, whatever the request language is' );
 CemetiWP::$posts[ $about_id ]['post_name'] = 'about';
 CemetiWP::$posts[ $contact_id ]['post_name'] = 'contact-us';
 

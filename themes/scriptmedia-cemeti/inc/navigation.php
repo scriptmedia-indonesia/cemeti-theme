@@ -78,19 +78,23 @@ function cemeti_default_menu() {
  * built from the English slug would lead to a 404 there. Other entries are plain program paths.
  *
  * @param string $path Menu path such as "about" or "exhibition/?type=solo".
+ * @param string $lang Language slug; the language being viewed when empty.
  * @return string
  */
-function cemeti_menu_url( $path ) {
+function cemeti_menu_url( $path, $lang = '' ) {
 	$slug  = trim( $path, '/' );
 	$pages = cemeti_default_pages();
-	if ( ! isset( $pages[ $slug ] ) ) {
-		return cemeti_url( $path );
+	if ( '' === $lang ) {
+		$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
 	}
-	$lang = function_exists( 'pll_current_language' ) ? (string) pll_current_language() : '';
-	$id = 0;
 	if ( '' === $lang ) {
 		$lang = cemeti_default_lang();
 	}
+	if ( ! isset( $pages[ $slug ] ) ) {
+		// Always built from the language's own home address, never from whatever the request happens to be.
+		return trailingslashit( cemeti_home_url( $lang ) ) . ltrim( $path, '/' );
+	}
+	$id = 0;
 	$candidates = array( $slug );
 	foreach ( cemeti_page_slug_aliases() as $alias => $key ) {
 		if ( $key === $slug ) {
@@ -108,7 +112,7 @@ function cemeti_menu_url( $path ) {
 		$english = cemeti_find_page( $slug, cemeti_default_lang() );
 		$id      = $english ? (int) pll_get_post( $english, $lang ) : 0;
 	}
-	return $id ? (string) get_permalink( $id ) : cemeti_url( $path );
+	return $id ? (string) get_permalink( $id ) : trailingslashit( cemeti_home_url( $lang ) ) . ltrim( $path, '/' );
 }
 
 /**
