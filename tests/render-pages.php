@@ -116,6 +116,12 @@ $box = ob_get_clean();
 $css = file_get_contents( dirname( __DIR__ ) . '/themes/scriptmedia-cemeti/assets/css/admin.css' );
 file_put_contents( "$out/admin-exhibition.html", '<!doctype html><html lang="en"><meta charset="utf-8"><title>Edit exhibition</title><style>body{font:13px sans-serif;margin:20px}' . $css . '</style><body><h1>Edit</h1><form id="post" onsubmit="return false"><h2>Details</h2>' . $box . '</form><script src="../../tests/browser/admin-stub.js"></script><script src="../../themes/scriptmedia-cemeti/assets/js/admin-fields.js"></script></body></html>' );
 
+// ---- Media repair panel with its runner (the browser test answers admin-ajax itself)
+ob_start();
+cemeti_media_panel();
+$panel = str_replace( 'id="cemeti-media-runner"', 'id="cemeti-media-runner" data-pause="20" data-retries="3"', ob_get_clean() );
+file_put_contents( "$out/admin-media.html", '<!doctype html><html lang="en"><meta charset="utf-8"><title>Media</title><style>body{font:13px sans-serif;margin:20px}.notice{padding:6px 10px;border-left:4px solid #72aee6;background:#fff}.notice[hidden]{display:none}</style><body>' . $panel . '<script src="../../themes/scriptmedia-cemeti/assets/js/admin-media.js"></script></body></html>' );
+
 page( 'single-public-program', 'single.php', array( 'singular' => true ), array( 'post' => $ids['pp_past'], 'path' => '/public-program/x/' ) );
 page( 'single-open-studio', 'single.php', array( 'singular' => true ), array( 'post' => $ids['os_current'], 'path' => '/open-studio/x/' ) );
 page( 'single-residency', 'single.php', array( 'singular' => true ), array( 'post' => $ids['res_current'], 'path' => '/residency/x/' ) );

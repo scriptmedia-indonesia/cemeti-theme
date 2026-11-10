@@ -18,6 +18,16 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.31
+
+- **"2. Fix posts" stopped and showed the root site's "Halaman tidak dapat ditemukan" (404) page.** The tool moved from one
+  page load to the next with automatic redirects; when the server (or its firewall) answered one of them with an error page,
+  the whole chain was cut. Now the buttons in Tools → Cemeti Converter → "0. Media" run **inside the page** (admin-ajax,
+  `assets/js/admin-media.js`): the page stays open and shows progress; if the server answers with an error (404, 5xx,
+  a firewall page) it **waits and tries again** (up to 6 times, longer each time) and only then stops with a clear message.
+  Progress is saved on the server after every step, so pressing the same button again continues where it stopped.
+  A **Stop** button was added. Without JavaScript the old links still work.
+
 ## 0.9.30
 
 - Indonesian pages made in Pages did not show / were not linked to the English ones. Two safety nets:

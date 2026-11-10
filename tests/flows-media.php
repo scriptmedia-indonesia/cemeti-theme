@@ -146,4 +146,26 @@ ok( $att === (int) get_post_thumbnail_id( $card ), 'cards: the fallback picture 
 $card2 = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Card2', 'post_content' => '<img src="https://cemeti.art/wp-content/uploads/2021/06/unknown-file.jpg" class="wp-image-' . $other . '">' ) );
 ok( ! get_post_thumbnail_id( $card2 ), 'cards: an old number that belongs to another file gives no picture instead of a wrong one' );
 
+/* ---- the page's own runner (admin-ajax) */
+function qa_ajax( $post ) {
+	$_POST = $_REQUEST = $post;
+	try { cemeti_media_ajax(); } catch ( CemetiJson $e ) { return $e; } catch ( CemetiDie $e ) { return $e; }
+	return null;
+}
+$r = qa_ajax( array( 'phase' => 'files' ) );
+ok( $r instanceof CemetiDie, 'ajax: a request without the nonce is refused' );
+CemetiWP::$caps = false;
+$r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'files' ) );
+ok( $r instanceof CemetiJson && 403 === $r->status && ! $r->payload['success'], 'ajax: a user who may not manage options gets 403' );
+CemetiWP::$caps = true;
+delete_option( 'cemeti_media_report' );
+$r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'files' ) );
+ok( $r instanceof CemetiJson && $r->payload['success'] && isset( $r->payload['data']['remaining'], $r->payload['data']['report']['ok'] ) && false === $r->payload['data']['stopped'], 'ajax: a step answers with remaining and the report' );
+$r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'posts', 'fresh' => '1' ) );
+ok( 0 === $r->payload['data']['remaining'] && 'posts' === $r->payload['data']['phase'], 'ajax: the posts step runs and reports nothing left' );
+$r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'reset' ) );
+ok( 'done' === $r->payload['data']['phase'] && 0 === cemeti_media_report()['posts'], 'ajax: start over clears the report' );
+$r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'nonsense' ) );
+ok( 'files' === $r->payload['data']['phase'], 'ajax: an unknown phase falls back to restoring files' );
+
 qa_done();

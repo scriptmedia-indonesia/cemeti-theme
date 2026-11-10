@@ -591,14 +591,14 @@ function cemeti_media_finish_step( array $report, $remaining ) {
 }
 
 /**
- * Handler of the buttons: one step, then back to the page (which continues by itself while items remain).
+ * Prepare a phase: "retry" forgets the failed files, "reset" forgets everything checked, "posts" with $fresh looks again at
+ * the posts that still have missing pictures.
+ *
+ * @param string $phase 'files', 'posts', 'retry' or 'reset'.
+ * @param bool   $fresh Pressing the button anew (not a continuation).
+ * @return string The phase to run: 'files', 'posts', or 'done' when it was only a reset.
  */
-function cemeti_media_run() {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'Not allowed.', 'scriptmedia-cemeti' ) );
-	}
-	check_admin_referer( 'cemeti_media_run' );
-	$phase = isset( $_GET['phase'] ) ? sanitize_key( wp_unslash( $_GET['phase'] ) ) : 'files'; // phpcs:ignore WordPress.Security.NonceVerification
+function cemeti_media_prepare( $phase, $fresh = false ) {
 	if ( 'reset' === $phase || 'retry' === $phase ) {
 		$batch = new WP_Query(
 			array(
@@ -620,22 +620,60 @@ function cemeti_media_run() {
 			}
 		}
 		delete_option( 'cemeti_media_report' );
-		wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => 'reset' ), admin_url( 'tools.php' ) ) );
-		exit;
+		return 'done';
 	}
 	$phase = 'posts' === $phase ? 'posts' : 'files';
-	if ( 'posts' === $phase && ! empty( $_GET['fresh'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-		// Pressing the button again looks at the posts that still have missing pictures once more.
+	if ( 'posts' === $phase && $fresh ) {
 		$again = new WP_Query( array( 'post_type' => cemeti_media_post_types(), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_media_missing' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		foreach ( $again->posts as $id ) {
 			delete_post_meta( (int) $id, '_cemeti_media_post' );
 		}
 	}
-	$remaining = cemeti_media_step( $phase );
-	wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => $phase, 'media_left' => (int) $remaining ), admin_url( 'tools.php' ) ) );
+	return $phase;
+}
+
+/**
+ * Handler of the buttons without JavaScript: one step, then back to the page (which continues by itself while items remain).
+ */
+function cemeti_media_run() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'Not allowed.', 'scriptmedia-cemeti' ) );
+	}
+	check_admin_referer( 'cemeti_media_run' );
+	$phase = isset( $_GET['phase'] ) ? sanitize_key( wp_unslash( $_GET['phase'] ) ) : 'files'; // phpcs:ignore WordPress.Security.NonceVerification
+	$run   = cemeti_media_prepare( $phase, ! empty( $_GET['fresh'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+	if ( 'done' === $run ) {
+		wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => 'reset' ), admin_url( 'tools.php' ) ) );
+		exit;
+	}
+	$remaining = cemeti_media_step( $run );
+	wp_safe_redirect( add_query_arg( array( 'page' => 'cemeti-converter', 'media' => $run, 'media_left' => (int) $remaining ), admin_url( 'tools.php' ) ) );
 	exit;
 }
 add_action( 'admin_post_cemeti_media_run', 'cemeti_media_run' );
+
+/**
+ * One step for the page's own runner (admin-ajax): the page stays open, shows progress and retries by itself when the
+ * server answers with an error, instead of walking through a chain of redirects that a host can cut anywhere.
+ */
+function cemeti_media_ajax() {
+	check_ajax_referer( 'cemeti_media_run', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Not allowed.' ), 403 );
+	}
+	$phase = isset( $_POST['phase'] ) ? sanitize_key( wp_unslash( $_POST['phase'] ) ) : 'files'; // phpcs:ignore WordPress.Security.NonceVerification
+	$run   = cemeti_media_prepare( $phase, ! empty( $_POST['fresh'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+	$left  = 'done' === $run ? 0 : cemeti_media_step( $run );
+	wp_send_json_success(
+		array(
+			'phase'     => $run,
+			'remaining' => (int) $left,
+			'stopped'   => $left < 0,
+			'report'    => cemeti_media_report(),
+		)
+	);
+}
+add_action( 'wp_ajax_cemeti_media_step', 'cemeti_media_ajax' );
 
 /**
  * The "0. Media" block of the converter page.
@@ -687,11 +725,29 @@ function cemeti_media_panel() {
 			<?php endforeach; ?>
 		</ul>
 	<?php endif; ?>
-	<p>
-		<a class="button button-primary" href="<?php echo esc_url( $url( 'files' ) ); ?>">1. Restore files</a>
-		<a class="button button-primary" href="<?php echo esc_url( $url( 'posts' ) . '&fresh=1' ); ?>">2. Fix posts</a>
-		<a class="button" href="<?php echo esc_url( $url( 'retry' ) ); ?>">Retry the failed files</a>
-		<a class="button" href="<?php echo esc_url( $url( 'reset' ) ); ?>" onclick="return confirm('Forget what was checked and start again?');">Start over</a>
-	</p>
+	<div id="cemeti-media-runner" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'cemeti_media_run' ) ); ?>">
+		<p class="cemeti-media-status notice inline" hidden></p>
+		<p>
+			<a class="button button-primary" data-phase="files" href="<?php echo esc_url( $url( 'files' ) ); ?>">1. Restore files</a>
+			<a class="button button-primary" data-phase="posts" href="<?php echo esc_url( $url( 'posts' ) . '&fresh=1' ); ?>">2. Fix posts</a>
+			<a class="button" data-phase="retry" href="<?php echo esc_url( $url( 'retry' ) ); ?>">Retry the failed files</a>
+			<a class="button" data-phase="reset" href="<?php echo esc_url( $url( 'reset' ) ); ?>">Start over</a>
+			<button type="button" class="button cemeti-media-stop" hidden>Stop</button>
+		</p>
+	</div>
 	<?php
 }
+
+/**
+ * Load the runner on the converter page only.
+ *
+ * @param string $hook Admin page hook.
+ */
+function cemeti_media_admin_assets( $hook ) {
+	if ( 'tools_page_cemeti-converter' !== $hook ) {
+		return;
+	}
+	$rel = 'assets/js/admin-media.js';
+	wp_enqueue_script( 'cemeti-admin-media', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), true );
+}
+add_action( 'admin_enqueue_scripts', 'cemeti_media_admin_assets' );

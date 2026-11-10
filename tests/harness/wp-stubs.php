@@ -577,6 +577,25 @@ function wp_nonce_field( $action = -1, $name = '_wpnonce', $referer = true, $ech
 function wp_nonce_url( $url, $action = -1 ) {
 	return add_query_arg( '_wpnonce', 'valid', $url );
 }
+function wp_create_nonce( $action = -1 ) {
+	return 'valid';
+}
+class CemetiJson extends Exception {
+	public $payload;
+	public $status;
+}
+function wp_send_json_success( $data = null, $status = 200 ) {
+	$e = new CemetiJson( 'json' ); $e->payload = array( 'success' => true, 'data' => $data ); $e->status = $status; throw $e;
+}
+function wp_send_json_error( $data = null, $status = 400 ) {
+	$e = new CemetiJson( 'json' ); $e->payload = array( 'success' => false, 'data' => $data ); $e->status = $status; throw $e;
+}
+function check_ajax_referer( $action = -1, $key = false ) {
+	if ( ! isset( $_REQUEST[ $key ?: '_wpnonce' ] ) || 'valid' !== $_REQUEST[ $key ?: '_wpnonce' ] ) {
+		throw new CemetiDie( 'bad nonce' );
+	}
+	return 1;
+}
 function wp_verify_nonce( $nonce, $action = -1 ) {
 	return 'valid' === $nonce ? 1 : false;
 }

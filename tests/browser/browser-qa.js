@@ -366,6 +366,34 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 7e2. Media repair runner: survives a 404 page in the middle of the run. */
+	{
+		const { page, ctx } = await open( browser, 'admin-media', 1000, 700 );
+		const plan = [ 'ok:3', 'html404', 'html404', 'ok:2', 'ok:0' ];
+		let calls = 0;
+		const bodies = [];
+		await page.route( '**/admin-ajax.php', async ( route ) => {
+			bodies.push( route.request().postData() );
+			const step = plan[ Math.min( calls++, plan.length - 1 ) ];
+			if ( step === 'html404' ) {
+				return route.fulfill( { status: 404, contentType: 'text/html', body: '<html>Halaman tidak dapat ditemukan</html>' } );
+			}
+			const left = parseInt( step.split( ':' )[ 1 ], 10 );
+			return route.fulfill( { status: 200, contentType: 'application/json', body: JSON.stringify( { success: true, data: { phase: 'posts', remaining: left, stopped: false, report: { ok: 1, restored: 2, failed: 0, posts: 5, created: 4, thumbs: 3, errors: [] } } } ) } );
+		} );
+		const before = page.url();
+		await page.locator( '[data-phase="posts"]' ).click();
+		await page.waitForFunction( () => /finished/.test( document.querySelector( '.cemeti-media-status' ).textContent ), null, { timeout: 8000 } );
+		ok( calls === 5 && page.url() === before, 'media runner: a 404 page in the middle is retried and the run finishes without leaving the page (' + calls + ' calls)' );
+		ok( bodies[ 0 ].includes( 'fresh=1' ) && ! bodies[ 1 ].includes( 'fresh' ) && bodies[ 0 ].includes( 'nonce=valid' ), 'media runner: only the first call asks for a fresh start' );
+		ok( await page.locator( '.cemeti-media-stop' ).isHidden() && ! ( await page.locator( '[data-phase="posts"]' ).getAttribute( 'class' ) ).includes( 'disabled' ), 'media runner: buttons are usable again after the run' );
+		calls = 0; plan.splice( 0, plan.length, 'html404' );
+		await page.locator( '[data-phase="files"]' ).click();
+		await page.waitForFunction( () => /keeps answering/.test( document.querySelector( '.cemeti-media-status' ).textContent ), null, { timeout: 8000 } );
+		ok( calls === 4 && /press the same button again/.test( await page.locator( '.cemeti-media-status' ).textContent() ), 'media runner: after repeated errors it stops and says how to continue (' + calls + ' calls)' );
+		await ctx.close();
+	}
+
 	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
 	{
 		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );
