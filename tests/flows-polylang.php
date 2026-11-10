@@ -143,6 +143,12 @@ ok( 0 === strpos( cemeti_menu_url( 'exhibition', 'en' ), 'http://cemeti.test/en/
 CemetiWP::$posts[ $about_id ]['post_name'] = 'about';
 CemetiWP::$posts[ $contact_id ]['post_name'] = 'contact-us';
 
+// Polylang allows the same slug in both languages: the Indonesian "about" must not be answered with the English one
+$GLOBALS['pll']['current'] = 'en';
+$en_a = $by( 'about', 'en' ); $id_a = $by( 'about', 'id' );
+ok( $en_a && $id_a && $en_a === cemeti_find_page( 'about', 'en' ) && $id_a === cemeti_find_page( 'about', 'id' ), 'find page: the same slug in two languages gives each its own page' );
+ok( get_permalink( $id_a ) === cemeti_menu_url( 'about', 'id' ) && get_permalink( $en_a ) === cemeti_menu_url( 'about', 'en' ), 'menu: asking for ID gives the Indonesian page even while the request is English' );
+
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
 	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {

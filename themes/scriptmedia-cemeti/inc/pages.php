@@ -95,22 +95,31 @@ function cemeti_find_page( $slug, $lang ) {
 		'fields'           => 'ids',
 		'no_found_rows'    => true,
 		'suppress_filters' => false,
+		'posts_per_page'   => -1,
+		'orderby'          => 'ID',
+		'order'            => 'ASC',
 	);
 	if ( function_exists( 'pll_languages_list' ) ) {
-		$base['lang'] = $lang;
+		// Ask for every language and check the language of each page ourselves: Polylang's own "lang" filter is not applied
+		// everywhere (the admin screens), and then the English page would be returned for the Indonesian one.
+		$base['lang'] = '';
 	}
-	$found = get_posts( array_merge( $base, array( 'name' => $slug, 'posts_per_page' => 1 ) ) );
-	if ( $found ) {
-		return (int) ( is_object( $found[0] ) ? $found[0]->ID : $found[0] );
+	$in_lang = static function ( $page_id ) use ( $lang ) {
+		return cemeti_page_in_lang( (int) ( is_object( $page_id ) ? $page_id->ID : $page_id ), $lang );
+	};
+	foreach ( get_posts( array_merge( $base, array( 'name' => $slug ) ) ) as $found ) {
+		if ( $in_lang( $found ) ) {
+			return (int) ( is_object( $found ) ? $found->ID : $found );
+		}
 	}
 	if ( ! array_key_exists( $slug, cemeti_default_pages() ) ) {
 		return 0; // A row of Support Us: found by its slug only.
 	}
 	$best     = 0;
 	$best_len = -1;
-	foreach ( get_posts( array_merge( $base, array( 'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC' ) ) ) as $candidate ) {
+	foreach ( get_posts( $base ) as $candidate ) {
 		$candidate = (int) ( is_object( $candidate ) ? $candidate->ID : $candidate );
-		if ( cemeti_page_key( $candidate ) !== $slug ) {
+		if ( ! $in_lang( $candidate ) || cemeti_page_key( $candidate ) !== $slug ) {
 			continue;
 		}
 		$len = strlen( trim( wp_strip_all_tags( (string) get_post_field( 'post_content', $candidate ) ) ) );
@@ -120,6 +129,21 @@ function cemeti_find_page( $slug, $lang ) {
 		}
 	}
 	return $best;
+}
+
+/**
+ * Is this page of the language? Without Polylang every page is. A page that has no language yet counts as the default one.
+ *
+ * @param int    $page_id Page ID.
+ * @param string $lang    Language slug.
+ * @return bool
+ */
+function cemeti_page_in_lang( $page_id, $lang ) {
+	if ( ! function_exists( 'pll_get_post_language' ) ) {
+		return true;
+	}
+	$own = (string) pll_get_post_language( $page_id );
+	return '' === $own ? cemeti_lang_code( $lang ) === cemeti_default_lang() : cemeti_lang_code( $own ) === cemeti_lang_code( $lang );
 }
 
 /**

@@ -88,6 +88,7 @@ mutate "split: headings inside block groups ignored"  $T/inc/restructure.php "if
 mutate "split: long text in picture sections dropped" $T/inc/restructure.php "} elseif ( ! \$ids && '' !== trim( \$node->textContent ) ) {" "} elseif ( false ) {" flows-restructure
 mutate "split: editor button overwrites typed fields" $T/inc/restructure.php "if ( \$only_empty && ! cemeti_field_is_empty" "if ( false && ! cemeti_field_is_empty" flows-reconvert
 mutate "pages: chosen page not given its language"   $T/inc/pages.php "if ( function_exists( 'pll_set_post_language' ) && is_string( \$lang ) ) {" "if ( false ) {" flows-polylang
+mutate "pages: page language not checked"           $T/inc/pages.php "return '' === \$own ? cemeti_lang_code( \$lang ) === cemeti_default_lang() : cemeti_lang_code( \$own ) === cemeti_lang_code( \$lang );" "return true;" flows-polylang
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

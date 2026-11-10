@@ -12,6 +12,7 @@ function pll__( $s ) { return $s; }
 function pll_register_string() {}
 function pll_the_languages() { $c = $GLOBALS['pll']['current']; return array( 'en' => array( 'slug' => 'en', 'url' => 'http://cemeti.test/', 'current_lang' => 'en' === $c ), 'id' => array( 'slug' => 'id', 'url' => 'http://cemeti.test/id/', 'current_lang' => 'id' === $c ) ); }
 function pll_set_post_language( $id, $lang ) { $GLOBALS['pll']['lang'][ $id ] = $lang; }
+function pll_get_post_language( $id ) { return $GLOBALS['pll']['lang'][ $id ] ?? ''; }
 function pll_save_post_translations( $arr ) { $GLOBALS['pll']['groups'][] = $arr; }
 function pll_get_post_translations( $id ) { foreach ( $GLOBALS['pll']['groups'] as $g ) { if ( in_array( $id, $g, true ) ) { return $g; } } return array(); }
 function pll_get_post( $id, $lang ) { foreach ( $GLOBALS['pll']['groups'] as $g ) { if ( in_array( $id, $g, true ) && isset( $g[ $lang ] ) ) { return $g[ $lang ]; } } return 0; }
