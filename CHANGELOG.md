@@ -18,6 +18,16 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.32
+
+- **"Convert to blocks" (WordPress) does not move pictures into Documentation / Gallery.** It only changes the text's
+  format. New box **"Cemeti: split the old text"** (right column of Exhibition, Residency, Public Program, Open Studio):
+  **Split the text into the fields** does for this one entry what the Converter does for all: pictures under "Foto Karya /
+  Galeri" → Gallery, "Dokumentasi" → Documentation, "Biografi" → Biographies, PDF link → Booklet; old Daftar Isi / language
+  links / "Terbitan Terkait" are dropped. Fields that already have content are never overwritten. **Undo** brings the exact
+  original text back and removes only what the split wrote. Pictures not in the Media Library stay in the text (run
+  Tools → Cemeti Converter → "0. Media" first). Save the entry before pressing it.
+
 ## 0.9.31
 
 - **"2. Fix posts" stopped and showed the root site's "Halaman tidak dapat ditemukan" (404) page.** The tool moved from one

@@ -86,6 +86,7 @@ mutate "split: missing pictures dropped from the text" $T/inc/restructure.php "\
 			\$keep[]         = '<p>' . implode( ' ', \$unfound ) . '</p>';" "\$total_missing += count( \$unfound );" flows-restructure flows-media
 mutate "split: headings inside block groups ignored"  $T/inc/restructure.php "if ( \$div->parentNode && false === strpos( \$class, 'spacer' )" "if ( false && \$div->parentNode && false === strpos( \$class, 'spacer' )" flows-restructure
 mutate "split: long text in picture sections dropped" $T/inc/restructure.php "} elseif ( ! \$ids && '' !== trim( \$node->textContent ) ) {" "} elseif ( false ) {" flows-restructure
+mutate "split: editor button overwrites typed fields" $T/inc/restructure.php "if ( \$only_empty && ! cemeti_field_is_empty" "if ( false && ! cemeti_field_is_empty" flows-reconvert
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

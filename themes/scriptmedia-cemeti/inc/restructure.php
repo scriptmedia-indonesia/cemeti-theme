@@ -341,9 +341,10 @@ function cemeti_restructure_content( $html, $thumb = 0 ) {
  *
  * @param int    $post_id Post ID (already of its new type).
  * @param string $type    New post type.
+ * @param bool   $only_empty Fill only the fields that are still empty (the editor's button never overwrites typed content).
  * @return string[] Meta keys that were written (for the converter's revert list).
  */
-function cemeti_restructure_post( $post_id, $type ) {
+function cemeti_restructure_post( $post_id, $type, $only_empty = false ) {
 	if ( ! in_array( $type, array( 'exhibition', 'residency', 'public_program', 'open_studio' ), true ) ) {
 		return array();
 	}
@@ -374,6 +375,9 @@ function cemeti_restructure_post( $post_id, $type ) {
 		if ( ! $has( $key ) || cemeti_field_is_empty( $value ) ) {
 			continue;
 		}
+		if ( $only_empty && ! cemeti_field_is_empty( get_post_meta( $post_id, 'cemeti_' . $key, true ) ) ) {
+			continue;
+		}
 		update_post_meta( $post_id, 'cemeti_' . $key, $value );
 		$written[] = 'cemeti_' . $key;
 	}
@@ -388,3 +392,86 @@ function cemeti_restructure_post( $post_id, $type ) {
 	wp_update_post( array( 'ID' => $post_id, 'post_content' => $split['foreword'] ) );
 	return $written;
 }
+
+/* ---- Editor box: split the text of one entry by hand (what "Convert to blocks" of WordPress cannot do) */
+
+/**
+ * Add the box to the entries that have gallery / documentation fields.
+ */
+function cemeti_split_add_box() {
+	foreach ( array( 'exhibition', 'residency', 'public_program', 'open_studio' ) as $post_type ) {
+		add_meta_box( 'cemeti_split', __( 'Cemeti: split the old text', 'scriptmedia-cemeti' ), 'cemeti_split_render_box', $post_type, 'side', 'high' );
+	}
+}
+add_action( 'add_meta_boxes', 'cemeti_split_add_box' );
+
+/**
+ * Render the box.
+ *
+ * @param WP_Post $post Entry being edited.
+ */
+function cemeti_split_render_box( $post ) {
+	if ( isset( $_GET['cemeti_split'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		$msg = array(
+			'done'    => __( 'Done: pictures, biographies and booklet were moved into the fields below.', 'scriptmedia-cemeti' ),
+			'nothing' => __( 'Nothing to split: the text has no sections or pictures left to move.', 'scriptmedia-cemeti' ),
+			'undone'  => __( 'The original text is back.', 'scriptmedia-cemeti' ),
+		);
+		$key = sanitize_key( wp_unslash( $_GET['cemeti_split'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $msg[ $key ] ) ) {
+			echo '<p><strong>' . esc_html( $msg[ $key ] ) . '</strong></p>';
+		}
+	}
+	echo '<p>' . esc_html__( 'WordPress\' "Convert to blocks" only changes the format of the text; it does not move pictures into Gallery or Documentation. This button does: pictures under "Foto Karya / Galeri" go to Gallery, "Dokumentasi" to Documentation, "Biografi" to Biographies, a PDF link to Booklet; the old Daftar Isi and language links are dropped. Fields that already have content are not overwritten; the original text is kept.', 'scriptmedia-cemeti' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Save the entry first (unsaved changes are lost). Pictures that are not in the Media Library stay in the text; run Tools → Cemeti Converter → "0. Media" first.', 'scriptmedia-cemeti' ) . '</p>';
+	$url = static function ( $do ) use ( $post ) {
+		return wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_split_post&post=' . (int) $post->ID . '&do=' . $do ), 'cemeti_split_' . (int) $post->ID );
+	};
+	echo '<p><a class="button button-primary" href="' . esc_url( $url( 'split' ) ) . '">' . esc_html__( 'Split the text into the fields', 'scriptmedia-cemeti' ) . '</a></p>';
+	if ( '' !== (string) get_post_meta( $post->ID, '_cemeti_split_keys', true ) ) {
+		echo '<p><a class="button" href="' . esc_url( $url( 'undo' ) ) . '">' . esc_html__( 'Undo (bring back the original text)', 'scriptmedia-cemeti' ) . '</a></p>';
+	}
+}
+
+/**
+ * Handle the box's buttons, then reopen the entry.
+ */
+function cemeti_split_handle() {
+	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
+		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'cemeti_split_' . $post_id );
+	$do     = isset( $_GET['do'] ) ? sanitize_key( wp_unslash( $_GET['do'] ) ) : 'split'; // phpcs:ignore WordPress.Security.NonceVerification
+	$result = 'nothing';
+	$post   = get_post( $post_id );
+	if ( $post && 'undo' === $do ) {
+		$original = (string) get_post_meta( $post_id, '_cemeti_original_content', true );
+		$keys     = array_filter( explode( ',', (string) get_post_meta( $post_id, '_cemeti_split_keys', true ) ) );
+		if ( '' !== $original && $keys ) {
+			foreach ( $keys as $key ) {
+				delete_post_meta( $post_id, $key );
+			}
+			wp_update_post( array( 'ID' => $post_id, 'post_content' => $original ) );
+			delete_post_meta( $post_id, '_cemeti_split_keys' );
+			delete_post_meta( $post_id, '_cemeti_original_content' );
+			$result = 'undone';
+		}
+	} elseif ( $post ) {
+		$had     = '' !== (string) get_post_meta( $post_id, '_cemeti_original_content', true );
+		$written = cemeti_restructure_post( $post_id, $post->post_type, true );
+		$fields  = array_diff( $written, array( '_cemeti_original_content', '_cemeti_media_missing' ) );
+		if ( $fields ) {
+			update_post_meta( $post_id, '_cemeti_split_keys', implode( ',', $fields ) );
+			$result = 'done';
+		} elseif ( ! $had ) {
+			// Nothing moved: put the text back exactly as it was and do not leave a copy behind.
+			wp_update_post( array( 'ID' => $post_id, 'post_content' => $post->post_content ) );
+			delete_post_meta( $post_id, '_cemeti_original_content' );
+			delete_post_meta( $post_id, '_cemeti_media_missing' );
+		}
+	}
+	wp_safe_redirect( add_query_arg( 'cemeti_split', $result, admin_url( 'post.php?action=edit&post=' . $post_id ) ) );
+	exit;
+}
+add_action( 'admin_post_cemeti_split_post', 'cemeti_split_handle' );

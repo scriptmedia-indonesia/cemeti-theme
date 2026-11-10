@@ -86,4 +86,28 @@ $orig = CemetiWP::$meta[ $a ]['_cemeti_original_content'];
 CemetiWP::$posts[ $a ]['post_content'] = '<h2>Dokumentasi</h2>' . $G( 99 ) . '<p>Added later by hand.</p>';
 cemeti_restructure_post( $a, 'exhibition' );
 ok( $orig === CemetiWP::$meta[ $a ]['_cemeti_original_content'], 'splitting an already split post never overwrites the saved original text' );
+
+/* ---- the editor box: split one entry by hand (never overwrites typed fields; undo brings the text back) */
+$m = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Manual', 'post_content' => '<p>Pengantar manual.</p><h2>Dokumentasi</h2>' . $G( 61 ) . $G( 62 ) . '<h2>Terbitan Terkait</h2><p><a href="/x/">x</a></p>' ) );
+$orig = CemetiWP::$posts[ $m ]['post_content'];
+update_post_meta( $m, 'cemeti_documentation_caption', 'Typed by hand' );
+$splitrun = static function ( $do ) use ( &$m ) {
+	$_GET = array( 'post' => $m, 'do' => $do, '_wpnonce' => 'valid' );
+	try { do_action( 'admin_post_cemeti_split_post' ); } catch ( CemetiRedirect $e ) { parse_str( (string) parse_url( $e->url, PHP_URL_QUERY ), $q ); return $q['cemeti_split'] ?? ''; }
+	return '';
+};
+ok( 'done' === $splitrun( 'split' ), 'editor split: pictures of the text move into the fields' );
+ok( array( 61, 62 ) === array_map( 'intval', (array) get_post_meta( $m, 'cemeti_documentation', true ) ), 'editor split: Documentation gets the pictures' );
+ok( 'Typed by hand' === get_post_meta( $m, 'cemeti_documentation_caption', true ), 'editor split: a field that already has content is not overwritten' );
+ok( false === strpos( CemetiWP::$posts[ $m ]['post_content'], 'Terbitan' ) && false !== strpos( CemetiWP::$posts[ $m ]['post_content'], 'Pengantar manual' ), 'editor split: the text keeps only the foreword' );
+ok( 'undone' === $splitrun( 'undo' ) && $orig === CemetiWP::$posts[ $m ]['post_content'] && ! get_post_meta( $m, 'cemeti_documentation', true ) && 'Typed by hand' === get_post_meta( $m, 'cemeti_documentation_caption', true ), 'editor split: undo brings back the exact text and removes only what the split wrote' );
+$k = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Typed', 'post_content' => '<p>Intro.</p><h2>Dokumentasi</h2>' . $G( 71 ) ) );
+update_post_meta( $k, 'cemeti_documentation', array( 999 ) );
+$m = $k;
+$splitrun( 'split' );
+ok( array( 999 ) === array_map( 'intval', (array) get_post_meta( $k, 'cemeti_documentation', true ) ), 'editor split: a Documentation already filled in is kept, not replaced' );
+$n = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Plain', 'post_content' => '<p>Hanya teks.</p>' ) );
+$m = $n;
+ok( 'nothing' === $splitrun( 'split' ) && '<p>Hanya teks.</p>' === CemetiWP::$posts[ $n ]['post_content'] && ! get_post_meta( $n, '_cemeti_original_content', true ), 'editor split: nothing to move leaves the text untouched' );
+
 qa_done();
