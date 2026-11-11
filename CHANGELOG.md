@@ -18,6 +18,15 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.44
+
+- **Indonesian lists (Public Program, Open Studio …) showed only the entries that already have an Indonesian version.**
+  The second language's lists now also show the **default language's entries that have no version there yet** (their
+  English title and text), so the list is as complete as the English one; an entry that does have an Indonesian version
+  (linked as its translation, or the same event with the same dates) is shown once, in Indonesian. Paging / scrolling keeps
+  working. This uses Polylang's filter `pll_filter_query_excluded_query` (Polylang 2.x and later); if an older Polylang
+  does not have it the lists stay as before.
+
 ## 0.9.43
 
 - **"Set missing featured images" ended with Cloudflare "A timeout occurred (524)".** It handled every entry in one request.

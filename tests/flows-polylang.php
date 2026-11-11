@@ -160,6 +160,30 @@ foreach ( array( $tw_id, $tw_other ) as $e ) { $GLOBALS['pll']['lang'][ $e ] = '
 ok( 7001 === (int) get_post_thumbnail_id( $tw_id ), 'twin picture: an unlinked Indonesian entry shows the picture of the English one with the same date and the most alike title' );
 ok( ! get_post_thumbnail_id( $tw_other ), 'twin picture: another date is not a twin' );
 
+// ---- second-language lists also show the default language's entries that have no version there yet
+$mkos = static function ( $title, $lang, $start, $end ) {
+	$id = CemetiWP::post( array( 'post_type' => 'open_studio', 'post_title' => $title, 'meta' => array( 'cemeti_start_date' => $start, 'cemeti_end_date' => $end ) ) );
+	$GLOBALS['pll']['lang'][ $id ] = $lang;
+	return $id;
+};
+$os_a = $mkos( 'Linked default', 'id', '20250101', '20250110' );
+$os_a_en = $mkos( 'Linked English', 'en', '20250101', '20250110' );
+$GLOBALS['pll']['groups'][] = array( 'id' => $os_a, 'en' => $os_a_en );
+$os_b = $mkos( 'Separate default', 'id', '20250201', '20250210' );
+$mkos( 'Separate English', 'en', '20250201', '20250210' );
+$os_c = $mkos( 'Only default', 'id', '20250301', '20250310' );
+$shadow = cemeti_listing_shadowed_ids( 'open_studio', 'en' );
+ok( in_array( $os_a, $shadow, true ) && in_array( $os_b, $shadow, true ) && ! in_array( $os_c, $shadow, true ), 'second-language list: default entries that already have a version (linked, or the same dates) are left out, the others stay' );
+$GLOBALS['pll']['current'] = 'en';
+$q = new WP_Query(); $q->flags = array( 'main' => true, 'pta' => 'open_studio' );
+ok( true === cemeti_polylang_unfilter_lists( false, $q ), 'second-language list: Polylang is told not to filter the list by language' );
+$GLOBALS['pll']['current'] = 'id';
+ok( false === cemeti_polylang_unfilter_lists( false, $q ), 'default-language list: filtered by language as usual' );
+$GLOBALS['pll']['current'] = 'en';
+$q2 = new WP_Query(); $q2->flags = array( 'main' => false, 'pta' => 'open_studio' );
+ok( false === cemeti_polylang_unfilter_lists( false, $q2 ), 'only the main list is affected, not other queries' );
+$GLOBALS['pll']['current'] = 'id';
+
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
 	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {

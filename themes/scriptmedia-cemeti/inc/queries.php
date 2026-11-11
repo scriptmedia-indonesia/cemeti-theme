@@ -46,6 +46,16 @@ function cemeti_pre_get_posts( $query ) {
 		$query->set( 'posts_per_page', 12 );
 	}
 
+	// The second language's lists also show the entries that have no version in that language yet (the default
+	// language's), so the list is as complete as the English one; entries that do have one are not shown twice.
+	$listed = cemeti_listed_post_type( $query );
+	if ( $listed && cemeti_current_lang() !== cemeti_default_lang() && function_exists( 'pll_get_post_language' ) ) {
+		$shadowed = cemeti_listing_shadowed_ids( $listed, cemeti_current_lang() );
+		if ( $shadowed ) {
+			$query->set( 'post__not_in', array_merge( (array) $query->get( 'post__not_in' ), $shadowed ) );
+		}
+	}
+
 	if ( $query->is_post_type_archive( 'journal' ) || $query->is_tax( 'journal_category' ) ) {
 		$query->set( 'posts_per_page', 20 );
 	}
@@ -272,3 +282,78 @@ function cemeti_type_key( $slug ) {
 function cemeti_residency_active_type() {
 	return isset( $_GET['type'] ) ? cemeti_type_key( wp_unslash( $_GET['type'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
 }
+
+/**
+ * The Cemeti post type a main query lists (archive pages), '' otherwise.
+ *
+ * @param WP_Query $query Query.
+ * @return string
+ */
+function cemeti_listed_post_type( $query ) {
+	foreach ( array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal' ) as $type ) {
+		if ( $query->is_post_type_archive( $type ) ) {
+			return $type;
+		}
+	}
+	return '';
+}
+
+/**
+ * Default-language entries of a type that already have a version in $lang: linked as its translation, or the same event
+ * (same dates) imported as a separate post. They are left out of that language's list so nothing shows twice.
+ *
+ * @param string $type Post type.
+ * @param string $lang Current (second) language code.
+ * @return int[]
+ */
+function cemeti_listing_shadowed_ids( $type, $lang ) {
+	static $cache = array();
+	if ( isset( $cache[ $type . $lang ] ) ) {
+		return $cache[ $type . $lang ];
+	}
+	$all = get_posts( array( 'post_type' => $type, 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids', 'no_found_rows' => true, 'lang' => '', 'suppress_filters' => false ) );
+	$all = array_map( 'intval', $all );
+	if ( function_exists( 'update_meta_cache' ) ) {
+		update_meta_cache( 'post', $all );
+	}
+	$default = cemeti_default_lang();
+	$mine    = array();
+	$theirs  = array();
+	foreach ( $all as $post_id ) {
+		$code = cemeti_lang_code( (string) pll_get_post_language( $post_id ) );
+		if ( $code === $lang ) {
+			$mine[ $post_id ] = get_post_meta( $post_id, 'cemeti_start_date', true ) . '|' . get_post_meta( $post_id, 'cemeti_end_date', true );
+		} elseif ( $code === $default ) {
+			$theirs[] = $post_id;
+		}
+	}
+	$dates  = array_filter( array_unique( array_values( $mine ) ), static function ( $key ) {
+		return '|' !== $key;
+	} );
+	$result = array();
+	foreach ( $theirs as $post_id ) {
+		$linked = function_exists( 'pll_get_post_translations' ) ? (array) pll_get_post_translations( $post_id ) : array();
+		$key    = get_post_meta( $post_id, 'cemeti_start_date', true ) . '|' . get_post_meta( $post_id, 'cemeti_end_date', true );
+		if ( ( ! empty( $linked[ $lang ] ) && isset( $mine[ (int) $linked[ $lang ] ] ) ) || in_array( $key, $dates, true ) ) {
+			$result[] = $post_id;
+		}
+	}
+	$cache[ $type . $lang ] = $result;
+	return $result;
+}
+
+/**
+ * Polylang: do not filter a second-language list by language (see cemeti_pre_get_posts: the default language's entries
+ * without a version there are shown too). Only that Polylang filter exists for this; without it nothing changes.
+ *
+ * @param bool     $excluded Whether the query is left out of language filtering.
+ * @param WP_Query $query    Query.
+ * @return bool
+ */
+function cemeti_polylang_unfilter_lists( $excluded, $query ) {
+	if ( $excluded || is_admin() || ! $query->is_main_query() || ! cemeti_listed_post_type( $query ) ) {
+		return $excluded;
+	}
+	return cemeti_current_lang() !== cemeti_default_lang() ? true : $excluded;
+}
+add_filter( 'pll_filter_query_excluded_query', 'cemeti_polylang_unfilter_lists', 10, 2 );
