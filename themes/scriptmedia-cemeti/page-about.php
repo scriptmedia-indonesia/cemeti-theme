@@ -77,6 +77,7 @@ $cemeti_by_group = cemeti_people_by_group();
 			</section>
 		<?php endforeach; ?>
 	</div>
+	<?php cemeti_render_history( get_the_ID() ); ?>
 </article>
 <?php
 get_footer();

@@ -409,7 +409,8 @@ function cemeti_admin_assets( $hook ) {
 		return;
 	}
 	$screen = get_current_screen();
-	if ( ! $screen || ! array_key_exists( $screen->post_type, cemeti_config( 'fields' ) ) ) {
+	$about  = $screen && 'page' === $screen->post_type && ! empty( $_GET['post'] ) && 'about' === cemeti_page_key( absint( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- About has the History box.
+	if ( ! $screen || ( ! $about && ! array_key_exists( $screen->post_type, cemeti_config( 'fields' ) ) ) ) {
 		return;
 	}
 	wp_enqueue_media();

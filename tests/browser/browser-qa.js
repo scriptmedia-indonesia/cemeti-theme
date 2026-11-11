@@ -454,6 +454,19 @@ async function open( browser, name, width, height, extra = {} ) {
 		const rows = await sp.page.locator( '.cemeti-accordion__row' ).evaluateAll( ( r ) => r.map( ( x ) => x.getBoundingClientRect().height ) );
 		ok( rows.length === 4 && rows.every( ( h ) => Math.abs( h - 82 ) < 6 ), 'figma: Support Us rows about 82px apart (' + rows.map( Math.round ).join( ',' ) + ')' );
 		await sp.ctx.close();
+		/* About → History: same dropdown rows as Support Us, one per year, entries inside. */
+		for ( const [ w, label ] of [ [ 1440, 'desktop' ], [ 360, 'phone' ] ] ) {
+			const ab = await open( browser, 'page-about', w, 900, { reducedMotion: 'reduce' } );
+			const years = await ab.page.locator( '.cemeti-history .cemeti-accordion__row summary' ).allTextContents();
+			ok( years.length >= 39 && years[ 0 ] === '1988' && years[ years.length - 1 ] === '2026', `history (${ label }): one row per year, oldest first (${ years.length })` );
+			ok( 48 === await ab.page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-history summary' ) ).fontSize ) ) || w < 600, `history (${ label }): rows use the Support Us row style` );
+			const first = ab.page.locator( '.cemeti-history .cemeti-accordion__row' ).first();
+			ok( await first.locator( '.cemeti-history__item' ).first().isHidden(), `history (${ label }): rows start closed` );
+			await first.locator( 'summary' ).click();
+			ok( await first.locator( '.cemeti-history__item' ).first().isVisible() && /^1\. /.test( ( await first.locator( '.cemeti-history__item strong' ).first().textContent() ).trim() ), `history (${ label }): a row opens to show the entries, number and date first` );
+			ok( await ab.page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth + 1 ), `history (${ label }): no sideways scrolling with a row open` );
+			await ab.ctx.close();
+		}
 		const ar = await open( browser, 'page-open-archive', 1440, 900, { reducedMotion: 'reduce' } );
 		const l = await ar.page.locator( '.cemeti-az__col' ).nth( 1 ).boundingBox();
 		ok( Math.abs( l.x - 729 ) < 3, `figma: Open Archive right column starts at x=729 (${ Math.round( l.x ) })` );

@@ -123,6 +123,39 @@ ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@ceme
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
 
+/* ---- About → History: dropdown rows per year, edited on the About page, bundled chronology until then */
+$ap = $by_slug( 'about' );
+CemetiWP::$caps = true;
+$rows = cemeti_history_rows( $ap );
+ok( count( $rows ) >= 39 && '1988' === $rows[0]['year'] && '2026' === $rows[ count( $rows ) - 1 ]['year'], 'history: the supplied chronology (1988–2026) is shown until the page has its own' );
+ok( false !== strpos( $rows[0]['entries'], 'Inaugural Group Exhibition' ) && 11 === count( cemeti_history_entries( $rows[0]['entries'] ) ), 'history: 1988 has its eleven entries, split at the empty lines' );
+$h = $render( 'about', 'page-about.php' );
+ok( substr_count( $h, '<details class="cemeti-accordion__row">' ) >= 39 && false !== strpos( $h, '<summary>1988</summary>' ) && false !== strpos( $h, 'cemeti-history__item' ), 'history: About shows one dropdown row per year' );
+ok( 1 === preg_match( '/<summary>1988<\/summary>.*?<summary>1989<\/summary>/s', $h ), 'history: oldest year first' );
+ob_start(); do_action( 'add_meta_boxes_page', CemetiWP::obj( $ap ) ); call_user_func( CemetiWP::$meta_boxes['page']['cemeti_history'], CemetiWP::obj( $ap ) ); $box = ob_get_clean();
+ok( false !== strpos( $box, 'cemeti_fields[history][0][year]' ) && false !== strpos( $box, 'Add Year' ), 'history: the box lists the years and an Add Year button' );
+$_POST = array( 'cemeti_history_nonce' => 'valid', 'cemeti_fields' => array( 'history' => array(
+	array( 'year' => '2027', 'entries' => "375. 1 – 30 January 2027\n\"New\" – Someone <b>x</b>\nOpen Studio\n\n376. 3 March 2027\nTalk" ),
+	array( 'year' => '2026', 'entries' => "374. 30 September 2026\nOne" ),
+	array( 'year' => '', 'entries' => '' ),
+) ) );
+do_action( 'save_post_page', $ap );
+$own = get_post_meta( $ap, 'cemeti_history', true );
+ok( is_array( $own ) && 2 === count( $own ), 'history: saved rows are the page\'s own (empty row dropped)' );
+$h = $render( 'about', 'page-about.php' );
+ok( 2 === substr_count( $h, '<details class="cemeti-accordion__row">' ) && 1 === preg_match( '/<summary>2026<\/summary>.*?<summary>2027<\/summary>/s', $h ) && false === strpos( $h, '<b>x</b>' ) && false === strpos( $h, '<summary>1988' ), 'history: own rows replace the supplied ones, sorted by year, tags stripped' );
+ok( 2 === count( cemeti_history_entries( $own[0]['entries'] ) ) && '375. 1 – 30 January 2027' === cemeti_history_entries( $own[0]['entries'] )[0][0], 'history: the first line of an entry is its number and date' );
+$_POST = array( 'cemeti_fields' => array( 'history' => array( array( 'year' => '2030', 'entries' => 'x' ) ) ) );
+do_action( 'save_post_page', $ap );
+ok( 2 === count( get_post_meta( $ap, 'cemeti_history', true ) ), 'history: without the nonce nothing is saved' );
+$_POST = array( 'cemeti_history_nonce' => 'valid', 'cemeti_fields' => array( 'history' => array() ) );
+do_action( 'save_post_page', $ap );
+ok( ! get_post_meta( $ap, 'cemeti_history', true ) && count( cemeti_history_rows( $ap ) ) >= 39, 'history: emptied = back to the supplied chronology' );
+$op = $by_slug( 'open-archive' );
+ob_start(); do_action( 'add_meta_boxes_page', CemetiWP::obj( $op ) ); ob_end_clean();
+ok( ! isset( CemetiWP::$meta_boxes['page']['cemeti_history'] ) || 'about' === cemeti_page_key( $ap ), 'history: the box belongs to About only' );
+$_POST = array();
+
 /* ---- Contact Us is edited on the page itself (like About), with Settings as the fallback */
 $cp = $by_slug( 'contact-us' );
 ok( 'info@cemeti.art' === cemeti_contact_value( 'email', $cp ) && false !== strpos( cemeti_contact_value( 'address', $cp ), 'Panjaitan' ) && '' === cemeti_contact_value( 'phone', $cp ), 'contact: empty details use Settings (phone has none)' );
@@ -255,7 +288,7 @@ $tech = array_values( array_filter( $grouped, static function ( $g ) { return 'S
 ok( 2 === count( $tech['names'] ), 'team: two names under "Staf Teknis"' );
 $html = qa_render( 'page-about.php', array( 'singular' => true ), array( 'post' => $by_slug( 'about' ), 'path' => '/about/' ) );
 ok( false !== strpos( $html, 'class="cemeti-team"' ) && false !== strpos( $html, '<strong>Staf Teknis</strong>' ) && false !== strpos( $html, '<span>Joko</span>' ), 'About: Team shows each role in bold with its names under it' );
-ok( false === strpos( preg_replace( '#<section class="cemeti-people cemeti-people--team.*?</section>#s', '', $html ), 'Joko' ) && false === strpos( $html, 'cemeti-people--team">' . '<img' ), 'About: the Team block has no photo grid' );
+ok( false === strpos( preg_replace( '#<section class="cemeti-history.*?</section>#s', '', preg_replace( '#<section class="cemeti-people cemeti-people--team.*?</section>#s', '', $html ) ), 'Joko' ) && false === strpos( $html, 'cemeti-people--team">' . '<img' ), 'About: the Team block has no photo grid' );
 
 // An empty site (no entries at all) still renders the archive page.
 qa_reset_data();

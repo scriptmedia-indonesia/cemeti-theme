@@ -90,6 +90,8 @@ mutate "split: editor button overwrites typed fields" $T/inc/restructure.php "if
 mutate "pages: chosen page not given its language"   $T/inc/pages.php "if ( function_exists( 'pll_set_post_language' ) && is_string( \$lang ) ) {" "if ( false ) {" flows-polylang
 mutate "pages: page language not checked"           $T/inc/pages.php "return '' === \$own ? cemeti_lang_code( \$lang ) === cemeti_default_lang() : cemeti_lang_code( \$own ) === cemeti_lang_code( \$lang );" "return true;" flows-polylang
 mutate "switch: entry without translation goes home" $T/inc/i18n.php "\$url = cemeti_switch_url_for_entry( (string) \$language['slug'], \$url );" "" flows-polylang
+mutate "history: years not sorted"                   $T/inc/history.php "return (int) \$a['year'] <=> (int) \$b['year'];" "return 0;" flows-pages
+mutate "history: saving without the nonce"           $T/inc/history.php "! isset( \$_POST['cemeti_history_nonce'] ) ||" "false ||" flows-pages
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

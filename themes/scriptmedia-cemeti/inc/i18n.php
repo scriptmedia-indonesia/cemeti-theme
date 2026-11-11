@@ -116,6 +116,7 @@ function cemeti_ui_strings() {
 		'current_residence'  => array( 'id' => 'Residen saat ini', 'en' => 'Current Residence' ),
 		'advisory_board'     => array( 'id' => 'Dewan Penasihat', 'en' => 'Advisory Board' ),
 		'team'               => array( 'id' => 'Tim', 'en' => 'Team' ),
+		'history'            => array( 'id' => 'Kronologi', 'en' => 'History' ),
 		'search_results'     => array( 'id' => 'Hasil pencarian', 'en' => 'Search results' ),
 		'no_results'         => array( 'id' => 'Tidak ada hasil.', 'en' => 'Nothing found.' ),
 		'not_found'          => array( 'id' => 'Halaman tidak ditemukan', 'en' => 'Page not found' ),

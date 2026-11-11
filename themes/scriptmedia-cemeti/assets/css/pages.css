@@ -186,6 +186,12 @@
 .cemeti-accordion__row summary:hover { color: var(--c-blue); }
 .cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
 
+/* ---- About → History: the dropdown rows of Support Us, with the entries inside ---- */
+.cemeti-history { margin-top: clamp(2.5rem, 1rem + 5vw, 5rem); }
+.cemeti-history__item { margin: 0 0 1.4167em; }
+.cemeti-history__item strong { display: block; font-weight: 500; }
+.cemeti-history__item span { display: block; overflow-wrap: anywhere; }
+
 /* ---- Contact, 404 ---- */
 .cemeti-contact { font-style: normal; max-width: var(--col, 83.333%); margin: 1.5rem auto 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-contact p { margin: 0 0 1.4167em; }
