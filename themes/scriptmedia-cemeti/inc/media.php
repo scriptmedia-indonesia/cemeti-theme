@@ -744,7 +744,7 @@ function cemeti_media_panel() {
  * @param string $hook Admin page hook.
  */
 function cemeti_media_admin_assets( $hook ) {
-	if ( 'tools_page_cemeti-converter' !== $hook ) {
+	if ( ! in_array( $hook, array( 'tools_page_cemeti-converter', 'settings_page_cemeti-settings' ), true ) ) {
 		return;
 	}
 	$rel = 'assets/js/admin-media.js';
@@ -786,26 +786,72 @@ function cemeti_entries_without_thumbnail() {
 }
 
 /**
- * Settings → Cemeti → "Set missing featured images": store, for every entry without a usable one, the picture the site
- * would show for it anyway (see cemeti_find_entry_picture), so cards, posters and share previews all use a real featured
- * image. A featured image that points to nothing is replaced (or removed when no picture is found).
+ * One time-boxed step of "Set missing featured images": entries are handled until the time is up, then the rest is
+ * left for the next step (a long single request is cut by the host or by Cloudflare). Entries for which no picture exists
+ * are remembered and skipped, so the run ends.
+ *
+ * @param float $budget Seconds.
+ * @param bool  $fresh  Start from the beginning (forget the entries that had no picture and the counts).
+ * @return array{remaining:int,filled:int,nothing:int}
+ */
+function cemeti_thumbs_step( $budget = 8.0, $fresh = false ) {
+	$state = get_option( 'cemeti_thumbs_state', array() );
+	if ( $fresh || ! is_array( $state ) ) {
+		$state = array();
+	}
+	$state = array_merge( array( 'filled' => 0, 'skip' => array() ), $state );
+	$start = microtime( true );
+	$todo  = array_values( array_diff( cemeti_entries_without_thumbnail(), array_map( 'intval', $state['skip'] ) ) );
+	foreach ( $todo as $index => $post_id ) {
+		if ( microtime( true ) - $start > $budget ) {
+			break;
+		}
+		$found = cemeti_find_entry_picture( get_post( $post_id ) );
+		if ( $found ) {
+			update_post_meta( $post_id, '_thumbnail_id', $found );
+			++$state['filled'];
+		} else {
+			if ( get_post_meta( $post_id, '_thumbnail_id', true ) ) {
+				delete_post_meta( $post_id, '_thumbnail_id' ); // It pointed to nothing: the editor no longer says "Could not retrieve the featured image data".
+			}
+			$state['skip'][] = $post_id;
+		}
+		unset( $todo[ $index ] );
+	}
+	update_option( 'cemeti_thumbs_state', $state, false );
+	return array( 'remaining' => count( $todo ), 'filled' => (int) $state['filled'], 'nothing' => count( $state['skip'] ) );
+}
+
+/**
+ * Settings → Cemeti → "Set missing featured images", without JavaScript: one step, then back to Settings.
  */
 function cemeti_handle_fill_thumbnails() {
 	if ( ! current_user_can( 'manage_options' ) ) {
 		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
 	}
 	check_admin_referer( 'cemeti_fill_thumbs' );
-	$done = 0;
-	foreach ( cemeti_entries_without_thumbnail() as $post_id ) {
-		$found = cemeti_find_entry_picture( get_post( $post_id ) );
-		if ( $found ) {
-			update_post_meta( $post_id, '_thumbnail_id', $found );
-			++$done;
-		} elseif ( get_post_meta( $post_id, '_thumbnail_id', true ) ) {
-			delete_post_meta( $post_id, '_thumbnail_id' ); // It pointed to nothing: the editor no longer says "Could not retrieve the featured image data".
-		}
-	}
-	wp_safe_redirect( add_query_arg( 'cemeti_thumbs_filled', $done, admin_url( 'options-general.php?page=cemeti-settings' ) ) );
+	$result = cemeti_thumbs_step( 8.0, empty( $_GET['more'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+	wp_safe_redirect( add_query_arg( array( 'cemeti_thumbs_filled' => $result['filled'], 'cemeti_thumbs_left' => $result['remaining'] ), admin_url( 'options-general.php?page=cemeti-settings' ) ) );
 	exit;
 }
 add_action( 'admin_post_cemeti_fill_thumbs', 'cemeti_handle_fill_thumbnails' );
+
+/**
+ * The same step for the page's own runner (admin-ajax): progress on the page, retries after a server error.
+ */
+function cemeti_thumbs_ajax() {
+	check_ajax_referer( 'cemeti_fill_thumbs', 'nonce' );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Not allowed.' ), 403 );
+	}
+	$result = cemeti_thumbs_step( 8.0, ! empty( $_POST['fresh'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+	wp_send_json_success(
+		array(
+			'phase'     => 'thumbs',
+			'remaining' => $result['remaining'],
+			'stopped'   => false,
+			'report'    => array( 'filled' => $result['filled'], 'nothing' => $result['nothing'] ),
+		)
+	);
+}
+add_action( 'wp_ajax_cemeti_thumbs_step', 'cemeti_thumbs_ajax' );

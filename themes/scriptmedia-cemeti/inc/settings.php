@@ -115,7 +115,11 @@ function cemeti_render_settings_page() {
 		<p>
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_create_pages' ), 'cemeti_create_pages' ) ); ?>"><?php echo esc_html__( 'Create missing pages', 'scriptmedia-cemeti' ); ?></a>
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_types' ), 'cemeti_fill_types' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: exhibitions without a type */ __( 'Set Solo/Group on exhibitions without a type (%d)', 'scriptmedia-cemeti' ), count( cemeti_exhibitions_without_type() ) ) ); ?></a>
-			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_thumbs' ), 'cemeti_fill_thumbs' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: entries without a featured image */ __( 'Set missing featured images (%d entries have none)', 'scriptmedia-cemeti' ), count( cemeti_entries_without_thumbnail() ) ) ); ?></a>
+			<span id="cemeti-media-runner" data-action="cemeti_thumbs_step" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'cemeti_fill_thumbs' ) ); ?>">
+				<a class="button" data-phase="thumbs" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_thumbs' ), 'cemeti_fill_thumbs' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: entries without a featured image */ __( 'Set missing featured images (%d entries have none)', 'scriptmedia-cemeti' ), count( cemeti_entries_without_thumbnail() ) ) ); ?></a>
+				<button type="button" class="button cemeti-media-stop" hidden>Stop</button>
+				<span class="cemeti-media-status notice inline" hidden style="display:block;margin-top:8px"></span>
+			</span>
 		</p>
 		<p class="description"><?php echo esc_html__( 'Missing featured images: the entry gets the picture of its other-language copy, else the first picture of its Gallery / Documentation, else of its text. Nothing already set is changed.', 'scriptmedia-cemeti' ); ?></p>
 		<?php cemeti_render_page_pairs_box(); ?>

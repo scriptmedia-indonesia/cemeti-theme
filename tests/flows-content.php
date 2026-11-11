@@ -302,6 +302,18 @@ $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
 ok( 8802 === (int) get_post_meta( $p_broken, '_thumbnail_id', true ) && ! get_post_meta( $p_broken_none, '_thumbnail_id', true ), 'thumbnail button: a broken featured image is replaced, or removed when there is nothing to put in its place' );
 ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
+/* ---- the same work in time-boxed steps (a single long request is cut by the host: Cloudflare 524) */
+$more = array( $mkp( 'Step A', array( 'cemeti_gallery' => array( 8801 ) ) ), $mkp( 'Step B', array( 'cemeti_gallery' => array( 8802 ) ) ), $mkp( 'Step C, nothing' ) );
+$r0 = cemeti_thumbs_step( -1.0, true );
+ok( $r0['remaining'] >= 3 && 0 === $r0['filled'] && ! get_post_meta( $more[0], '_thumbnail_id', true ), 'thumbnail steps: when the time is up nothing more is started and the rest is reported' );
+$r1 = cemeti_thumbs_step( 30.0 );
+ok( 0 === $r1['remaining'] && 8801 === (int) get_post_meta( $more[0], '_thumbnail_id', true ) && 8802 === (int) get_post_meta( $more[1], '_thumbnail_id', true ) && $r1['nothing'] >= 1, 'thumbnail steps: a step with time left finishes, counting the entries that have no picture to use' );
+$r2 = cemeti_thumbs_step( 30.0 );
+ok( 0 === $r2['remaining'] && $r2['filled'] === $r1['filled'], 'thumbnail steps: running again changes nothing and ends' );
+$_POST = $_REQUEST = array( 'nonce' => 'valid', 'fresh' => '1' );
+try { cemeti_thumbs_ajax(); } catch ( CemetiJson $j ) { ok( $j->payload['success'] && 0 === $j->payload['data']['remaining'] && isset( $j->payload['data']['report']['filled'] ), 'thumbnail ajax: answers with what is left and the counts' ); }
+$_POST = $_REQUEST = array();
+try { cemeti_thumbs_ajax(); ok( false, 'thumbnail ajax needs the nonce' ); } catch ( CemetiDie $j ) { ok( true, 'thumbnail ajax needs the nonce' ); } catch ( CemetiJson $j ) { ok( false, 'thumbnail ajax needs the nonce' ); }
 CemetiWP::$caps = false;
 try { cemeti_handle_fill_thumbnails(); ok( false, 'thumbnail button needs permission' ); } catch ( CemetiDie $e ) { ok( true, 'thumbnail button needs permission' ); }
 CemetiWP::$caps = true;

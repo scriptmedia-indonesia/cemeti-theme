@@ -18,6 +18,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.43
+
+- **"Set missing featured images" ended with Cloudflare "A timeout occurred (524)".** It handled every entry in one request.
+  It now works in **steps of about 8 seconds on the page itself** (progress shown, continues by itself, retries after a
+  server error, Stop button), like the Media tool; progress is saved, so pressing the button again continues. Entries for
+  which no picture exists are counted ("have no picture to use") and skipped, so the run ends.
+
 ## 0.9.42
 
 - **Indonesian thumbnails: the real cause.** The entries did have a featured image, but it pointed to a picture number that

@@ -11,6 +11,7 @@
 	}
 	var ajax = box.getAttribute( 'data-ajax' );
 	var nonce = box.getAttribute( 'data-nonce' );
+	var action = box.getAttribute( 'data-action' ) || 'cemeti_media_step';
 	var status = box.querySelector( '.cemeti-media-status' );
 	var stopBtn = box.querySelector( '.cemeti-media-stop' );
 	var buttons = box.querySelectorAll( '[data-phase]' );
@@ -34,7 +35,7 @@
 	}
 	function request( phase, fresh ) {
 		var body = new URLSearchParams();
-		body.set( 'action', 'cemeti_media_step' );
+		body.set( 'action', action );
 		body.set( 'nonce', nonce );
 		body.set( 'phase', phase );
 		if ( fresh ) {
@@ -54,6 +55,9 @@
 		} );
 	}
 	function counts( r ) {
+		if ( r.filled !== undefined ) {
+			return ' — featured image set on ' + r.filled + ' entries' + ( r.nothing ? ', ' + r.nothing + ' have no picture to use' : '' );
+		}
 		return ' — checked OK ' + r.ok + ', restored ' + r.restored + ', failed ' + r.failed + ' · posts fixed ' + r.posts + ', pictures added ' + r.created + ', featured set ' + r.thumbs;
 	}
 	async function run( phase ) {
@@ -62,8 +66,8 @@
 		}
 		stopped = false;
 		lock( true );
-		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : 'Working' );
-		var fresh = 'posts' === phase;
+		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : ( 'thumbs' === phase ? 'Setting featured images' : 'Working' ) );
+		var fresh = 'posts' === phase || 'thumbs' === phase;
 		var tries = 0;
 		while ( ! stopped ) {
 			try {
@@ -82,7 +86,7 @@
 					phase = 'files';
 				}
 				if ( d.remaining <= 0 ) {
-					say( label + ': finished.' + counts( d.report ) + ' Reload the page to see the lists.', 'success' );
+					say( label + ': finished.' + counts( d.report ) + ' Reload the page to see the new numbers.', 'success' );
 					break;
 				}
 				say( label + ': ' + d.remaining + ' left, continuing…' + counts( d.report ), 'info' );
