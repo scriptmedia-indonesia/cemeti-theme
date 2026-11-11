@@ -302,6 +302,13 @@ $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
 ok( 8802 === (int) get_post_meta( $p_broken, '_thumbnail_id', true ) && ! get_post_meta( $p_broken_none, '_thumbnail_id', true ), 'thumbnail button: a broken featured image is replaced, or removed when there is nothing to put in its place' );
 ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
+/* ---- admin screens show what is stored: no stand-in search for every row of a list (it timed the lists out) */
+$p_fresh = $mkp( 'Fresh, gallery only', array( 'cemeti_gallery' => array( 8801 ) ) );
+CemetiWP::$ctx['admin'] = true;
+ok( ! get_post_thumbnail_id( $p_fresh ), 'admin: an entry without a stored featured image shows none in the list, no stand-in is searched' );
+ok( 4242 === (int) apply_filters( 'post_thumbnail_id', 4242, $p_broken ), 'admin: even a broken number is left as stored (the front end is where it is replaced)' );
+unset( CemetiWP::$ctx['admin'] );
+
 /* ---- the same work in time-boxed steps (a single long request is cut by the host: Cloudflare 524) */
 $more = array( $mkp( 'Step A', array( 'cemeti_gallery' => array( 8801 ) ) ), $mkp( 'Step B', array( 'cemeti_gallery' => array( 8802 ) ) ), $mkp( 'Step C, nothing' ) );
 $r0 = cemeti_thumbs_step( -1.0, true );

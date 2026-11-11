@@ -368,6 +368,11 @@ function cemeti_render_share( $url, $title ) {
  * @return int|false
  */
 function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
+	// Only the public site guesses a picture. The admin screens (lists of hundreds of entries, the editor) show what is
+	// stored; looking for a stand-in picture for every row there made the lists take minutes and time out.
+	if ( is_admin() ) {
+		return $thumbnail_id;
+	}
 	// A featured image that points to a picture which is not in this site's Media Library (an old number kept by the
 	// import: the editor says "Could not retrieve the featured image data") counts as none.
 	if ( $thumbnail_id && 'attachment' === get_post_type( (int) $thumbnail_id ) ) {
@@ -390,7 +395,13 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 	}
 	static $cache = array();
 	if ( ! isset( $cache[ $post->ID ] ) ) {
-		$cache[ $post->ID ] = cemeti_find_entry_picture( $post );
+		// Remembered for an hour (also "none"): a list of entries does not repeat the search at every visit.
+		$remembered = get_transient( 'cemeti_pic_' . $post->ID );
+		if ( false === $remembered ) {
+			$remembered = cemeti_find_entry_picture( $post );
+			set_transient( 'cemeti_pic_' . $post->ID, (int) $remembered, HOUR_IN_SECONDS );
+		}
+		$cache[ $post->ID ] = (int) $remembered;
 	}
 	return $cache[ $post->ID ] ? $cache[ $post->ID ] : ( $broken ? false : $thumbnail_id );
 }

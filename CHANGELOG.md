@@ -18,6 +18,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.45
+
+- **Admin list of an entry type (for example Public Program) did not open (Cloudflare 524).** Since 0.9.41 the site looked
+  for a stand-in picture for every row of the list. The admin screens now show what is stored, and on the public site
+  the result of that search is remembered for an hour (also "none"), so a list of entries does not repeat it at every
+  visit. "Set missing featured images" still stores the pictures for good.
+
 ## 0.9.44
 
 - **Indonesian lists (Public Program, Open Studio …) showed only the entries that already have an Indonesian version.**
