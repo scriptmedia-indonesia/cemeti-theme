@@ -282,31 +282,42 @@ function cemeti_render_meta_box( $post ) {
 		if ( 'checkbox' === $def['type'] && '' === $value ) {
 			$value = 'active' === $key && 'open_call' === $post->post_type && 'previous' === cemeti_get_status( $post->ID ) ? '0' : '1'; // Never touched: ticked unless its deadline has passed.
 		}
-		$has_control = ! in_array( $def['type'], array( 'repeater', 'list', 'images', 'file', 'image' ), true );
-		echo '<tr><th scope="row">' . ( $has_control ? '<label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label>' : '<span>' . esc_html( $def['label'] ) . '</span>' ) . '</th><td>';
+		// One field that cannot be shown (unexpected stored data) must not blank the whole box: say which one and go on.
+		ob_start();
+		try {
+			$has_control = ! in_array( $def['type'], array( 'repeater', 'list', 'images', 'file', 'image' ), true );
+			echo '<tr><th scope="row">' . ( $has_control ? '<label for="' . esc_attr( $id ) . '">' . esc_html( $def['label'] ) . '</label>' : '<span>' . esc_html( $def['label'] ) . '</span>' ) . '</th><td>';
 
-		if ( 'relation' === $def['type'] ) {
-			printf( '<select multiple size="8" class="cemeti-relation" id="%s" name="cemeti_fields[%s][]" data-max="%d">', esc_attr( $id ), esc_attr( $key ), (int) $def['max'] );
-			foreach ( cemeti_relation_choices( $def, $post->ID ) as $choice ) {
-				$type_object = get_post_type_object( $choice->post_type );
-				printf(
-					'<option value="%d"%s>%s — %s</option>',
-					(int) $choice->ID,
-					selected( in_array( $choice->ID, $value, true ), true, false ),
-					esc_html( $type_object ? $type_object->labels->singular_name : $choice->post_type ),
-					esc_html( get_the_title( $choice ) )
-				);
+			if ( 'relation' === $def['type'] ) {
+				printf( '<select multiple size="8" class="cemeti-relation" id="%s" name="cemeti_fields[%s][]" data-max="%d">', esc_attr( $id ), esc_attr( $key ), (int) $def['max'] );
+				foreach ( cemeti_relation_choices( $def, $post->ID ) as $choice ) {
+					$type_object = get_post_type_object( $choice->post_type );
+					printf(
+						'<option value="%d"%s>%s — %s</option>',
+						(int) $choice->ID,
+						selected( in_array( $choice->ID, $value, true ), true, false ),
+						esc_html( $type_object ? $type_object->labels->singular_name : $choice->post_type ),
+						esc_html( get_the_title( $choice ) )
+					);
+				}
+				echo '</select>';
+			} elseif ( 'repeater' === $def['type'] ) {
+				cemeti_render_repeater( $def, $value );
+			} else {
+				cemeti_render_input( $def, $value, 'cemeti_fields[' . $key . ']', $id );
 			}
-			echo '</select>';
-		} elseif ( 'repeater' === $def['type'] ) {
-			cemeti_render_repeater( $def, $value );
-		} else {
-			cemeti_render_input( $def, $value, 'cemeti_fields[' . $key . ']', $id );
-		}
 
-		if ( ! empty( $def['help'] ) ) {
-			echo '<p class="description">' . esc_html( $def['help'] ) . '</p>';
+			if ( ! empty( $def['help'] ) ) {
+				echo '<p class="description">' . esc_html( $def['help'] ) . '</p>';
+			}
+		} catch ( Throwable $e ) {
+			ob_end_clean();
+			echo '<tr><th scope="row"><span>' . esc_html( $def['label'] ) . '</span></th><td><p><strong>' . esc_html__( 'This field could not be shown:', 'scriptmedia-cemeti' ) . '</strong> <code>' . esc_html( $e->getMessage() ) . '</code></p>';
+			$e = null;
+			echo '</td></tr>';
+			continue;
 		}
+		echo ob_get_clean();
 		echo '</td></tr>';
 	}
 	echo '</table>';

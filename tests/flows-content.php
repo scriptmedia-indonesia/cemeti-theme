@@ -302,6 +302,13 @@ $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
 ok( 8802 === (int) get_post_meta( $p_broken, '_thumbnail_id', true ) && ! get_post_meta( $p_broken_none, '_thumbnail_id', true ), 'thumbnail button: a broken featured image is replaced, or removed when there is nothing to put in its place' );
 ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
+/* ---- one field that cannot be shown must not blank the whole editing box */
+$bad = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Odd data', 'meta' => array( 'cemeti_gallery' => array( array( 'x' ), 'y' ), 'cemeti_artists' => "A\nB" ) ) );
+set_error_handler( static function ( $no, $str ) { throw new ErrorException( $str, 0, $no ); } );
+ob_start(); cemeti_render_meta_box( CemetiWP::obj( $bad ) ); $box = ob_get_clean();
+restore_error_handler();
+ok( false !== strpos( $box, 'This field could not be shown' ) && false !== strpos( $box, 'cemeti_fields[artists]' ) && false !== strpos( $box, 'cemeti_fields[documentation]' ), 'editing box: a field with unexpected data says so and the other fields are still shown' );
+
 /* ---- admin screens show what is stored: no stand-in search for every row of a list (it timed the lists out) */
 $p_fresh = $mkp( 'Fresh, gallery only', array( 'cemeti_gallery' => array( 8801 ) ) );
 CemetiWP::$ctx['admin'] = true;
