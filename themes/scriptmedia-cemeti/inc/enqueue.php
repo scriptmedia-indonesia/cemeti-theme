@@ -50,6 +50,11 @@ function cemeti_enqueue_assets() {
 		wp_enqueue_script( 'cemeti-infinite', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
 
+	if ( is_post_type_archive( 'residency' ) ) {
+		$rel = 'assets/js/residency-filter.js';
+		wp_enqueue_script( 'cemeti-residency-filter', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	}
+
 	if ( is_singular() ) {
 		$rel = 'assets/js/toc.js';
 		wp_enqueue_script( 'cemeti-toc', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );

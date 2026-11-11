@@ -18,6 +18,13 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.39
+
+- **Residency: choosing Regular or Research filters the list below at once** (no page reload, the address changes so it can
+  be shared and the Back button works). The chosen category is shown in red with an underline; pressing it again shows
+  everything. Without JavaScript the links still lead to `?type=regular` / `?type=research`. Lists that were swapped keep
+  loading the next page while scrolling.
+
 ## 0.9.38
 
 - **History did not show on the Indonesian About page.** An Indonesian page is only given the About design (and so its

@@ -467,6 +467,29 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( await ab.page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth + 1 ), `history (${ label }): no sideways scrolling with a row open` );
 			await ab.ctx.close();
 		}
+		/* Residency categories filter the list in place (the routed answers are the pages rendered for ?type=). */
+		{
+			const fs = require( 'fs' );
+			const r = await open( browser, 'archive-residency', 1280, 900, { reducedMotion: 'reduce' } );
+			let asked = 0;
+			await r.page.route( /cemeti\.test\/.*type=/, ( route ) => {
+				asked++;
+				const file = /type=research/.test( route.request().url() ) ? 'archive-residency-research' : 'archive-residency-regular';
+				route.fulfill( { status: 200, contentType: 'text/html', headers: { 'access-control-allow-origin': '*' }, body: fs.readFileSync( __dirname + '/../../build/qa/' + file + '.html', 'utf8' ) } );
+			} );
+			const cards = () => r.page.locator( '#cemeti-results .cemeti-card-grid > li' ).count();
+			const before = await cards();
+			await r.page.locator( '.cemeti-residency-intro h2 a', { hasText: 'Research' } ).click();
+			await r.page.waitForSelector( '.cemeti-residency-intro a.is-active' );
+			ok( ( await r.page.locator( '.cemeti-residency-intro a.is-active' ).textContent() ) === 'Research' && await cards() === 0 && await r.page.locator( '#cemeti-results .cemeti-empty' ).count() === 1 && asked === 1, 'residency filter: choosing Research swaps the list at once (no cards left, message shown)' );
+			await r.page.locator( '.cemeti-residency-intro h2 a', { hasText: 'Regular' } ).click();
+			await r.page.waitForFunction( () => document.querySelector( '.cemeti-residency-intro a.is-active' ) && document.querySelector( '.cemeti-residency-intro a.is-active' ).textContent === 'Regular' );
+			ok( before > 0 && await cards() > 0 && asked === 2, 'residency filter: choosing Regular brings its entries back' );
+			ok( await r.page.evaluate( () => ! document.querySelector( '#cemeti-results' ).hasAttribute( 'aria-busy' ) ), 'residency filter: the busy state is cleared' );
+			const color = await r.page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-residency-intro a.is-active' ) ).color );
+			ok( color === 'rgb(241, 97, 84)', 'residency filter: the chosen category is shown in red (' + color + ')' );
+			await r.ctx.close();
+		}
 		const ar = await open( browser, 'page-open-archive', 1440, 900, { reducedMotion: 'reduce' } );
 		const l = await ar.page.locator( '.cemeti-az__col' ).nth( 1 ).boundingBox();
 		ok( Math.abs( l.x - 729 ) < 3, `figma: Open Archive right column starts at x=729 (${ Math.round( l.x ) })` );

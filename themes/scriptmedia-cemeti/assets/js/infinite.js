@@ -6,6 +6,13 @@
 ( function () {
 	'use strict';
 
+	var observer = null;
+
+	function init() {
+	if ( observer ) {
+		observer.disconnect();
+		observer = null;
+	}
 	var nav = document.querySelector( '.navigation.pagination, .pagination' );
 	var list = document.querySelector( '.cemeti-card-grid, .cemeti-row-list, .cemeti-opencalls' );
 	if ( ! nav || ! list || ! ( 'IntersectionObserver' in window ) || ! window.fetch || ! window.DOMParser ) {
@@ -69,10 +76,15 @@
 			} );
 	}
 
-	var observer = new IntersectionObserver( function ( entries ) {
+	observer = new IntersectionObserver( function ( entries ) {
 		if ( entries.some( function ( entry ) { return entry.isIntersecting; } ) ) {
 			load();
 		}
 	}, { rootMargin: '0px 0px 400px 0px' } );
 	observer.observe( sentinel );
+	}
+
+	init();
+	// A list that was swapped in place (Residency categories) gets its own next-page loading.
+	document.addEventListener( 'cemeti:list-replaced', init );
 }() );

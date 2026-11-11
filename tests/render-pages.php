@@ -50,6 +50,13 @@ $h = page( 'archive-open-studio', 'archive.php', array( 'pta' => 'open_studio' )
 ok( false !== strpos( $h, '>Open Studio</h1>' ), 'archive open studio: singular heading' );
 $h = page( 'archive-residency', 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ) ) );
 ok( false !== strpos( $h, '>Residency</h1>' ), 'archive residency: heading is "Residency", not "Residencies"' );
+$h_all = $h;
+$h_res = page( 'archive-residency-research', 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/?type=research', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ), 'get' => array( 'type' => 'research' ) ) );
+$h_reg = page( 'archive-residency-regular', 'archive-residency.php', array( 'pta' => 'residency' ), array( 'path' => '/residency/?type=regular', 'query' => array( 'post_type' => 'residency' ), 'flags' => array( 'pta' => 'residency' ), 'get' => array( 'type' => 'reguler' ) ) );
+ok( false === strpos( $h_all, 'class="is-active"' ) && 1 === substr_count( $h_res, 'class="is-active"' ) && 1 === preg_match( '/class="is-active" aria-current="true">Research</', $h_res ), 'residency: the chosen category is marked, nothing is marked on the full list' );
+ok( 1 === preg_match( '/class="is-active" aria-current="true">Regular</', $h_reg ), 'residency: the old slug "reguler" still marks Regular' );
+ok( 1 === preg_match( '/href="[^"]*\/residency\/"\s+class="is-active"/', $h_res ) && false !== strpos( $h_res, 'id="cemeti-results"' ), 'residency: the chosen category links back to the full list; the list sits in its own results block' );
+ok( false !== strpos( $h_reg, 'cemeti-card-grid' ) && false === strpos( $h_res, 'cemeti-card-grid' ) && false !== strpos( $h_res, 'cemeti-empty' ), 'residency: Regular shows its entries, Research (none in the fixture) shows the empty message' );
 ok( false !== strpos( $h, 'cemeti-residency-intro' ) && false !== strpos( $h, 'Regular' ) && false !== strpos( $h, 'Research' ), 'archive residency: Regular and Research intros from term descriptions' );
 $h = page( 'archive-journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/journal/', 'query' => array( 'post_type' => 'journal' ), 'flags' => array( 'pta' => 'journal' ) ) );
 ok( 3 === substr_count( $h, 'class="cemeti-row"' ) && strpos( $h, '15-01-2025' ) < strpos( $h, '01-07-2024' ), 'archive journal: rows with dd-mm-yyyy, newest first' );

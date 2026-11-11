@@ -252,3 +252,23 @@ function cemeti_person_default_sort( $query ) {
 	$query->set( 'orderby', array( 'menu_order' => 'ASC', 'title' => 'ASC' ) );
 }
 add_action( 'pre_get_posts', 'cemeti_person_default_sort' );
+
+/**
+ * Comparable form of a type slug: "Reguler"/"regular", "research-en" and "research" are the same category.
+ *
+ * @param string $slug Term or query slug.
+ * @return string
+ */
+function cemeti_type_key( $slug ) {
+	$slug = preg_replace( '/-(en|id)$/', '', sanitize_title( (string) $slug ) );
+	return 'reguler' === $slug ? 'regular' : $slug;
+}
+
+/**
+ * The Residency category chosen with ?type= ('' for all).
+ *
+ * @return string
+ */
+function cemeti_residency_active_type() {
+	return isset( $_GET['type'] ) ? cemeti_type_key( wp_unslash( $_GET['type'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
+}

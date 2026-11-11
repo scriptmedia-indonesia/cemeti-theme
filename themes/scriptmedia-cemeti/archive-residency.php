@@ -10,7 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
-$cemeti_terms = cemeti_intro_terms( 'residency_type' );
+$cemeti_terms  = cemeti_intro_terms( 'residency_type' );
+$cemeti_active = cemeti_residency_active_type();
+$cemeti_base   = get_post_type_archive_link( 'residency' );
 ?>
 <div class="cemeti-container">
 	<?php cemeti_page_head( cemeti_archive_heading() ); ?>
@@ -19,13 +21,16 @@ $cemeti_terms = cemeti_intro_terms( 'residency_type' );
 		<div class="cemeti-residency-intro">
 			<?php foreach ( $cemeti_terms as $cemeti_term ) : ?>
 				<section>
-					<h2 class="cemeti-script"><a href="<?php echo esc_url( add_query_arg( 'type', $cemeti_term->slug, get_post_type_archive_link( 'residency' ) ) ); ?>"><?php echo esc_html( $cemeti_term->name ); ?></a></h2>
+					<?php $cemeti_is_active = '' !== $cemeti_active && cemeti_type_key( $cemeti_term->slug ) === $cemeti_active; ?>
+					<?php /* A second press on the chosen category shows everything again. */ ?>
+					<h2 class="cemeti-script"><a href="<?php echo esc_url( $cemeti_is_active ? $cemeti_base : add_query_arg( 'type', $cemeti_term->slug, $cemeti_base ) ); ?>"<?php echo $cemeti_is_active ? ' class="is-active" aria-current="true"' : ''; ?>><?php echo esc_html( $cemeti_term->name ); ?></a></h2>
 					<?php echo wp_kses_post( wpautop( cemeti_term_description( $cemeti_term ) ) ); ?>
 				</section>
 			<?php endforeach; ?>
 		</div>
 	<?php endif; ?>
 
+	<div id="cemeti-results" class="cemeti-results" aria-live="polite">
 	<?php if ( have_posts() ) : ?>
 		<ul class="cemeti-card-grid">
 			<?php
@@ -39,6 +44,7 @@ $cemeti_terms = cemeti_intro_terms( 'residency_type' );
 	<?php else : ?>
 		<p class="cemeti-empty"><?php echo esc_html( cemeti_t( 'no_results' ) ); ?></p>
 	<?php endif; ?>
+	</div>
 </div>
 <?php
 get_footer();

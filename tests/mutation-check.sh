@@ -93,10 +93,12 @@ mutate "switch: entry without translation goes home" $T/inc/i18n.php "\$url = ce
 mutate "history: years not sorted"                   $T/inc/history.php "return (int) \$a['year'] <=> (int) \$b['year'];" "return 0;" flows-pages
 mutate "history: saving without the nonce"           $T/inc/history.php "! isset( \$_POST['cemeti_history_nonce'] ) ||" "false ||" flows-pages
 mutate "pages: Indonesian title prefix ignored"       $T/inc/pages.php "if ( '' !== \$candidate && ( \$candidate === \$start || 0 === strpos( \$candidate, \$start . '-' ) ) ) {" "if ( false ) {" flows-pages
+mutate "residency: chosen category cannot be cleared" $T/archive-residency.php "esc_url( \$cemeti_is_active ? \$cemeti_base :" "esc_url( false ? \$cemeti_base :" render-pages
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
+  mutate "js: residency list is not swapped"        $T/assets/js/residency-filter.js "results.innerHTML = newResults.innerHTML;" "" browser
   mutate "js: Escape no longer closes panels"      $T/assets/js/navigation.js "if ( event.key === 'Escape' ) {" "if ( event.key === 'F13' ) {" browser
 else
   echo "  (browser mutations skipped: Playwright not installed)"
