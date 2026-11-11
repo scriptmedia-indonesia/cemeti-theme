@@ -22,7 +22,7 @@ $cemeti_rows = cemeti_support_rows( get_the_ID() );
 	<?php if ( $cemeti_rows ) : ?>
 		<div class="cemeti-accordion">
 			<?php foreach ( $cemeti_rows as $cemeti_row ) : ?>
-				<details class="cemeti-accordion__row">
+				<details class="cemeti-accordion__row" id="<?php echo esc_attr( $cemeti_row->post_name ); ?>">
 					<summary><?php echo esc_html( get_the_title( $cemeti_row ) ); ?></summary>
 					<div class="cemeti-accordion__panel cemeti-container">
 						<?php echo apply_filters( 'the_content', $cemeti_row->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput ?>

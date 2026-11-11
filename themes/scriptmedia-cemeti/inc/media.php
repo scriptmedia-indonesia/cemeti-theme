@@ -401,7 +401,7 @@ function cemeti_media_repair_post( $post_id ) {
 			}
 		}
 	}
-	$thumb = (int) get_post_thumbnail_id( $post_id );
+	$thumb = (int) get_post_meta( $post_id, '_thumbnail_id', true ); // The stored one, not the picture the site would show instead.
 	$valid = $thumb && 'attachment' === get_post_type( $thumb );
 	if ( $valid ) {
 		$uploads = wp_get_upload_dir();
@@ -751,3 +751,46 @@ function cemeti_media_admin_assets( $hook ) {
 	wp_enqueue_script( 'cemeti-admin-media', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), true );
 }
 add_action( 'admin_enqueue_scripts', 'cemeti_media_admin_assets' );
+
+/**
+ * Entries (of every language) that have no featured image of their own.
+ *
+ * @return int[]
+ */
+function cemeti_entries_without_thumbnail() {
+	$types = array_values( array_intersect( array_keys( cemeti_config( 'post-types' ) ), array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal' ) ) );
+	$query = new WP_Query(
+		array(
+			'post_type'        => $types,
+			'post_status'      => array( 'publish', 'draft', 'pending', 'future', 'private' ),
+			'posts_per_page'   => -1,
+			'fields'           => 'ids',
+			'no_found_rows'    => true,
+			'suppress_filters' => true,
+			'meta_query'       => array( array( 'key' => '_thumbnail_id', 'compare' => 'NOT EXISTS' ) ), // phpcs:ignore WordPress.DB.SlowDBQuery
+		)
+	);
+	return array_map( 'intval', $query->posts );
+}
+
+/**
+ * Settings → Cemeti → "Set missing featured images": store, for every entry without one, the picture the site would
+ * show for it anyway (see cemeti_find_entry_picture), so cards, posters and share previews all use a real featured image.
+ */
+function cemeti_handle_fill_thumbnails() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You are not allowed to do this.', 'scriptmedia-cemeti' ), '', array( 'response' => 403 ) );
+	}
+	check_admin_referer( 'cemeti_fill_thumbs' );
+	$done = 0;
+	foreach ( cemeti_entries_without_thumbnail() as $post_id ) {
+		$found = cemeti_find_entry_picture( get_post( $post_id ) );
+		if ( $found ) {
+			update_post_meta( $post_id, '_thumbnail_id', $found );
+			++$done;
+		}
+	}
+	wp_safe_redirect( add_query_arg( 'cemeti_thumbs_filled', $done, admin_url( 'options-general.php?page=cemeti-settings' ) ) );
+	exit;
+}
+add_action( 'admin_post_cemeti_fill_thumbs', 'cemeti_handle_fill_thumbnails' );

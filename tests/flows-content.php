@@ -280,6 +280,25 @@ $bulk = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Pam
 CemetiWP::$caps = true;
 $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_types(); ok( false, 'bulk button redirects' ); } catch ( CemetiRedirect $r ) { ok( 'Group' === $type_of( $bulk ) && false !== strpos( $r->url, 'cemeti_types_filled=' ), 'bulk button: fills the missing types and returns to Settings' ); }
+/* ---- entries without a featured image get a picture: the other language's, the gallery / documentation, the text */
+$mkp = static function ( $title, $meta = array(), $content = '' ) {
+	return CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => $title, 'post_content' => $content, 'meta' => $meta ) );
+};
+$p_gal = $mkp( 'Has gallery', array( 'cemeti_gallery' => array( 8801, 8802 ) ) );
+$p_doc = $mkp( 'Has documentation', array( 'cemeti_documentation' => array( 8811 ) ) );
+$p_orig = $mkp( 'Converted', array( '_cemeti_original_content' => '<img src="x.jpg" class="wp-image-8821">' ) );
+$p_none = $mkp( 'Nothing at all' );
+ok( 8801 === (int) get_post_thumbnail_id( $p_gal ) && 8811 === (int) get_post_thumbnail_id( $p_doc ), 'thumbnail: an entry without a featured image shows the first picture of its gallery, else of its documentation' );
+ok( ! get_post_thumbnail_id( $p_none ), 'thumbnail: nothing to show stays empty' );
+$real = $mkp( 'Has its own', array( '_thumbnail_id' => 8899, 'cemeti_gallery' => array( 8801 ) ) );
+ok( 8899 === (int) get_post_thumbnail_id( $real ), 'thumbnail: a real featured image always wins' );
+CemetiWP::$caps = true;
+$_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
+try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
+ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
+CemetiWP::$caps = false;
+try { cemeti_handle_fill_thumbnails(); ok( false, 'thumbnail button needs permission' ); } catch ( CemetiDie $e ) { ok( true, 'thumbnail button needs permission' ); }
+CemetiWP::$caps = true;
 CemetiWP::$caps = false;
 try { cemeti_handle_fill_types(); ok( false, 'bulk button needs permission' ); } catch ( CemetiDie $e ) { ok( true, 'bulk button needs permission' ); }
 CemetiWP::$caps = true;

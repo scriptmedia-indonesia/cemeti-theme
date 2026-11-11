@@ -857,6 +857,9 @@ function get_post_type( $id = null ) {
 	$id = $id ? ( is_object( $id ) ? $id->ID : $id ) : get_the_ID();
 	return isset( CemetiWP::$posts[ $id ] ) ? CemetiWP::$posts[ $id ]['post_type'] : false;
 }
+function wp_attachment_is_image( $id ) {
+	return isset( CemetiWP::$posts[ $id ] ) ? 'attachment' === CemetiWP::$posts[ $id ]['post_type'] : true;
+}
 function get_post_status( $id ) {
 	return isset( CemetiWP::$posts[ $id ] ) ? CemetiWP::$posts[ $id ]['post_status'] : false;
 }
@@ -1021,6 +1024,9 @@ function locate_template( $names ) {
 		}
 	}
 	return '';
+}
+function get_queried_object() {
+	return isset( $GLOBALS['post'] ) && $GLOBALS['post'] ? $GLOBALS['post'] : null;
 }
 function get_queried_object_id() {
 	return isset( $GLOBALS['post'] ) && $GLOBALS['post'] ? $GLOBALS['post']->ID : 0;

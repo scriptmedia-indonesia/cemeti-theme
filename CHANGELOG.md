@@ -18,6 +18,18 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.40
+
+- **Indonesian entries without thumbnails.** After "Convert" the pictures live in Gallery / Documentation (no longer in the
+  text), so an entry without a featured image found nothing to show. It now shows, in this order: the other language's
+  featured image, the first picture of its Gallery, of its Documentation, of its text, of the original text kept by the
+  converter, or an attached image. **Settings → Cemeti → Maintenance → "Set missing featured images"** stores that picture
+  as the real featured image of every entry that has none, in one click (nothing already set is changed).
+- **Support Us / Dukung Kami.** Since 0.9.38 a sub-page whose title begins "Dukungan …" was taken for the Support Us page
+  itself (and, being the longest, chosen by the menu), so the menu opened "Dukungan Program dan Donasi" instead of the
+  page with the dropdown rows. Sub-pages are never taken for a fixed page now. A sub-page's own address (for example
+  /dukung-kami/patron-of-cemeti/) leads to the Support Us page and **opens that row** (#row).
+
 ## 0.9.39
 
 - **Residency: choosing Regular or Research filters the list below at once** (no page reload, the address changes so it can

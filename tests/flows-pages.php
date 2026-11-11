@@ -123,6 +123,22 @@ ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@ceme
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
 
+/* ---- a row of Support Us is a sub-page: never one of the fixed pages itself, and its address leads to the dropdown */
+$sup = $by_slug( 'support-us' );
+$row = $by_slug( 'patron-of-cemeti' );
+CemetiWP::$posts[ $row ]['post_title'] = 'Dukungan Program dan Donasi';
+delete_post_meta( $row, '_cemeti_page_key' ); // As a page made by hand: nothing remembered, the title is all there is.
+CemetiWP::$posts[ $row ]['post_content'] = str_repeat( 'Cemeti menyambut dukungan. ', 80 );
+ok( '' === cemeti_page_key( $row ), 'support row: a sub-page whose title begins "Dukungan" is not taken for Support Us' );
+ok( $sup === cemeti_find_page( 'support-us', cemeti_default_lang() ), 'support row: the Support Us page (not its longest sub-page) is the one found' );
+CemetiWP::request( '/support-us/patron-of-cemeti/', array( 'singular' => true ) );
+$GLOBALS['post'] = CemetiWP::obj( $row );
+try { cemeti_support_row_redirect(); ok( false, 'support row: redirects' ); } catch ( CemetiRedirect $e ) { ok( false !== strpos( $e->url, get_permalink( $sup ) ) && '#patron-of-cemeti' === substr( $e->url, -17 ), 'support row: its own address leads to Support Us and opens that row (' . $e->url . ')' ); }
+$GLOBALS['post'] = CemetiWP::obj( $sup );
+try { cemeti_support_row_redirect(); ok( true, 'support page: not redirected' ); } catch ( CemetiRedirect $e ) { ok( false, 'support page: not redirected' ); }
+$h = $render( 'support-us', 'page-support-us.php' );
+ok( 4 === substr_count( $h, '<details class="cemeti-accordion__row" id="' ) && false !== strpos( $h, 'id="patron-of-cemeti"' ), 'support us: four dropdown rows, each with an id to open it' );
+
 /* ---- Indonesian titles that merely begin like the page are recognised, so they get the About design and its History */
 foreach ( array( 'Tentang Kami' => 'about', 'Tentang Rumah Seni Cemeti' => 'about', 'Hubungi Cemeti' => 'contact-us', 'Dukung Kami' => 'support-us', 'Arsip Terbuka Cemeti' => 'open-archive', 'About Us' => 'about', 'Contact' => 'contact-us', 'Tentu Saja' => '' ) as $title => $expect ) {
 	$tp = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => $title, 'post_name' => sanitize_title( $title ) ) );

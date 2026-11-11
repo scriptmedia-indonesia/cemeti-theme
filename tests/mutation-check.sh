@@ -65,7 +65,7 @@ mutate "i18n: a string lacks English"              $T/inc/i18n.php "'close'     
 mutate "pages: not created on activation"         $T/inc/pages.php "add_action( 'after_switch_theme', 'cemeti_create_pages_on_switch', 20 );" "" flows-pages
 mutate "pages: existing page overwritten"         $T/inc/pages.php "if ( ! \$parent ) {" "if ( true ) {" flows-pages
 mutate "polylang: types listed with a wrong value"  $T/inc/content-model.php "\$translatable[ \$type ] = \$type;" "\$translatable[ \$type ] = 'cemeti';" flows-polylang
-mutate "pictures: first picture not used"         $T/inc/templates.php "if ( preg_match( '/wp-image-(\\d+)/', \$content, \$match ) ) {" "if ( false ) {" flows-content
+mutate "pictures: picture of the text not used"       $T/inc/templates.php "\$in_text = '' !== \$html ? cemeti_media_ids_in_html( \$html, 1 ) : array();" "\$in_text = array();" flows-content
 mutate "old language links kept in the text"      $T/inc/templates.php "add_filter( 'the_content', 'cemeti_filter_language_links', 5 );" "" render-pages flows-content
 mutate "pages: Indonesian page not recognised"      $T/inc/pages.php "\$aliases = cemeti_page_slug_aliases();" "\$aliases = array();" flows-pages flows-languages
 mutate "open call: the Active tick ignored"         $T/inc/applications.php "return '1' === \$flag; // The team's choice" "return true; // The team's choice" m4-logic flows-content
@@ -94,6 +94,10 @@ mutate "history: years not sorted"                   $T/inc/history.php "return 
 mutate "history: saving without the nonce"           $T/inc/history.php "! isset( \$_POST['cemeti_history_nonce'] ) ||" "false ||" flows-pages
 mutate "pages: Indonesian title prefix ignored"       $T/inc/pages.php "if ( '' !== \$candidate && ( \$candidate === \$start || 0 === strpos( \$candidate, \$start . '-' ) ) ) {" "if ( false ) {" flows-pages
 mutate "residency: chosen category cannot be cleared" $T/archive-residency.php "esc_url( \$cemeti_is_active ? \$cemeti_base :" "esc_url( false ? \$cemeti_base :" render-pages
+mutate "pages: a sub-page can be a fixed page"        $T/inc/pages.php "if ( (int) get_post_field( 'post_parent', \$post_id ) ) {" "if ( false ) {" flows-pages
+mutate "thumbnail: gallery not used"                  $T/inc/templates.php "foreach ( array( 'cemeti_gallery', 'cemeti_documentation' ) as \$key ) {
+		\$ids = get_post_meta( \$post->ID, \$key, true );" "foreach ( array() as \$key ) {
+		\$ids = get_post_meta( \$post->ID, \$key, true );" flows-content
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

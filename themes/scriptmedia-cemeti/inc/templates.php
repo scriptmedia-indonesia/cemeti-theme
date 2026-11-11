@@ -380,42 +380,95 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 	if ( ! $is_entry && ! $is_page ) {
 		return $thumbnail_id;
 	}
-	// The other language's copy has the picture: use it, so both languages show the same one.
-	if ( function_exists( 'pll_get_post_translations' ) ) {
-		foreach ( (array) pll_get_post_translations( $post->ID ) as $other ) {
-			$theirs = (int) get_post_meta( (int) $other, '_thumbnail_id', true );
-			if ( (int) $other !== (int) $post->ID && $theirs ) {
-				return $theirs;
+	if ( $is_page ) {
+		// A page's picture is chosen, never guessed from its text; only the other language's is used.
+		$theirs = cemeti_translation_thumbnail_id( $post->ID );
+		return $theirs ? $theirs : $thumbnail_id;
+	}
+	static $cache = array();
+	if ( ! isset( $cache[ $post->ID ] ) ) {
+		$cache[ $post->ID ] = cemeti_find_entry_picture( $post );
+	}
+	return $cache[ $post->ID ] ? $cache[ $post->ID ] : $thumbnail_id;
+}
+
+/**
+ * Featured image of the other language's copy of a post (so both languages show the same one).
+ *
+ * @param int  $post_id Post ID.
+ * @param bool $deep    Also use the first picture of that copy's gallery / documentation.
+ * @return int
+ */
+function cemeti_translation_thumbnail_id( $post_id, $deep = false ) {
+	if ( ! function_exists( 'pll_get_post_translations' ) ) {
+		return 0;
+	}
+	foreach ( (array) pll_get_post_translations( $post_id ) as $other ) {
+		if ( (int) $other === (int) $post_id ) {
+			continue;
+		}
+		$theirs = (int) get_post_meta( (int) $other, '_thumbnail_id', true );
+		if ( $theirs ) {
+			return $theirs;
+		}
+		if ( $deep ) {
+			foreach ( array( 'cemeti_gallery', 'cemeti_documentation' ) as $key ) {
+				$ids = get_post_meta( (int) $other, $key, true );
+				if ( is_array( $ids ) && $ids ) {
+					return (int) reset( $ids );
+				}
 			}
 		}
 	}
-	if ( $is_page ) {
-		return $thumbnail_id; // A page's picture is chosen, never guessed from its text.
+	return 0;
+}
+
+/**
+ * The picture that stands for an entry that has no featured image: the other language's, the first of its own gallery
+ * or documentation (after "Convert" the pictures live there, no longer in the text), a picture of its text, of the
+ * original text kept by the converter, or an image attached to it.
+ *
+ * @param WP_Post $post Entry.
+ * @return int Attachment ID, 0 when none.
+ */
+function cemeti_find_entry_picture( $post ) {
+	$theirs = cemeti_translation_thumbnail_id( $post->ID );
+	if ( $theirs ) {
+		return $theirs;
 	}
-	static $cache = array();
-	if ( isset( $cache[ $post->ID ] ) ) {
-		return $cache[ $post->ID ] ? $cache[ $post->ID ] : $thumbnail_id;
+	foreach ( array( 'cemeti_gallery', 'cemeti_documentation' ) as $key ) {
+		$ids = get_post_meta( $post->ID, $key, true );
+		if ( is_array( $ids ) ) {
+			foreach ( $ids as $id ) {
+				if ( (int) $id && wp_attachment_is_image( (int) $id ) ) {
+					return (int) $id;
+				}
+			}
+		}
 	}
-	$content = (string) $post->post_content;
-	$in_text = cemeti_media_ids_in_html( $content, 1 );
-	$found   = $in_text ? (int) $in_text[0] : 0;
-	if ( ! $found ) {
-		$attached = get_posts(
-			array(
-				'post_type'        => 'attachment',
-				'post_parent'      => $post->ID,
-				'post_mime_type'   => 'image',
-				'post_status'      => 'inherit',
-				'posts_per_page'   => 1,
-				'orderby'          => 'menu_order ID',
-				'order'            => 'ASC',
-				'fields'           => 'ids',
-				'suppress_filters' => true,
-			)
-		);
-		$found = $attached ? (int) $attached[0] : 0;
+	$theirs = cemeti_translation_thumbnail_id( $post->ID, true );
+	if ( $theirs ) {
+		return $theirs;
 	}
-	$cache[ $post->ID ] = $found;
-	return $found ? $found : $thumbnail_id;
+	foreach ( array( (string) $post->post_content, (string) get_post_meta( $post->ID, '_cemeti_original_content', true ) ) as $html ) {
+		$in_text = '' !== $html ? cemeti_media_ids_in_html( $html, 1 ) : array();
+		if ( $in_text ) {
+			return (int) $in_text[0];
+		}
+	}
+	$attached = get_posts(
+		array(
+			'post_type'        => 'attachment',
+			'post_parent'      => $post->ID,
+			'post_mime_type'   => 'image',
+			'post_status'      => 'inherit',
+			'posts_per_page'   => 1,
+			'orderby'          => 'menu_order ID',
+			'order'            => 'ASC',
+			'fields'           => 'ids',
+			'suppress_filters' => true,
+		)
+	);
+	return $attached ? (int) $attached[0] : 0;
 }
 add_filter( 'post_thumbnail_id', 'cemeti_fallback_thumbnail_id', 10, 2 );

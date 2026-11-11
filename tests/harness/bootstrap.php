@@ -159,6 +159,7 @@ function qa_render( $template, $ctx = array(), $o = array() ) {
 	CemetiWP::$styles  = array();
 	CemetiWP::$scripts = array();
 	$_GET              = isset( $o['get'] ) ? $o['get'] : array();
+	$GLOBALS['post']   = ! empty( $o['post'] ) ? CemetiWP::obj( $o['post'] ) : null; // The enqueue rules look at the queried page.
 	do_action( 'wp_enqueue_scripts' );
 	if ( ! empty( $o['post'] ) ) {
 		$GLOBALS['post']     = CemetiWP::obj( $o['post'] );

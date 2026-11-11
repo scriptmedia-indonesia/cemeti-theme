@@ -108,11 +108,16 @@ function cemeti_render_settings_page() {
 		<?php if ( isset( $_GET['cemeti_types_filled'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( sprintf( /* translators: %d: number of exhibitions */ _n( 'Solo/Group set on %d exhibition.', 'Solo/Group set on %d exhibitions.', (int) $_GET['cemeti_types_filled'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_types_filled'] ) ); // phpcs:ignore WordPress.Security.NonceVerification ?></p></div>
 		<?php endif; ?>
+		<?php if ( isset( $_GET['cemeti_thumbs_filled'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( sprintf( /* translators: %d: number of entries */ _n( 'Featured image set on %d entry.', 'Featured image set on %d entries.', (int) $_GET['cemeti_thumbs_filled'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_thumbs_filled'] ) ); // phpcs:ignore WordPress.Security.NonceVerification ?></p></div>
+		<?php endif; ?>
 		<h2><?php echo esc_html__( 'Maintenance', 'scriptmedia-cemeti' ); ?></h2>
 		<p>
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_create_pages' ), 'cemeti_create_pages' ) ); ?>"><?php echo esc_html__( 'Create missing pages', 'scriptmedia-cemeti' ); ?></a>
 			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_types' ), 'cemeti_fill_types' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: exhibitions without a type */ __( 'Set Solo/Group on exhibitions without a type (%d)', 'scriptmedia-cemeti' ), count( cemeti_exhibitions_without_type() ) ) ); ?></a>
+			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_fill_thumbs' ), 'cemeti_fill_thumbs' ) ); ?>"><?php echo esc_html( sprintf( /* translators: %d: entries without a featured image */ __( 'Set missing featured images (%d entries have none)', 'scriptmedia-cemeti' ), count( cemeti_entries_without_thumbnail() ) ) ); ?></a>
 		</p>
+		<p class="description"><?php echo esc_html__( 'Missing featured images: the entry gets the picture of its other-language copy, else the first picture of its Gallery / Documentation, else of its text. Nothing already set is changed.', 'scriptmedia-cemeti' ); ?></p>
 		<?php cemeti_render_page_pairs_box(); ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'cemeti_settings' ); ?>

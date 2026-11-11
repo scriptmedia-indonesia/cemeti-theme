@@ -391,6 +391,10 @@ function cemeti_page_key( $post_id ) {
 			}
 		}
 	}
+	// A sub-page (a row of Support Us) is never one of the fixed pages itself, whatever its title begins with.
+	if ( (int) get_post_field( 'post_parent', $post_id ) ) {
+		return '';
+	}
 	$aliases = cemeti_page_slug_aliases();
 	// A translation made by Polylang's "+" or by hand often has a slug like "kontak-kami-2" or "contact-us-id":
 	// try the slug as it is, without a trailing number/language, and the title.
@@ -644,3 +648,23 @@ function cemeti_render_page_pairs_box() {
 	}
 	echo '</details>';
 }
+
+/**
+ * A row of Support Us is read on the Support Us page (as its dropdown), not on a page of its own: its address leads
+ * there and opens that row.
+ */
+function cemeti_support_row_redirect() {
+	if ( ! is_page() ) {
+		return;
+	}
+	$page = get_queried_object();
+	if ( ! $page || empty( $page->post_parent ) || 'support-us' !== cemeti_page_key( (int) $page->post_parent ) ) {
+		return;
+	}
+	$parent = get_permalink( (int) $page->post_parent );
+	if ( $parent ) {
+		wp_safe_redirect( $parent . '#' . $page->post_name );
+		exit;
+	}
+}
+add_action( 'template_redirect', 'cemeti_support_row_redirect' );

@@ -454,6 +454,16 @@ async function open( browser, name, width, height, extra = {} ) {
 		const rows = await sp.page.locator( '.cemeti-accordion__row' ).evaluateAll( ( r ) => r.map( ( x ) => x.getBoundingClientRect().height ) );
 		ok( rows.length === 4 && rows.every( ( h ) => Math.abs( h - 82 ) < 6 ), 'figma: Support Us rows about 82px apart (' + rows.map( Math.round ).join( ',' ) + ')' );
 		await sp.ctx.close();
+		{
+			const hp = await open( browser, 'page-support-us', 1280, 800, { reducedMotion: 'reduce' } );
+			const second = await hp.page.evaluate( () => document.querySelectorAll( '.cemeti-accordion__row' )[ 1 ].id );
+			await hp.page.goto( url( 'page-support-us' ) + '#' + second );
+			await hp.page.reload();
+			await hp.page.waitForTimeout( 150 );
+			const openIds = await hp.page.evaluate( () => [ ...document.querySelectorAll( '.cemeti-accordion__row[open]' ) ].map( ( d ) => d.id ) );
+			ok( second !== '' && openIds.join() === second, 'support us: an address ending in #row opens that dropdown row (' + openIds.join() + ')' );
+			await hp.ctx.close();
+		}
 		/* About → History: same dropdown rows as Support Us, one per year, entries inside. */
 		for ( const [ w, label ] of [ [ 1440, 'desktop' ], [ 360, 'phone' ] ] ) {
 			const ab = await open( browser, 'page-about', w, 900, { reducedMotion: 'reduce' } );
