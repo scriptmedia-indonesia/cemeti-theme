@@ -424,6 +424,44 @@ function cemeti_translation_thumbnail_id( $post_id, $deep = false ) {
 }
 
 /**
+ * The entry of the other language that is the same event, when the two are not linked as translations: same type, same
+ * dates, and (when several match) the most alike title. Imported Indonesian and English entries are separate posts.
+ *
+ * @param WP_Post $post Entry.
+ * @return int Post ID, 0 when none.
+ */
+function cemeti_counterpart_entry_id( $post ) {
+	if ( ! function_exists( 'pll_get_post_language' ) ) {
+		return 0;
+	}
+	$start = (string) get_post_meta( $post->ID, 'cemeti_start_date', true );
+	$mine  = (string) pll_get_post_language( $post->ID );
+	if ( '' === $start || '' === $mine ) {
+		return 0;
+	}
+	$end   = (string) get_post_meta( $post->ID, 'cemeti_end_date', true );
+	$title = function_exists( 'wp_strip_all_tags' ) ? strtolower( wp_strip_all_tags( $post->post_title ) ) : strtolower( $post->post_title );
+	$best  = 0;
+	$score = -1.0;
+	foreach ( get_posts( array( 'post_type' => $post->post_type, 'post_status' => array( 'publish', 'draft', 'pending', 'future', 'private' ), 'posts_per_page' => 20, 'fields' => 'ids', 'meta_key' => 'cemeti_start_date', 'meta_value' => $start, 'lang' => '', 'suppress_filters' => false ) ) as $other ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		$other = (int) ( is_object( $other ) ? $other->ID : $other );
+		$lang  = (string) pll_get_post_language( $other );
+		if ( $other === (int) $post->ID || '' === $lang || $lang === $mine ) {
+			continue;
+		}
+		if ( '' !== $end && (string) get_post_meta( $other, 'cemeti_end_date', true ) !== $end ) {
+			continue;
+		}
+		similar_text( $title, strtolower( (string) get_post_field( 'post_title', $other ) ), $percent );
+		if ( $percent > $score ) {
+			$score = $percent;
+			$best  = $other;
+		}
+	}
+	return $best;
+}
+
+/**
  * The picture that stands for an entry that has no featured image: the other language's, the first of its own gallery
  * or documentation (after "Convert" the pictures live there, no longer in the text), a picture of its text, of the
  * original text kept by the converter, or an image attached to it.
@@ -449,6 +487,25 @@ function cemeti_find_entry_picture( $post ) {
 	$theirs = cemeti_translation_thumbnail_id( $post->ID, true );
 	if ( $theirs ) {
 		return $theirs;
+	}
+	// The same event in the other language, not linked as its translation.
+	$twin = cemeti_counterpart_entry_id( $post );
+	if ( $twin ) {
+		$theirs = (int) get_post_meta( $twin, '_thumbnail_id', true );
+		if ( $theirs ) {
+			return $theirs;
+		}
+		foreach ( array( 'cemeti_gallery', 'cemeti_documentation' ) as $key ) {
+			$ids = get_post_meta( $twin, $key, true );
+			if ( is_array( $ids ) && $ids ) {
+				return (int) reset( $ids );
+			}
+		}
+		$twin_post = get_post( $twin );
+		$in_text   = $twin_post ? cemeti_media_ids_in_html( (string) $twin_post->post_content . "\n" . (string) get_post_meta( $twin, '_cemeti_original_content', true ), 1 ) : array();
+		if ( $in_text ) {
+			return (int) $in_text[0];
+		}
 	}
 	foreach ( array( (string) $post->post_content, (string) get_post_meta( $post->ID, '_cemeti_original_content', true ) ) as $html ) {
 		$in_text = '' !== $html ? cemeti_media_ids_in_html( $html, 1 ) : array();

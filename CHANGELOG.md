@@ -18,6 +18,15 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.41
+
+- **Indonesian thumbnails still empty** (Public Program, Exhibition …). The Indonesian and English entries imported from the
+  old site are separate posts, not linked as translations, so the Indonesian one could not borrow the English picture.
+  An entry without a picture now looks for its **twin in the other language: same type, same dates and the most alike
+  title**, and shows that one's featured image (else its gallery / documentation / text). "Set missing featured images" in
+  Settings → Cemeti → Maintenance stores it for every entry in one click. Entries with no twin and no picture of their own
+  stay empty: add the picture in the entry's Featured image box.
+
 ## 0.9.40
 
 - **Indonesian entries without thumbnails.** After "Convert" the pictures live in Gallery / Documentation (no longer in the

@@ -149,6 +149,16 @@ $en_a = $by( 'about', 'en' ); $id_a = $by( 'about', 'id' );
 ok( $en_a && $id_a && $en_a === cemeti_find_page( 'about', 'en' ) && $id_a === cemeti_find_page( 'about', 'id' ), 'find page: the same slug in two languages gives each its own page' );
 ok( get_permalink( $id_a ) === cemeti_menu_url( 'about', 'id' ) && get_permalink( $en_a ) === cemeti_menu_url( 'about', 'en' ), 'menu: asking for ID gives the Indonesian page even while the request is English' );
 
+// ---- Indonesian and English entries that are separate posts (not linked): the Indonesian one shows its twin's picture
+$tw_en = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Public Talk: Power, Politics and the Street', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', '_thumbnail_id' => 7001 ) ) );
+$tw_en2 = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Another talk', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', '_thumbnail_id' => 7002 ) ) );
+$tw_id = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Wicara Publik: Power, Politics and the Street', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130' ) ) );
+$tw_other = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Lain hari', 'meta' => array( 'cemeti_start_date' => '20260201', 'cemeti_end_date' => '20260201' ) ) );
+foreach ( array( $tw_en, $tw_en2 ) as $e ) { $GLOBALS['pll']['lang'][ $e ] = 'en'; }
+foreach ( array( $tw_id, $tw_other ) as $e ) { $GLOBALS['pll']['lang'][ $e ] = 'id'; }
+ok( 7001 === (int) get_post_thumbnail_id( $tw_id ), 'twin picture: an unlinked Indonesian entry shows the picture of the English one with the same date and the most alike title' );
+ok( ! get_post_thumbnail_id( $tw_other ), 'twin picture: another date is not a twin' );
+
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
 	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {
