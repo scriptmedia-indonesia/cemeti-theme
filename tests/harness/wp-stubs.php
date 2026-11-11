@@ -736,7 +736,7 @@ function get_post_type_object( $t ) {
 }
 function get_post_type_archive_link( $t ) {
 	$a = isset( CemetiWP::$post_types[ $t ] ) ? CemetiWP::$post_types[ $t ] : null;
-	return $a && ! empty( $a['has_archive'] ) ? home_url( $a['has_archive'] ) . '/' : false;
+	return $a && ! empty( $a['has_archive'] ) ? apply_filters( 'post_type_archive_link', home_url( $a['has_archive'] ) . '/', $t ) : false;
 }
 function get_object_taxonomies( $t ) {
 	$out = array();

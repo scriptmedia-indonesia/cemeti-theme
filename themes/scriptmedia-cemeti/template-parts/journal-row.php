@@ -16,7 +16,7 @@ $cemeti_date = 'journal' === get_post_type() || ! cemeti_date_keys( get_post_typ
 <li class="cemeti-row">
 	<a href="<?php the_permalink(); ?>">
 		<span class="cemeti-row__date"><?php echo esc_html( $cemeti_date ); ?></span>
-		<span class="cemeti-row__title"><?php the_title(); ?></span>
+		<span class="cemeti-row__title"><?php echo esc_html( cemeti_title() ); ?></span>
 		<span class="cemeti-row__cat"><?php echo esc_html( cemeti_post_label( get_post() ) ); ?></span>
 	</a>
 </li>

@@ -110,6 +110,8 @@ mutate "admin: stand-in picture searched in lists"   $T/inc/templates.php "	if (
 mutate "editing box: one odd field blanks the box"   $T/inc/fields.php "} catch ( Throwable \$e ) {
 			ob_end_clean();" "} catch ( LogicException \$e ) {
 			ob_end_clean();" flows-content
+mutate "label: language shown as a category"          $T/inc/templates.php "\$taxonomies = array_values( array_intersect( get_object_taxonomies( \$post->post_type ), \$own ) );" "\$taxonomies = get_object_taxonomies( \$post->post_type );" flows-polylang
+mutate "entries: empty title gives an empty link"    $T/inc/templates.php "return '' !== \$title ? get_the_title( \$post ) : cemeti_t( 'untitled' );" "return get_the_title( \$post );" flows-bilingual
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

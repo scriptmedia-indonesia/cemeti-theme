@@ -39,7 +39,7 @@ $cemeti_sections = array( 'exhibition', 'residency', 'public_program', 'open_stu
 					<a class="cemeti-btn" href="<?php echo esc_url( get_post_type_archive_link( $cemeti_type ) ); ?>"><?php echo esc_html( sprintf( cemeti_t( 'previous_of' ), $cemeti_obj->labels->singular_name ) ); ?></a>
 				</div>
 				<div class="cemeti-home__text">
-					<h3 class="cemeti-home__title"><a href="<?php echo esc_url( get_permalink( $cemeti_post ) ); ?>"><?php echo esc_html( get_the_title( $cemeti_post ) ); ?></a></h3>
+					<h3 class="cemeti-home__title"><a href="<?php echo esc_url( get_permalink( $cemeti_post ) ); ?>"><?php echo esc_html( cemeti_title( $cemeti_post ) ); ?></a></h3>
 					<?php if ( $cemeti_residency ) : ?>
 						<?php echo wp_kses_post( wpautop( wp_trim_words( get_the_excerpt( $cemeti_post ), 80 ) ) ); ?>
 						<p class="cemeti-home__current cemeti-script">

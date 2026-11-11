@@ -184,6 +184,16 @@ $q2 = new WP_Query(); $q2->flags = array( 'main' => false, 'pta' => 'open_studio
 ok( false === cemeti_polylang_unfilter_lists( false, $q2 ), 'only the main list is affected, not other queries' );
 $GLOBALS['pll']['current'] = 'id';
 
+// ---- Polylang's own "language" taxonomy is not a category: a Journal row says Essay / News, never "English"
+register_taxonomy( 'language', array( 'journal', 'exhibition' ), array() );
+$jr = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Esai baru' ) );
+CemetiWP::$terms['language'][ 9101 ] = array( 'name' => 'Bahasa Indonesia', 'slug' => 'id', 'description' => '' );
+CemetiWP::$rel[ $jr ]['language'] = array( 9101 );
+ok( 'Journal' === cemeti_post_label( get_post( $jr ) ), 'row label: a post with only a language term shows its type, not "Bahasa Indonesia"' );
+CemetiWP::$terms['journal_category'][ 9102 ] = array( 'name' => 'Essay', 'slug' => 'essay', 'description' => '' );
+CemetiWP::$rel[ $jr ]['journal_category'] = array( 9102 );
+ok( 'Essay' === cemeti_post_label( get_post( $jr ) ), 'row label: the journal category is shown even when the language term is there too' );
+
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {
 	if ( 'id' === $plang && isset( CemetiWP::$posts[ $pid ] ) ) {

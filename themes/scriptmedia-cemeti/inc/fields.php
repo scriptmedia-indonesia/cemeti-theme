@@ -51,7 +51,7 @@ function cemeti_get_field( $key, $post_id = null ) {
 	$post_id = $post_id ? (int) $post_id : get_the_ID();
 	$def     = cemeti_field_def( get_post_type( $post_id ), $key );
 	$value   = get_post_meta( $post_id, 'cemeti_' . $key, true );
-	$type    = $def ? $def['type'] : 'text';
+	$type    = $def ? $def['type'] : ( in_array( $key, array( 'gallery', 'documentation', 'related' ), true ) ? 'images' : ( 'biographies' === $key ? 'repeater' : 'text' ) ); // A key the type has no field for (stray data from an import) still has the right shape.
 
 	// Pictures and the booklet are the same in every language: an entry that has none of its own (an Indonesian
 	// copy made before the pictures were added, or imported without them) shows the other language's, so its

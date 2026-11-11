@@ -70,7 +70,10 @@ function cemeti_archive_heading() {
  * @return string
  */
 function cemeti_post_label( $post ) {
-	$taxonomies = get_object_taxonomies( $post->post_type );
+	// Only the site's own categories (Solo/Group, Regular/Research, Journal category, Project) are shown. Polylang attaches
+	// its own "language" taxonomy to every entry: its terms ("Bahasa Indonesia", "English") are not categories.
+	$own        = array_keys( cemeti_config( 'taxonomies' ) );
+	$taxonomies = array_values( array_intersect( get_object_taxonomies( $post->post_type ), $own ) );
 	foreach ( $taxonomies as $taxonomy ) {
 		$terms = get_the_terms( $post, $taxonomy );
 		if ( is_array( $terms ) && $terms ) {
@@ -281,14 +284,25 @@ function cemeti_booklet_url( $post_id ) {
 }
 
 /**
+ * Title of a post for lists and headings: an imported post can have none, and a link or heading must never be empty.
+ *
+ * @param WP_Post|int|null $post Post (default: the current one).
+ * @return string Plain text, to be escaped by the caller.
+ */
+function cemeti_title( $post = null ) {
+	$title = trim( wp_strip_all_tags( (string) get_the_title( $post ) ) );
+	return '' !== $title ? get_the_title( $post ) : cemeti_t( 'untitled' );
+}
+
+/**
  * Photo grid with caption.
  *
  * @param int[]  $ids     Attachment IDs.
  * @param string $caption Caption text.
  */
-function cemeti_render_photos( array $ids, $caption = '' ) {
+function cemeti_render_photos( $ids, $caption = '' ) {
 	echo '<figure class="cemeti-photos"><div class="cemeti-photos__grid">';
-	foreach ( $ids as $id ) {
+	foreach ( array_filter( array_map( 'absint', is_array( $ids ) ? $ids : array() ) ) as $id ) {
 		echo wp_get_attachment_image( (int) $id, 'cemeti-poster', false, array( 'loading' => 'lazy' ) ); // phpcs:ignore WordPress.Security.EscapeOutput
 	}
 	echo '</div>';

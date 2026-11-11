@@ -18,6 +18,23 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.47
+
+- **Journal rows showed "Bahasa Indonesia" / "English" as the category.** Polylang's own "language" taxonomy was taken for a
+  category. Only the site's own categories are shown now (Journal category: News / Essay / Curatorial Essay, taken from
+  the old site's categories by the Converter; Solo/Group; Regular/Research; Project).
+- **New bilingual QA suite** (`tests/flows-bilingual.php`, part of `bash tests/run.sh`): every kind of page (home, the six
+  lists, entry, Open Call, Journal, About, Open Archive, Support Us, Contact Us, search, 404) is rendered in English **and**
+  Indonesian with linked entries and pages, and checked for: valid markup, PHP messages in the text, interface text left in
+  the other language, language names used as categories, section links that stay in the other language, the language
+  switch leading to the real translation (entries and fixed pages), the overlay menu opening each language's own pages,
+  Support Us rows per language, pictures on Indonesian cards (from the English twin), and "messy" imported entries
+  (no dates, broken picture numbers, odd stored values, empty titles). The pages of both languages also go through the
+  browser sweep (14 screen sizes).
+- Bugs that suite found and that are fixed: an entry whose stored gallery/documentation was not a list (stray data from an
+  import) stopped the whole page with a PHP error; an entry with an empty title produced a link without any text (now
+  "Untitled" / "Tanpa judul").
+
 ## 0.9.46
 
 - **Editing box (Details) of an entry came up empty** (Residency). If one stored value cannot be shown (unexpected data in a

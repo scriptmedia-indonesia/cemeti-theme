@@ -30,7 +30,7 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 			</figure>
 		<?php endif; ?>
 		<header class="cemeti-single__head">
-			<h1 class="cemeti-single__title"><?php the_title(); ?></h1>
+			<h1 class="cemeti-single__title"><?php echo esc_html( cemeti_title() ); ?></h1>
 			<?php if ( '' !== $cemeti_author ) : ?>
 				<p class="cemeti-single__people"><?php echo esc_html( $cemeti_author ); ?></p>
 			<?php endif; ?>

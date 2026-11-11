@@ -67,7 +67,7 @@ $cemeti_has_back = count( $cemeti_toc ) > 1;
 			<?php if ( has_post_thumbnail() ) : ?>
 				<?php the_post_thumbnail( 'cemeti-poster', array( 'class' => 'cemeti-single__poster' ) ); ?>
 			<?php endif; ?>
-			<h1 class="cemeti-single__title"><?php the_title(); ?></h1>
+			<h1 class="cemeti-single__title"><?php echo esc_html( cemeti_title() ); ?></h1>
 			<?php
 			$cemeti_people = '' !== $cemeti_artists ? $cemeti_artists : (string) cemeti_get_field( 'speakers', $cemeti_id );
 			if ( $cemeti_is_event ) :

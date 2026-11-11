@@ -25,7 +25,7 @@ $cemeti_target   = '' !== $cemeti_external ? $cemeti_external : '#apply';
 				<div class="cemeti-opencall__poster"><?php the_post_thumbnail( 'cemeti-poster' ); ?></div>
 			<?php endif; ?>
 			<div class="cemeti-opencall__text">
-				<h2 class="cemeti-single__title"><?php the_title(); ?></h2>
+				<h2 class="cemeti-single__title"><?php echo esc_html( cemeti_title() ); ?></h2>
 				<div class="cemeti-single__body"><?php the_content(); ?></div>
 				<?php if ( '' !== $cemeti_deadline ) : ?>
 					<p><strong><?php echo esc_html( cemeti_t( 'deadline' ) ); ?>: <?php echo esc_html( $cemeti_deadline ); ?></strong></p>
