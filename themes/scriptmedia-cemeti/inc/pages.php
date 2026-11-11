@@ -407,6 +407,15 @@ function cemeti_page_key( $post_id ) {
 			return $candidate;
 		}
 	}
+	// Indonesian titles that begin like the page: "Tentang Kami", "Tentang Rumah Seni Cemeti", "Hubungi Cemeti" …
+	$prefixes = array( 'tentang' => 'about', 'arsip-terbuka' => 'open-archive', 'dukung' => 'support-us', 'dukungan' => 'support-us', 'hubungi' => 'contact-us', 'kontak' => 'contact-us' );
+	foreach ( $candidates as $candidate ) {
+		foreach ( $prefixes as $start => $page_key ) {
+			if ( '' !== $candidate && ( $candidate === $start || 0 === strpos( $candidate, $start . '-' ) ) ) {
+				return $page_key;
+			}
+		}
+	}
 	return '';
 }
 

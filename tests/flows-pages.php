@@ -123,6 +123,12 @@ ok( false !== strpos( $h, 'cemeti-contact' ) && false !== strpos( $h, 'info@ceme
 $h = $render( 'about', 'page-about.php' );
 ok( false !== strpos( $h, 'cemeti-single--about' ), 'About renders' );
 
+/* ---- Indonesian titles that merely begin like the page are recognised, so they get the About design and its History */
+foreach ( array( 'Tentang Kami' => 'about', 'Tentang Rumah Seni Cemeti' => 'about', 'Hubungi Cemeti' => 'contact-us', 'Dukung Kami' => 'support-us', 'Arsip Terbuka Cemeti' => 'open-archive', 'About Us' => 'about', 'Contact' => 'contact-us', 'Tentu Saja' => '' ) as $title => $expect ) {
+	$tp = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => $title, 'post_name' => sanitize_title( $title ) ) );
+	ok( $expect === cemeti_page_key( $tp ), "page key: \"$title\" is " . ( $expect ?: 'an ordinary page' ) );
+}
+
 /* ---- About → History: dropdown rows per year, edited on the About page, bundled chronology until then */
 $ap = $by_slug( 'about' );
 CemetiWP::$caps = true;
