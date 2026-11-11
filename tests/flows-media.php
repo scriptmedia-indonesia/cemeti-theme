@@ -4,6 +4,7 @@ require __DIR__ . '/harness/bootstrap.php';
 qa_boot();
 qa_reset_data();
 CemetiWP::$caps = true;
+CemetiWP::$loose_pictures = false; // This suite makes real attachments; a number that is no post is a missing picture.
 
 /* ---- stubs of what WordPress does with files */
 $uploads = sys_get_temp_dir() . '/cemeti-qa-uploads-' . getmypid();

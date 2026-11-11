@@ -56,6 +56,10 @@ class CemetiWP {
 	public static $next_id = 1000;
 	public static $next_term = 1;
 	public static $caps = true;
+	/** Picture numbers that are in no post are taken as real pictures (fixtures use plain numbers); tests of missing pictures turn this off. */
+	public static $loose_pictures = true;
+	/** Picture numbers (1000 and up) that exist as pictures. */
+	public static $pictures = array();
 	public static $logged_in = false;
 	public static $locale = 'id_ID';
 	public static $uploads = '';
@@ -855,6 +859,9 @@ function get_post_field( $f, $id ) {
 }
 function get_post_type( $id = null ) {
 	$id = $id ? ( is_object( $id ) ? $id->ID : $id ) : get_the_ID();
+	if ( ! isset( CemetiWP::$posts[ $id ] ) && CemetiWP::$loose_pictures && ( $id < 1000 || in_array( (int) $id, CemetiWP::$pictures, true ) ) ) {
+		return 'attachment';
+	}
 	return isset( CemetiWP::$posts[ $id ] ) ? CemetiWP::$posts[ $id ]['post_type'] : false;
 }
 function wp_attachment_is_image( $id ) {

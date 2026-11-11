@@ -753,7 +753,8 @@ function cemeti_media_admin_assets( $hook ) {
 add_action( 'admin_enqueue_scripts', 'cemeti_media_admin_assets' );
 
 /**
- * Entries (of every language) that have no featured image of their own.
+ * Entries (of every language) that have no usable featured image: none at all, or one that points to a picture which is
+ * not in the Media Library (an old number kept by the import).
  *
  * @return int[]
  */
@@ -767,15 +768,27 @@ function cemeti_entries_without_thumbnail() {
 			'fields'           => 'ids',
 			'no_found_rows'    => true,
 			'suppress_filters' => true,
-			'meta_query'       => array( array( 'key' => '_thumbnail_id', 'compare' => 'NOT EXISTS' ) ), // phpcs:ignore WordPress.DB.SlowDBQuery
 		)
 	);
-	return array_map( 'intval', $query->posts );
+	$ids = array_map( 'intval', $query->posts );
+	if ( function_exists( 'update_meta_cache' ) ) {
+		update_meta_cache( 'post', $ids );
+	}
+	return array_values(
+		array_filter(
+			$ids,
+			static function ( $post_id ) {
+				$thumb = (int) get_post_meta( $post_id, '_thumbnail_id', true );
+				return ! $thumb || 'attachment' !== get_post_type( $thumb );
+			}
+		)
+	);
 }
 
 /**
- * Settings → Cemeti → "Set missing featured images": store, for every entry without one, the picture the site would
- * show for it anyway (see cemeti_find_entry_picture), so cards, posters and share previews all use a real featured image.
+ * Settings → Cemeti → "Set missing featured images": store, for every entry without a usable one, the picture the site
+ * would show for it anyway (see cemeti_find_entry_picture), so cards, posters and share previews all use a real featured
+ * image. A featured image that points to nothing is replaced (or removed when no picture is found).
  */
 function cemeti_handle_fill_thumbnails() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -788,6 +801,8 @@ function cemeti_handle_fill_thumbnails() {
 		if ( $found ) {
 			update_post_meta( $post_id, '_thumbnail_id', $found );
 			++$done;
+		} elseif ( get_post_meta( $post_id, '_thumbnail_id', true ) ) {
+			delete_post_meta( $post_id, '_thumbnail_id' ); // It pointed to nothing: the editor no longer says "Could not retrieve the featured image data".
 		}
 	}
 	wp_safe_redirect( add_query_arg( 'cemeti_thumbs_filled', $done, admin_url( 'options-general.php?page=cemeti-settings' ) ) );

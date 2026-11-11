@@ -281,6 +281,7 @@ CemetiWP::$caps = true;
 $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_types(); ok( false, 'bulk button redirects' ); } catch ( CemetiRedirect $r ) { ok( 'Group' === $type_of( $bulk ) && false !== strpos( $r->url, 'cemeti_types_filled=' ), 'bulk button: fills the missing types and returns to Settings' ); }
 /* ---- entries without a featured image get a picture: the other language's, the gallery / documentation, the text */
+CemetiWP::$pictures = array( 8801, 8802, 8811, 8821, 8899 );
 $mkp = static function ( $title, $meta = array(), $content = '' ) {
 	return CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => $title, 'post_content' => $content, 'meta' => $meta ) );
 };
@@ -290,11 +291,16 @@ $p_orig = $mkp( 'Converted', array( '_cemeti_original_content' => '<img src="x.j
 $p_none = $mkp( 'Nothing at all' );
 ok( 8801 === (int) get_post_thumbnail_id( $p_gal ) && 8811 === (int) get_post_thumbnail_id( $p_doc ), 'thumbnail: an entry without a featured image shows the first picture of its gallery, else of its documentation' );
 ok( ! get_post_thumbnail_id( $p_none ), 'thumbnail: nothing to show stays empty' );
+$p_broken = $mkp( 'Old number', array( '_thumbnail_id' => 4242, 'cemeti_gallery' => array( 8802 ) ) );
+$p_broken_none = $mkp( 'Old number, nothing else', array( '_thumbnail_id' => 4343 ) );
+ok( 8802 === (int) get_post_thumbnail_id( $p_broken ), 'thumbnail: a featured image that points to a picture which is not in the Media Library counts as none (gallery used instead)' );
+ok( ! get_post_thumbnail_id( $p_broken_none ) && ! has_post_thumbnail( $p_broken_none ), 'thumbnail: a broken featured image and nothing else to show: no picture, not a broken one' );
 $real = $mkp( 'Has its own', array( '_thumbnail_id' => 8899, 'cemeti_gallery' => array( 8801 ) ) );
 ok( 8899 === (int) get_post_thumbnail_id( $real ), 'thumbnail: a real featured image always wins' );
 CemetiWP::$caps = true;
 $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
+ok( 8802 === (int) get_post_meta( $p_broken, '_thumbnail_id', true ) && ! get_post_meta( $p_broken_none, '_thumbnail_id', true ), 'thumbnail button: a broken featured image is replaced, or removed when there is nothing to put in its place' );
 ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
 CemetiWP::$caps = false;
 try { cemeti_handle_fill_thumbnails(); ok( false, 'thumbnail button needs permission' ); } catch ( CemetiDie $e ) { ok( true, 'thumbnail button needs permission' ); }

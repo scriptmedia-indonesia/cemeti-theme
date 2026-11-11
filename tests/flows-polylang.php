@@ -150,6 +150,7 @@ ok( $en_a && $id_a && $en_a === cemeti_find_page( 'about', 'en' ) && $id_a === c
 ok( get_permalink( $id_a ) === cemeti_menu_url( 'about', 'id' ) && get_permalink( $en_a ) === cemeti_menu_url( 'about', 'en' ), 'menu: asking for ID gives the Indonesian page even while the request is English' );
 
 // ---- Indonesian and English entries that are separate posts (not linked): the Indonesian one shows its twin's picture
+CemetiWP::$pictures = array( 7001, 7002 );
 $tw_en = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Public Talk: Power, Politics and the Street', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', '_thumbnail_id' => 7001 ) ) );
 $tw_en2 = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Another talk', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130', '_thumbnail_id' => 7002 ) ) );
 $tw_id = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Wicara Publik: Power, Politics and the Street', 'meta' => array( 'cemeti_start_date' => '20260130', 'cemeti_end_date' => '20260130' ) ) );

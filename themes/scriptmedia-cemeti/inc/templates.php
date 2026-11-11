@@ -368,28 +368,31 @@ function cemeti_render_share( $url, $title ) {
  * @return int|false
  */
 function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
-	if ( $thumbnail_id ) {
+	// A featured image that points to a picture which is not in this site's Media Library (an old number kept by the
+	// import: the editor says "Could not retrieve the featured image data") counts as none.
+	if ( $thumbnail_id && 'attachment' === get_post_type( (int) $thumbnail_id ) ) {
 		return $thumbnail_id;
 	}
+	$broken = (int) $thumbnail_id;
 	$post = get_post( $post );
 	if ( ! $post || 'application' === $post->post_type ) {
-		return $thumbnail_id;
+		return $broken ? false : $thumbnail_id;
 	}
 	$is_entry = array_key_exists( $post->post_type, cemeti_config( 'post-types' ) );
 	$is_page  = 'page' === $post->post_type && '' !== cemeti_page_key( $post->ID );
 	if ( ! $is_entry && ! $is_page ) {
-		return $thumbnail_id;
+		return $broken ? false : $thumbnail_id;
 	}
 	if ( $is_page ) {
 		// A page's picture is chosen, never guessed from its text; only the other language's is used.
 		$theirs = cemeti_translation_thumbnail_id( $post->ID );
-		return $theirs ? $theirs : $thumbnail_id;
+		return $theirs ? $theirs : ( $broken ? false : $thumbnail_id );
 	}
 	static $cache = array();
 	if ( ! isset( $cache[ $post->ID ] ) ) {
 		$cache[ $post->ID ] = cemeti_find_entry_picture( $post );
 	}
-	return $cache[ $post->ID ] ? $cache[ $post->ID ] : $thumbnail_id;
+	return $cache[ $post->ID ] ? $cache[ $post->ID ] : ( $broken ? false : $thumbnail_id );
 }
 
 /**
@@ -408,7 +411,7 @@ function cemeti_translation_thumbnail_id( $post_id, $deep = false ) {
 			continue;
 		}
 		$theirs = (int) get_post_meta( (int) $other, '_thumbnail_id', true );
-		if ( $theirs ) {
+		if ( $theirs && 'attachment' === get_post_type( $theirs ) ) {
 			return $theirs;
 		}
 		if ( $deep ) {
@@ -492,7 +495,7 @@ function cemeti_find_entry_picture( $post ) {
 	$twin = cemeti_counterpart_entry_id( $post );
 	if ( $twin ) {
 		$theirs = (int) get_post_meta( $twin, '_thumbnail_id', true );
-		if ( $theirs ) {
+		if ( $theirs && 'attachment' === get_post_type( $theirs ) ) {
 			return $theirs;
 		}
 		foreach ( array( 'cemeti_gallery', 'cemeti_documentation' ) as $key ) {

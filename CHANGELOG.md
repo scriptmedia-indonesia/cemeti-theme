@@ -18,6 +18,15 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.42
+
+- **Indonesian thumbnails: the real cause.** The entries did have a featured image, but it pointed to a picture number that
+  is not in this site's Media Library (the editor says "Could not retrieve the featured image data"), so the site used
+  it, found nothing and showed an empty card, and "Set missing featured images" counted only 7 entries. A featured image
+  that points to nothing now counts as **none**: the site shows the other language's / the twin's / the gallery's / the
+  text's picture instead, and the button counts and **replaces** those entries too (or removes the broken number when there
+  is nothing to put in its place).
+
 ## 0.9.41
 
 - **Indonesian thumbnails still empty** (Public Program, Exhibition …). The Indonesian and English entries imported from the

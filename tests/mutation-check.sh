@@ -99,6 +99,7 @@ mutate "thumbnail: gallery not used"                  $T/inc/templates.php "fore
 		\$ids = get_post_meta( \$post->ID, \$key, true );" "foreach ( array() as \$key ) {
 		\$ids = get_post_meta( \$post->ID, \$key, true );" flows-content
 mutate "thumbnail: twin of the other language ignored" $T/inc/templates.php "\$twin = cemeti_counterpart_entry_id( \$post );" "\$twin = 0;" flows-polylang
+mutate "thumbnail: broken featured image trusted"    $T/inc/templates.php "if ( \$thumbnail_id && 'attachment' === get_post_type( (int) \$thumbnail_id ) ) {" "if ( \$thumbnail_id ) {" flows-content
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
