@@ -3,6 +3,28 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.51
+
+Cross-browser round (Safari and Firefox), after a test in an older Safari (macOS Mojave / Safari 14) showed no logo, no
+pictures and no pinned titles.
+
+- **Logo missing in Safari 14 and older** (it showed an empty box): the logo was WebP only, which Safari shows only from
+  macOS 11. It is now a `<picture>`: WebP for the browsers that have it, **PNG** for the others (`logo-480.png`,
+  `logo-960.png`). The SEO logo is the PNG too.
+- **Pinned section titles ("parallax")**: `position: -webkit-sticky` added for older Safari, and the new `pin-heading.js`
+  takes over with a transform **only if** the browser does not honour the CSS (it checks after the visitor scrolls; where
+  the CSS works it never does anything; visitors with "reduce motion" keep the static titles).
+- **Rules older browsers dropped whole**: a rule such as `a:hover, a:focus-visible { … }` is ignored completely by a browser
+  that does not know `:focus-visible` (Safari before 15.4), so hover colours were lost. Those selectors now have their own
+  rules (6). `inset: 0` has its four sides before it (Safari before 14.1: the menu overlay, card pictures), and the archive
+  card keeps its 308 × 386 box with a padding fallback where `aspect-ratio` does not exist (Safari before 15).
+- **Tests:** the static checks now fail when CSS or JS uses something older browsers cannot read without a fallback
+  (shared `:focus-visible` / `:has()` rules, sticky or inset without their older form, optional chaining, `??`,
+  `replaceAll`, `.at()`, …). The browser sweep also covers 1180, 1366, 1536 and 430 px wide screens.
+- **Not possible here:** Safari and Firefox themselves could not be run in this environment (only Chromium is installed,
+  and the download of other engines is blocked), so the fixes above come from the browsers' documented support and were
+  checked in Chromium (including a run where CSS sticky is switched off, to prove the script takes over).
+
 ## 0.9.50
 
 - **Open Archive keeps its design again**: the A–Z list in two columns (A–M and N–Z), titles in quotes, exactly as before.

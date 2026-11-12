@@ -15,7 +15,7 @@
 	.cemeti-page-head .cemeti-heading { grid-column: 1; grid-row: 2; }
 }
 .cemeti-heading a { color: inherit; text-decoration: none; }
-.cemeti-heading a:hover,
+.cemeti-heading a:hover { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }
 .cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }   /* prototype: blue #1C75BC and underlined on hover */
 .cemeti-container--wide { width: 100%; padding-inline: 0; }
 .cemeti-container--wide .cemeti-page-head { padding-inline: var(--gutter); }
@@ -46,8 +46,8 @@
 .cemeti-residency-intro h2 { margin: 0 0 0.6em; text-align: center; font-size: var(--fs-single-lead); line-height: 1.1; color: var(--c-ink); }
 .cemeti-residency-intro h2 a { text-decoration: none; }
 .cemeti-residency-intro h2 a:hover,
-.cemeti-residency-intro h2 a:focus-visible,
 .cemeti-residency-intro h2 a.is-active { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }
+.cemeti-residency-intro h2 a:focus-visible { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }
 .cemeti-results[aria-busy="true"] { opacity: 0.45; transition: opacity 0.15s; }
 .cemeti-residency-intro p { margin: 0 0 1em; }
 @media (max-width: 47.99rem) { .cemeti-residency-intro { width: 100%; } }
@@ -232,9 +232,9 @@
 /* ---- Section titles stay pinned under the header while their section scrolls; the content slides underneath
    and the title stays ON TOP of it (prototype behaviour). The title box lets clicks through except on the link. ---- */
 @media (min-width: 48rem) {
-	.cemeti-page-head { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
+	.cemeti-page-head { position: -webkit-sticky; position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
 	.cemeti-page-head a { pointer-events: auto; }
-	.cemeti-home .cemeti-heading { position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
+	.cemeti-home .cemeti-heading { position: -webkit-sticky; position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
 	.cemeti-home .cemeti-heading a { pointer-events: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -244,7 +244,7 @@
 .cemeti-home .cemeti-btn { width: min(100%, 17rem); }
 
 /* ---- Detail page: the contents bar stays at the top while reading ---- */
-.cemeti-single__nav--sticky { position: sticky; top: var(--header-h); z-index: 50; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
+.cemeti-single__nav--sticky { position: -webkit-sticky; position: sticky; top: var(--header-h); z-index: 50; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
 html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 6rem); }
 @media (max-width: 40rem) { .cemeti-single__nav--sticky { position: static; } html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); } }
 .cemeti-single__lead { max-width: var(--col); margin: 0 auto 1.4167em; font-weight: 500; }
@@ -280,7 +280,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 
 /* Home: the whole text block is one link; hovering it turns title, names and date salmon and underlined (prototype). */
 .cemeti-home__text { position: relative; }
-.cemeti-home__title a::after { content: ""; position: absolute; inset: 0; }
+.cemeti-home__title a::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; }
 .cemeti-home__text:hover .cemeti-home__title a,
 .cemeti-home__text:hover .cemeti-home__people,
 .cemeti-home__text:hover .cemeti-home__date { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.12em; }

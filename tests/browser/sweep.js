@@ -11,7 +11,7 @@ const path = require( 'path' );
 const { start } = require( './serve.js' );
 const dir = path.resolve( __dirname, '../../build/qa' );
 const pages = fs.readdirSync( dir ).filter( ( f ) => f.endsWith( '.html' ) && ! /^pair-.*-en|admin|infinite/.test( f ) ).map( ( f ) => f.replace( '.html', '' ) );
-const sizes = [ [ 320, 568 ], [ 360, 740 ], [ 390, 844 ], [ 412, 915 ], [ 600, 960 ], [ 768, 1024 ], [ 820, 1180 ], [ 1024, 768 ], [ 1280, 720 ], [ 1440, 900 ], [ 1920, 1080 ], [ 2560, 1440 ], [ 844, 390 ], [ 915, 412 ] ];
+const sizes = [ [ 320, 568 ], [ 360, 740 ], [ 390, 844 ], [ 412, 915 ], [ 430, 932 ], [ 600, 960 ], [ 768, 1024 ], [ 820, 1180 ], [ 1024, 768 ], [ 1180, 820 ], [ 1280, 720 ], [ 1366, 768 ], [ 1440, 900 ], [ 1536, 864 ], [ 1920, 1080 ], [ 2560, 1440 ], [ 844, 390 ], [ 915, 412 ] ];
 const issues = {};
 const add = ( k, m ) => { ( issues[ k ] = issues[ k ] || [] ).push( m ); };
 ( async () => {

@@ -45,6 +45,9 @@ function cemeti_enqueue_assets() {
 		)
 	);
 
+	$rel = 'assets/js/pin-heading.js';
+	wp_enqueue_script( 'cemeti-pin-heading', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
+
 	if ( is_post_type_archive() || is_tax() ) {
 		$rel = 'assets/js/infinite.js';
 		wp_enqueue_script( 'cemeti-infinite', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );

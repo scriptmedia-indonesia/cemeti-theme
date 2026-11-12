@@ -8,7 +8,7 @@
 
 /* ---- Header ---- */
 .cemeti-header {
-	position: sticky;
+	position: -webkit-sticky; position: sticky;
 	top: 0;
 	z-index: 100;
 	background: var(--c-cream);
@@ -24,6 +24,7 @@
 	padding: calc(var(--header-h) * 0.257) var(--gutter) calc(var(--header-h) * 0.0566);   /* baseline of Menu / EN-ID (24 px, 36 px line) at y 122 */
 }
 .cemeti-logo { justify-self: center; align-self: start; display: block; }
+.cemeti-logo picture { display: block; }
 .cemeti-logo img { width: clamp(7.5rem, 13.9vw, 12.5rem); }  /* 200 at 1440 */
 
 .cemeti-menu-toggle,
@@ -72,7 +73,7 @@
 /* ---- Search bar: yellow strip that replaces the header bar (same height) ---- */
 .cemeti-search {
 	position: absolute;
-	inset: 0;
+	top: 0; right: 0; bottom: 0; left: 0; inset: 0;
 	z-index: 2;
 	display: flex;
 	align-items: flex-end;
@@ -146,8 +147,13 @@
 .cemeti-menu__col { display: flex; flex-direction: column; }
 .cemeti-menu a { color: inherit; text-decoration: none; }
 .cemeti-menu a:hover,
-.cemeti-menu a:focus-visible,
 .cemeti-menu a[aria-current] {
+	color: var(--c-yellow);
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
+	text-decoration-thickness: 1px;
+}
+.cemeti-menu a:focus-visible {
 	color: var(--c-yellow);
 	text-decoration: underline;
 	text-underline-offset: 0.2em;
@@ -178,7 +184,7 @@
 /* ---- What's on panel ---- */
 .cemeti-whats-on {
 	position: fixed;
-	inset: 0;
+	top: 0; right: 0; bottom: 0; left: 0; inset: 0;
 	z-index: 200;
 	overflow-y: auto;
 	padding: clamp(1.5rem, 1rem + 3vw, 4rem) var(--gutter);

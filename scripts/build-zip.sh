@@ -22,7 +22,7 @@ rm -f "$zip_path"
 
 # The zip must hold the theme and nothing that belongs to development.
 list=$(unzip -Z1 "$zip_path")
-for need in scriptmedia-cemeti/style.css scriptmedia-cemeti/functions.php scriptmedia-cemeti/assets/fonts/vampiro-one-latin-400-normal.woff2 scriptmedia-cemeti/assets/img/logo-480.webp; do
+for need in scriptmedia-cemeti/style.css scriptmedia-cemeti/functions.php scriptmedia-cemeti/assets/fonts/vampiro-one-latin-400-normal.woff2 scriptmedia-cemeti/assets/img/logo-480.webp scriptmedia-cemeti/assets/img/logo-480.png; do
   printf '%s\n' "$list" | grep -qx "$need" || { echo "Missing in zip: $need" >&2; exit 1; }
 done
 if printf '%s\n' "$list" | grep -Eq '(^|/)(tests|docs|build|node_modules|\.git)(/|$)|\.zip$|\.env'; then

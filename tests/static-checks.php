@@ -361,6 +361,49 @@ foreach ( array( 'docs/MAINTENANCE.md', 'docs/LAUNCH-CHECKLIST.md', 'docs/ARCHIT
 	}
 }
 
+/* 10. Older browsers (Safari 13–14, Firefox ESR): what they cannot read must not take a whole rule or the script with it. */
+foreach ( glob( "$root/assets/css/*.css" ) as $cssfile ) {
+	$text = preg_replace( '#/\*.*?\*/#s', '', file_get_contents( $cssfile ) );
+	$name = basename( $cssfile );
+	// A selector list holding one selector the browser does not know is dropped completely by that browser.
+	preg_match_all( '/(?m)^([^\n{}@][^{}@]*?)\{/', $text, $rules );
+	foreach ( $rules[1] as $selector_list ) {
+		$parts = array_map( 'trim', explode( ',', $selector_list ) );
+		if ( count( $parts ) > 1 && preg_match( '/:(focus-visible|has|is|where|focus-within)\b|::backdrop/', $selector_list ) ) {
+			$err( "$name: '" . preg_replace( '/\s+/', ' ', trim( $selector_list ) ) . "' mixes selectors an older browser does not know with others (the whole rule is dropped there): give it its own rule" );
+		}
+	}
+	// position: sticky needs the -webkit- form before Safari 13; inset needs its four sides before Safari 14.1.
+	if ( preg_match_all( '/(?<![-\w])position:\s*sticky\s*;/', $text, $m, PREG_OFFSET_CAPTURE ) ) {
+		foreach ( $m[0] as $hit ) {
+			if ( ! preg_match( '/position:\s*-webkit-sticky\s*;\s*$/', substr( $text, max( 0, $hit[1] - 40 ), 40 ) ) ) {
+				$err( "$name: position: sticky without position: -webkit-sticky before it" );
+			}
+		}
+	}
+	if ( preg_match_all( '/(?<![-\w])inset:\s*0\s*;/', $text, $m, PREG_OFFSET_CAPTURE ) ) {
+		foreach ( $m[0] as $hit ) {
+			if ( ! preg_match( '/top:\s*0;\s*right:\s*0;\s*bottom:\s*0;\s*left:\s*0;\s*$/', substr( $text, max( 0, $hit[1] - 60 ), 60 ) ) ) {
+				$err( "$name: inset: 0 without top / right / bottom / left before it" );
+			}
+		}
+	}
+	if ( 'components.css' === $name && false !== strpos( $text, 'aspect-ratio: 308 / 386' ) && false === strpos( $text, '@supports not (aspect-ratio: 1)' ) ) {
+		$err( 'components.css: the archive card needs its padding fallback for browsers without aspect-ratio' );
+	}
+}
+foreach ( glob( "$root/assets/js/*.js" ) as $jsfile ) {
+	$code = file_get_contents( $jsfile );
+	$code = preg_replace( '#/\*.*?\*/#s', '', $code );
+	$code = preg_replace( '#(?<![:\'"])//[^\n]*#', '', $code );
+	$code = preg_replace( "/'(?:\\\\.|[^'\\\\\n])*'|\"(?:\\\\.|[^\"\\\\\n])*\"/", '""', $code );
+	foreach ( array( '/\?\.[A-Za-z_\[(]/' => 'optional chaining (?.)', '/\?\?/' => 'nullish coalescing (??)', '/\.replaceAll\(/' => 'replaceAll', '/\.at\(-?\d/' => 'Array.at', '/structuredClone\(/' => 'structuredClone', '/\.flatMap\(/' => 'flatMap', '/Object\.hasOwn\(/' => 'Object.hasOwn', '/AbortSignal\.timeout/' => 'AbortSignal.timeout', '/:has\(/' => ':has() in a selector' ) as $re => $what ) {
+		if ( preg_match( $re, $code ) ) {
+			$err( basename( $jsfile ) . ": uses $what, which Safari 13 / older Firefox do not have" );
+		}
+	}
+}
+
 echo count( $php ) . " PHP files, " . count( $css_classes ) . " CSS classes, " . count( $strings ) . " UI strings, " . count( $defined ) . " functions checked\n";
 foreach ( $warn as $w ) {
 	echo "WARN  $w\n";

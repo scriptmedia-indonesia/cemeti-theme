@@ -115,6 +115,11 @@ $os = CemetiWP::post( array( 'post_type' => 'open_studio', 'post_title' => 'Open
 $h = page( 'single-open-studio', 'single.php', array( 'singular' => true ), array( 'post' => $os, 'path' => '/open-studio/x/' ) );
 ok( false === strpos( $h, 'id="toc"' ) && false !== strpos( $h, '10 – 30 March 2026' ), 'open studio: no contents bar, date range shown' );
 
+// ---- Logo: WebP for browsers that have it, PNG for the others (Safari before macOS 11 showed an empty box)
+$h = file_get_contents( "$out/home.html" );
+ok( 1 === preg_match( '#<picture>\s*<source type="image/webp" srcset="[^"]*logo-480\.webp[^"]*"[^>]*>\s*<img src="[^"]*logo-480\.png"#', $h ), 'logo: a picture with a WebP source and a PNG image to fall back on' );
+ok( is_file( dirname( __DIR__ ) . '/themes/scriptmedia-cemeti/assets/img/logo-480.png' ) && is_file( dirname( __DIR__ ) . '/themes/scriptmedia-cemeti/assets/img/logo-960.png' ), 'logo: the PNG files exist' );
+
 // ---- Admin "Details" box, for the browser tests of the editing screen (tests/browser/browser-qa.js)
 do_action( 'add_meta_boxes' );
 ob_start();

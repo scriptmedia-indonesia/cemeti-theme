@@ -82,7 +82,7 @@ function cemeti_current_image() {
 			return $src;
 		}
 	}
-	return CEMETI_URI . '/assets/img/logo.webp';
+	return CEMETI_URI . '/assets/img/logo-960.png';
 }
 
 /**
@@ -193,7 +193,7 @@ function cemeti_current_schema() {
 			array(
 				'name'    => $name,
 				'url'     => cemeti_home_url(),
-				'logo'    => CEMETI_URI . '/assets/img/logo.webp',
+				'logo'    => CEMETI_URI . '/assets/img/logo-960.png',
 				'address' => str_replace( "\n", ', ', cemeti_option( 'address' ) ),
 				'email'   => is_email( cemeti_option( 'email' ) ) ? cemeti_option( 'email' ) : '',
 				'same_as' => $socials,

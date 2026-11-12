@@ -81,7 +81,7 @@ refresh by themselves after a theme update (`cemeti_flush_after_update`). Add da
 
 **Change or add a font weight**: put the WOFF2 in `assets/fonts/`, add an `@font-face` in `tokens.css` under the family name `"Akzidenz-Grotesk Next"`; the preload in `inc/enqueue.php` covers only the Regular file.
 
-**Swap the logo**: replace `assets/img/logo.webp` and regenerate `logo-480.webp` / `logo-960.webp` (see the
+**Swap the logo**: replace `assets/img/logo.webp` and regenerate `logo-480` / `logo-960` in WebP **and PNG** (the PNG is for browsers that cannot show WebP; the same script, saving `.png`) (see the
 build note below). Prefer an SVG once the client has one; then use it in `header.php` and drop the two sizes.
 
 **Change how the old site's categories are sorted**: `config/migration-rules.php` (or the `cemeti_config`
@@ -196,3 +196,13 @@ PY
   downloadable after the old site is replaced (like the pictures; needs the same outgoing connection to the old site).
 - **History** is its own page, below About in the menu. The years are edited in Pages → History → "History (chronology)"
   (Add Year each year). Text that was saved on the About page earlier is used until the History page has its own.
+
+## Browser support
+
+Designed for the current and previous major versions of Chrome, Edge, Firefox and Safari (iOS and macOS), with graceful
+fallbacks down to Safari 13/14: logo as PNG where WebP is not shown, `-webkit-sticky`, selector lists without
+`:focus-visible` mixed in, `inset` and card boxes with older forms. `tests/static-checks.php` fails when CSS/JS uses
+something those browsers cannot read without a fallback. Chromium is the only engine in the automated tests; before a
+launch open the pages once in Safari (macOS and iPhone) and Firefox. **Pictures uploaded as WebP** are not shown by Safari
+before macOS 11 / Safari 14 whatever the theme does: use JPEG for the Media Library (or a plugin that serves JPEG to those
+browsers).

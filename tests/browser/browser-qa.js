@@ -394,6 +394,38 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 7e3. Pinned section titles: CSS sticky, and the script that takes over when a browser does not honour it. */
+	{
+		const pinTop = ( page ) => page.evaluate( () => { const h = document.querySelector( '.cemeti-home .cemeti-heading' ); const hd = document.querySelector( '.cemeti-header' ); return [ Math.round( h.getBoundingClientRect().top ), Math.round( hd.getBoundingClientRect().bottom + 8 ) ]; } );
+		const a = await open( browser, 'home', 1280, 700, { reducedMotion: 'no-preference' } );
+		await a.page.evaluate( () => window.scrollTo( 0, 700 ) );
+		await a.page.waitForTimeout( 250 );
+		await a.page.evaluate( () => window.scrollTo( 0, 760 ) );
+		await a.page.waitForTimeout( 250 );
+		const sticky = await a.page.evaluate( () => ( { fb: document.documentElement.classList.contains( 'cemeti-pin-fallback' ), pinned: [ ...document.querySelectorAll( '.cemeti-home .cemeti-heading' ) ].some( ( h ) => h.hasAttribute( 'data-pin' ) ) } ) );
+		ok( ! sticky.fb && ! sticky.pinned, 'pin: where CSS sticky works the script does nothing' );
+		await a.ctx.close();
+		const b = await open( browser, 'home', 1280, 700, { reducedMotion: 'no-preference' } );
+		await b.page.addStyleTag( { content: '.cemeti-page-head, .cemeti-home .cemeti-heading { position: static !important; }' } );
+		await b.page.evaluate( () => window.scrollTo( 0, 300 ) );
+		await b.page.waitForTimeout( 250 );
+		await b.page.evaluate( () => window.scrollTo( 0, 700 ) );
+		await b.page.waitForTimeout( 350 );
+		const [ top, line ] = await b.page.evaluate( () => {
+			const hd = document.querySelector( '.cemeti-header' ).getBoundingClientRect().bottom + 8;
+			const heads = [ ...document.querySelectorAll( '.cemeti-home .cemeti-heading' ) ];
+			const tops = heads.filter( ( h ) => parseFloat( h.getAttribute( 'data-pin' ) || '0' ) > 0 ).map( ( h ) => Math.round( h.getBoundingClientRect().top ) );
+			const best = tops.sort( ( x, y ) => Math.abs( x - hd ) - Math.abs( y - hd ) )[ 0 ];
+			return [ best === undefined ? -9999 : best, Math.round( hd ) ];
+		} );
+		ok( Math.abs( top - line ) <= 4, `pin: when the browser ignores sticky, the script keeps the title under the header (${ top } vs ${ line })` );
+		await b.page.evaluate( () => window.scrollTo( 0, 0 ) );
+		await b.page.waitForTimeout( 350 );
+		const back = await b.page.evaluate( () => [ ...document.querySelectorAll( '.cemeti-home .cemeti-heading' ) ].every( ( h ) => ! h.style.transform ) );
+		ok( back, 'pin: back at the top the titles are where they started' );
+		await b.ctx.close();
+	}
+
 	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
 	{
 		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );

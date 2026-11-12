@@ -33,11 +33,11 @@
 	cursor: pointer;
 	transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.cemeti-btn:hover,
+.cemeti-btn:hover { background: var(--c-salmon); color: var(--c-ink); }
 .cemeti-btn:focus-visible { background: var(--c-salmon); color: var(--c-ink); }
 .cemeti-btn--blue { background: var(--c-blue); }
 .cemeti-btn--blue:not(.cemeti-btn--inline) { width: min(100%, 17rem); }
-.cemeti-btn--blue:hover,
+.cemeti-btn--blue:hover { background: var(--c-blue); color: var(--c-yellow); }
 .cemeti-btn--blue:focus-visible { background: var(--c-blue); color: var(--c-yellow); }
 
 /* Archive card (Figma): 308 x 386 poster (4:5); the title block sits over the bottom of the poster,
@@ -52,7 +52,9 @@
 }
 .cemeti-card { position: relative; }
 .cemeti-card a { display: block; position: relative; aspect-ratio: 308 / 386; overflow: hidden; text-decoration: none; }
-.cemeti-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; background: var(--c-panel); } /* the whole picture, same box; landscape ones sit at the top, clear of the title panel */
+/* Browsers without aspect-ratio (Safari before 15): the same 308 x 386 box from a padding. */
+@supports not (aspect-ratio: 1) { .cemeti-card a::before { content: ""; display: block; padding-top: 125.32%; } }
+.cemeti-card__image { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; background: var(--c-panel); } /* the whole picture, same box; landscape ones sit at the top, clear of the title panel */
 .cemeti-card__body {
 	position: absolute;
 	inset: auto 0 0 0;
@@ -73,7 +75,7 @@
 	line-height: 1.2;
 }
 .cemeti-card__date { font-size: var(--fs-card-date); line-height: 1.2; }
-.cemeti-card a:hover .cemeti-card__title,
+.cemeti-card a:hover .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
 .cemeti-card a:focus-visible .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
 .cemeti-card a:hover .cemeti-card__image { opacity: 0.92; }
 
