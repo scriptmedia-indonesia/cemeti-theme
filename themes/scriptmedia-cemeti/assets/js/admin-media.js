@@ -58,7 +58,7 @@
 		if ( r.filled !== undefined ) {
 			return ' — featured image set on ' + r.filled + ' entries' + ( r.nothing ? ', ' + r.nothing + ' have no picture to use' : '' );
 		}
-		return ' — checked OK ' + r.ok + ', restored ' + r.restored + ', failed ' + r.failed + ' · posts fixed ' + r.posts + ', pictures added ' + r.created + ', featured set ' + r.thumbs;
+		return ' — checked OK ' + r.ok + ', restored ' + r.restored + ', failed ' + r.failed + ' · booklets ' + ( r.booklets || 0 ) + ' · posts fixed ' + r.posts + ', pictures added ' + r.created + ', featured set ' + r.thumbs;
 	}
 	async function run( phase ) {
 		if ( running ) {
@@ -66,8 +66,8 @@
 		}
 		stopped = false;
 		lock( true );
-		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : ( 'thumbs' === phase ? 'Setting featured images' : 'Working' ) );
-		var fresh = 'posts' === phase || 'thumbs' === phase;
+		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : ( 'thumbs' === phase ? 'Setting featured images' : ( 'booklets' === phase ? 'Fetching booklets' : 'Working' ) ) );
+		var fresh = 'posts' === phase || 'thumbs' === phase || 'booklets' === phase;
 		var tries = 0;
 		while ( ! stopped ) {
 			try {

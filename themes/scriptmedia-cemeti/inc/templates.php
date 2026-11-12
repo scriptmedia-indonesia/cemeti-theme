@@ -107,6 +107,69 @@ function cemeti_featured_post( $post_type ) {
 }
 
 /**
+ * Group titles by first letter for the Open Archive page.
+ * Leading quotes and punctuation are ignored; accents are folded for sorting.
+ *
+ * @param array<int, array{title:string,url:string}> $entries Entries.
+ * @return array<string, array<int, array{title:string,url:string}>> Letter => entries, A–Z then "#".
+ */
+function cemeti_group_az( array $entries ) {
+	$fold = static function ( $text ) {
+		$text = trim( preg_replace( '/^[^\p{L}\p{N}]+/u', '', (string) $text ) );
+		return function_exists( 'remove_accents' ) ? remove_accents( $text ) : $text;
+	};
+
+	$groups = array();
+	foreach ( $entries as $entry ) {
+		$key    = $fold( $entry['title'] );
+		$letter = '' !== $key ? strtoupper( substr( $key, 0, 1 ) ) : '#';
+		$letter = preg_match( '/^[A-Z]$/', $letter ) ? $letter : '#';
+		$groups[ $letter ][] = array_merge( $entry, array( 'sort' => strtolower( $key ) ) );
+	}
+	ksort( $groups );
+	if ( isset( $groups['#'] ) ) {
+		$numbers = $groups['#'];
+		unset( $groups['#'] );
+		$groups['#'] = $numbers;
+	}
+	foreach ( $groups as $letter => $items ) {
+		usort(
+			$items,
+			static function ( $a, $b ) {
+				return strcmp( $a['sort'], $b['sort'] );
+			}
+		);
+		$groups[ $letter ] = array_map(
+			static function ( $item ) {
+				unset( $item['sort'] );
+				return $item;
+			},
+			$items
+		);
+	}
+	return $groups;
+}
+
+/**
+ * Split A–Z groups into the two columns of the design (A–M and N–Z).
+ *
+ * @param array $groups Output of cemeti_group_az().
+ * @return array{0:array,1:array}
+ */
+function cemeti_split_az( array $groups ) {
+	$left  = array();
+	$right = array();
+	foreach ( $groups as $letter => $items ) {
+		if ( '#' === $letter || $letter <= 'M' ) {
+			$left[ $letter ] = $items;
+		} else {
+			$right[ $letter ] = $items;
+		}
+	}
+	return array( $left, $right );
+}
+
+/**
  * Share links for an entry.
  *
  * @param string $url   Absolute URL.

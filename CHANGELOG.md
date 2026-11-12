@@ -3,6 +3,18 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.50
+
+- **Open Archive keeps its design again**: the A–Z list in two columns (A–M and N–Z), titles in quotes, exactly as before.
+  The filters and the Download / Read buttons added in 0.9.49 are removed. Only the content changed: the list is made of
+  the booklets of the entries and the News posts (each title links to its file or post).
+- **Booklets from the existing website.** New step **"3. Fetch booklets"** in Tools → Cemeti Converter → "0. Media": the
+  PDFs that entries still link to on the old site (`…/wp-content/uploads/….pdf`) are downloaded into this site's Media
+  Library and set as the entry's **Booklet (PDF)** (the link is kept). So the files stay downloadable after the old site is
+  replaced, like the pictures. Same safeguards as the picture repair: only the old site is downloaded from, steps of about
+  12 seconds that continue by themselves and retry after a server error, failed files listed and retried by pressing the
+  button again; PDFs on other websites are left as they are.
+
 ## 0.9.49
 
 Client review of the structure of the site.

@@ -28,7 +28,7 @@ docs/                  you are here
 | `queries.php` | main-query rules for archives and search, News left out of Journal, second-language lists |
 | `templates.php` | helpers used by templates (headings, photos, share, stand-in pictures) |
 | `history.php` | the History page: chronology rows per year and the box to edit them |
-| `archive.php` | the Open Archive database: booklets of the entries and News posts, filters |
+| `archive.php` | the Open Archive list: booklets of the entries and News posts |
 | `navigation.php` | overlay menu definition and rendering |
 | `applications.php` | Open Call form handler, uploads, e-mails, admin side |
 | `search.php`, `seo.php`, `security.php` | people-aware search; meta/JSON-LD/robots; hardening and headers |
@@ -187,8 +187,12 @@ PY
 
 - **Journal** is the collection of writings and essays to read on the web: Essay and Curatorial Essay. Entries of the
   Journal category **News** are not listed in Journal (nor on Home); they appear in the Open Archive.
-- **Open Archive** is a database of what can be read or downloaded freely. It is made by itself: every entry
-  (Exhibition, Residency, Public Program, Open Studio) that has a **Booklet (PDF)** or a booklet link, and every News
-  post. Add a booklet in the entry's editor (section Booklet) and it appears here (Download); News posts have a Read link.
+- **Open Archive** keeps its design (A–Z, two columns). Its content is what can be read or downloaded freely, made by
+  itself: every entry (Exhibition, Residency, Public Program, Open Studio) that has a **Booklet (PDF)** or a booklet link,
+  and every News post. Add a booklet in the entry's editor (section Booklet) and it appears here; each title links to its
+  file or post.
+- **Booklets from the old site:** Tools → Cemeti Converter → "0. Media" → **3. Fetch booklets** downloads the PDFs that
+  entries still link to on the old site into this Media Library and sets them as the entry's Booklet (PDF), so they stay
+  downloadable after the old site is replaced (like the pictures; needs the same outgoing connection to the old site).
 - **History** is its own page, below About in the menu. The years are edited in Pages → History → "History (chronology)"
   (Add Year each year). Text that was saved on the About page earlier is used until the History page has its own.

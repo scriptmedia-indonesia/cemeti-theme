@@ -51,6 +51,7 @@ $png = base64_decode( 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42
 $GLOBALS['qa_remote'] = array(
 	'https://cemeti.art/wp-content/uploads/2021/06/a.jpg'  => $png,
 	'https://cemeti.art/wp-content/uploads/2021/06/b.jpg'  => $png,
+	'https://cemeti.art/wp-content/uploads/2021/07/book.pdf' => "%PDF-1.4\n%fake",
 	'https://cemeti.art/wp-content/uploads/2021/06/html.jpg' => '<html>not an image</html>',
 	'https://cemeti.art/wp-content/uploads/2021/06/moved.jpg' => $png,
 );
@@ -182,5 +183,28 @@ $r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'reset' ) );
 ok( 'done' === $r->payload['data']['phase'] && 0 === cemeti_media_report()['posts'], 'ajax: start over clears the report' );
 $r = qa_ajax( array( 'nonce' => 'valid', 'phase' => 'nonsense' ) );
 ok( 'files' === $r->payload['data']['phase'], 'ajax: an unknown phase falls back to restoring files' );
+
+/* ---- booklets: the PDFs that entries link to on the old site are brought into the Media Library */
+$bk_ok   = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Has a booklet', 'meta' => array( 'cemeti_booklet_url' => 'https://cemeti.art/wp-content/uploads/2021/07/book.pdf' ) ) );
+$bk_far  = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Booklet elsewhere', 'meta' => array( 'cemeti_booklet_url' => 'https://example.org/files/book.pdf' ) ) );
+$bk_gone = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Booklet gone', 'meta' => array( 'cemeti_booklet_url' => 'https://cemeti.art/wp-content/uploads/2020/01/missing-book.pdf' ) ) );
+$bk_have = CemetiWP::post( array( 'post_type' => 'open_studio', 'post_title' => 'Already ours', 'meta' => array( 'cemeti_booklet_url' => 'https://cemeti.art/wp-content/uploads/2021/07/book.pdf', 'cemeti_booklet' => $att ) ) );
+delete_option( 'cemeti_media_report' );
+ok( 2 === cemeti_media_unfetched_booklets( 10 )['total'], 'booklets: only old-site PDFs without a file of this site are to do (' . cemeti_media_unfetched_booklets( 10 )['total'] . ')' );
+$left = cemeti_media_step( 'booklets', 18.0 );
+$bid  = (int) get_post_meta( $bk_ok, 'cemeti_booklet', true );
+ok( 0 === $left && $bid && 'attachment' === CemetiWP::$posts[ $bid ]['post_type'] && is_file( $uploads . '/2021/07/book.pdf' ), 'booklets: the PDF is downloaded and becomes the entry\'s Booklet (PDF)' );
+ok( 'https://cemeti.art/wp-content/uploads/2021/07/book.pdf' === get_post_meta( $bk_ok, 'cemeti_booklet_url', true ) && 'ok' === get_post_meta( $bk_ok, '_cemeti_booklet_state', true ), 'booklets: the link is kept and the entry is marked done' );
+ok( ! get_post_meta( $bk_far, 'cemeti_booklet', true ) && ! get_post_meta( $bk_far, '_cemeti_booklet_state', true ), 'booklets: a PDF on another website is never downloaded' );
+ok( 'failed' === get_post_meta( $bk_gone, '_cemeti_booklet_state', true ) && ! get_post_meta( $bk_gone, 'cemeti_booklet', true ), 'booklets: a PDF the old site no longer has is marked failed, nothing set' );
+$rep = cemeti_media_report();
+ok( 1 === $rep['booklets'] && false !== strpos( implode( ' ', $rep['errors'] ), 'Booklet gone' ), 'booklets: the report counts them and names the entry that failed' );
+ok( $att === (int) get_post_meta( $bk_have, 'cemeti_booklet', true ), 'booklets: an entry that already has its own file is left alone' );
+$left2 = cemeti_media_step( 'booklets', 18.0 );
+ok( 0 === $left2 && 1 === cemeti_media_report()['booklets'], 'booklets: running again changes nothing and ends' );
+$GLOBALS['qa_remote']['https://cemeti.art/wp-content/uploads/2020/01/missing-book.pdf'] = "%PDF-1.4\n%now there";
+$_POST = $_REQUEST = array( 'nonce' => 'valid', 'phase' => 'booklets', 'fresh' => '1' );
+try { cemeti_media_ajax(); } catch ( CemetiJson $j ) { ok( 'booklets' === $j->payload['data']['phase'] && 0 === $j->payload['data']['remaining'], 'booklets: the page\'s own runner accepts the phase' ); }
+ok( (int) get_post_meta( $bk_gone, 'cemeti_booklet', true ) > 0 && 'ok' === get_post_meta( $bk_gone, '_cemeti_booklet_state', true ), 'booklets: pressing the button again tries the failed ones again (the file is there now)' );
 
 qa_done();

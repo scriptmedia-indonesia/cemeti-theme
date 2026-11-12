@@ -115,7 +115,7 @@ $render = static function ( $slug, $template ) use ( $by_slug ) {
 	return $html;
 };
 $h = $render( 'open-archive', 'page-open-archive.php' );
-ok( false !== strpos( $h, 'cemeti-archive__item' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ) && false === strpos( $h, 'cemeti-az' ), 'Open Archive lists the booklets and News as a database (no A-Z)' );
+ok( false !== strpos( $h, 'cemeti-az__letter' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ), 'Open Archive lists the booklets and News A-Z (the design)' );
 $h = $render( 'support-us', 'page-support-us.php' );
 ok( 4 === substr_count( $h, '<summary>' ) && false !== strpos( $h, 'Patron of Cemeti' ) && false !== strpos( $h, 'Coming soon' ), 'Support Us shows its four rows' );
 $h = $render( 'contact-us', 'page-contact-us.php' );
@@ -327,6 +327,6 @@ qa_reset_data();
 do_action( 'after_switch_theme' );
 $id = $by_slug( 'open-archive' );
 $html = qa_render( 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $id, 'path' => '/open-archive/' ) );
-ok( ! qa_check_html( $html ) && false !== strpos( $html, 'data-cemeti-archive' ), 'Open Archive on an empty site renders without entries' );
+ok( ! qa_check_html( $html ) && false !== strpos( $html, 'cemeti-az' ), 'Open Archive on an empty site renders without entries' );
 
 qa_done();

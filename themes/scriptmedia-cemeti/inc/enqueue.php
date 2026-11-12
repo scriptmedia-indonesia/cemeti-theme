@@ -55,11 +55,6 @@ function cemeti_enqueue_assets() {
 		wp_enqueue_script( 'cemeti-residency-filter', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
 	}
 
-	if ( is_page() && 'open-archive' === cemeti_page_key( get_queried_object_id() ) ) {
-		$rel = 'assets/js/archive-filter.js';
-		wp_enqueue_script( 'cemeti-archive-filter', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );
-	}
-
 	if ( is_page() && 'support-us' === cemeti_page_key( get_queried_object_id() ) ) {
 		$rel = 'assets/js/accordion.js';
 		wp_enqueue_script( 'cemeti-accordion', CEMETI_URI . '/' . $rel, array(), cemeti_asset_version( $rel ), array( 'in_footer' => true, 'strategy' => 'defer' ) );

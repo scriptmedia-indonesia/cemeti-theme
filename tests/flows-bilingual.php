@@ -275,8 +275,7 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 	$jr = $render( $lang, 'journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/j/', 'query' => array( 'post_type' => 'journal', 'lang' => $lang ), 'flags' => array( 'pta' => 'journal' ) ) );
 	ok( false === strpos( $jr, 'Rangkaian Perayaan #37thCemeti' ), "[$lang] Journal list: News posts are not in it" );
 	$oa = $render( $lang, 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => 'en' === $lang ? $ids['p_archive'] : $id_page['open-archive'], 'path' => '/oa/' ) );
-	ok( false !== strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-archive__action' ), "[$lang] Open Archive: the News post and the booklets are listed" );
-	ok( false !== strpos( $oa, 'en' === $lang ? '>Download<' : '>Unduh<' ), "[$lang] Open Archive: the action button is in the page's language" );
+	ok( false !== strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-az__letter' ), "[$lang] Open Archive: the News post and the booklets are listed A-Z" );
 }
 if ( getenv( "QA_DUMP" ) ) { file_put_contents( "/tmp/id-home.html", $home_id ); file_put_contents( "/tmp/id-single.html", $render( "id", "x", "single.php", array( "singular" => true ), array( "post" => $id_ex, "path" => "/x/" ) ) ); }
 qa_done();

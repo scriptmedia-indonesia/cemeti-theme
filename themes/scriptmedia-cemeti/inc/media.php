@@ -449,7 +449,7 @@ function cemeti_media_post_types() {
 function cemeti_media_report() {
 	$report = get_option( 'cemeti_media_report', array() );
 	return array_merge(
-		array( 'ok' => 0, 'restored' => 0, 'failed' => 0, 'posts' => 0, 'created' => 0, 'thumbs' => 0, 'errors' => array() ),
+		array( 'ok' => 0, 'restored' => 0, 'failed' => 0, 'posts' => 0, 'created' => 0, 'thumbs' => 0, 'booklets' => 0, 'errors' => array() ),
 		is_array( $report ) ? $report : array()
 	);
 }
@@ -515,9 +515,71 @@ function cemeti_media_unrepaired_posts( $limit ) {
 }
 
 /**
+ * Entries whose booklet is still a link to the old site (a PDF under /wp-content/uploads/) and has not been brought into
+ * the Media Library yet. A booklet link to another website is left as it is.
+ *
+ * @param int $limit Maximum.
+ * @return array{ids:int[],total:int}
+ */
+function cemeti_media_unfetched_booklets( $limit ) {
+	$q = new WP_Query(
+		array(
+			'post_type'        => array( 'exhibition', 'residency', 'public_program', 'open_studio' ),
+			'post_status'      => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+			'posts_per_page'   => -1,
+			'fields'           => 'ids',
+			'orderby'          => 'ID',
+			'order'            => 'ASC',
+			'no_found_rows'    => true,
+			'suppress_filters' => true,
+			'meta_key'         => 'cemeti_booklet_url', // phpcs:ignore WordPress.DB.SlowDBQuery
+		)
+	);
+	$ids = array();
+	foreach ( $q->posts as $post_id ) {
+		if ( '' !== (string) get_post_meta( (int) $post_id, '_cemeti_booklet_state', true ) ) {
+			continue; // Done, or failed (the button tries the failed ones again).
+		}
+		$url = (string) get_post_meta( (int) $post_id, 'cemeti_booklet_url', true );
+		if ( false === stripos( $url, '.pdf' ) ) {
+			continue;
+		}
+		$own = (int) get_post_meta( (int) $post_id, 'cemeti_booklet', true );
+		if ( $own && 'attachment' === get_post_type( $own ) ) {
+			update_post_meta( (int) $post_id, '_cemeti_booklet_state', 'ok' ); // Already a file of this site.
+			continue;
+		}
+		if ( '' !== cemeti_media_rel_path( $url ) && cemeti_media_is_old_site( $url ) ) {
+			$ids[] = (int) $post_id;
+		}
+	}
+	return array( 'ids' => array_slice( $ids, 0, $limit ), 'total' => count( $ids ) );
+}
+
+/**
+ * Bring the booklet of an entry from the old site into this site's Media Library and make it the entry's Booklet (PDF).
+ * The link is kept as it was.
+ *
+ * @param int $post_id Entry.
+ * @return int|string Attachment ID, or an error message.
+ */
+function cemeti_media_import_booklet( $post_id ) {
+	$url = (string) get_post_meta( $post_id, 'cemeti_booklet_url', true );
+	$id  = cemeti_media_find_by_url( $url );
+	if ( ! $id ) {
+		$id = cemeti_media_create_from_url( $url, $post_id );
+	}
+	if ( ! is_int( $id ) || ! $id ) {
+		return is_string( $id ) ? $id : 'Could not import ' . $url;
+	}
+	update_post_meta( $post_id, 'cemeti_booklet', $id );
+	return $id;
+}
+
+/**
  * One time-boxed step of the repair; returns what is left.
  *
- * @param string $phase 'files' or 'posts'.
+ * @param string $phase 'files', 'posts' or 'booklets'.
  * @param float  $budget Seconds a step may take.
  * @return int Items still to do.
  */
@@ -551,6 +613,26 @@ function cemeti_media_step( $phase, $budget = 12.0 ) {
 			}
 		}
 		return cemeti_media_finish_step( $report, cemeti_media_unchecked_attachments( 1 )['total'] );
+	}
+	if ( 'booklets' === $phase ) {
+		$batch = cemeti_media_unfetched_booklets( 50 );
+		foreach ( $batch['ids'] as $post_id ) {
+			$result = cemeti_media_import_booklet( $post_id );
+			if ( is_int( $result ) ) {
+				++$report['booklets'];
+				update_post_meta( $post_id, '_cemeti_booklet_state', 'ok' );
+			} elseif ( false !== strpos( $result, 'Out of time for this step' ) || cemeti_media_clock( 'net_count' ) >= 1 ) {
+				break; // Not marked: done again in the next step (or the old site cannot be reached).
+			} else {
+				update_post_meta( $post_id, '_cemeti_booklet_state', 'failed' );
+				++$report['failed'];
+				$report = cemeti_media_report_error( $report, get_the_title( $post_id ) . ': ' . $result );
+			}
+			if ( cemeti_media_clock( 'passed' ) ) {
+				break;
+			}
+		}
+		return cemeti_media_finish_step( $report, cemeti_media_unfetched_booklets( 1 )['total'] );
 	}
 	$batch = cemeti_media_unrepaired_posts( 50 );
 	foreach ( $batch['ids'] as $post_id ) {
@@ -619,10 +701,20 @@ function cemeti_media_prepare( $phase, $fresh = false ) {
 				delete_post_meta( (int) $id, '_cemeti_media_post' );
 			}
 		}
+		$booklets = new WP_Query( array( 'post_type' => array( 'exhibition', 'residency', 'public_program', 'open_studio' ), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'reset' === $phase ? '' : 'failed', 'meta_compare' => 'reset' === $phase ? '!=' : '=' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		foreach ( $booklets->posts as $id ) {
+			delete_post_meta( (int) $id, '_cemeti_booklet_state' );
+		}
 		delete_option( 'cemeti_media_report' );
 		return 'done';
 	}
-	$phase = 'posts' === $phase ? 'posts' : 'files';
+	$phase = in_array( $phase, array( 'posts', 'booklets' ), true ) ? $phase : 'files';
+	if ( 'booklets' === $phase && $fresh ) {
+		$failed = new WP_Query( array( 'post_type' => array( 'exhibition', 'residency', 'public_program', 'open_studio' ), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'failed' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		foreach ( $failed->posts as $id ) {
+			delete_post_meta( (int) $id, '_cemeti_booklet_state' ); // Pressing the button again tries the failed ones again.
+		}
+	}
 	if ( 'posts' === $phase && $fresh ) {
 		$again = new WP_Query( array( 'post_type' => cemeti_media_post_types(), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_media_missing' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		foreach ( $again->posts as $id ) {
@@ -692,11 +784,12 @@ function cemeti_media_panel() {
 	<ol>
 		<li><strong>Restore files</strong>: every item of the Media Library (<?php echo (int) $attachments; ?>) whose file is missing on this site is downloaded again from the old site and its sizes are made.</li>
 		<li><strong>Fix posts</strong>: every picture written in a post's text gets a Media Library item (downloaded if needed) and a post without a valid featured image gets the first picture of its text.</li>
+		<li><strong>Fetch booklets</strong>: the PDF booklets that entries still link to on the old site are downloaded into this Media Library and set as the entry's Booklet (PDF), so they stay downloadable (Open Archive, entry pages) after the old site is replaced.</li>
 	</ol>
 	<p class="description">It works in steps of about 12 seconds and continues by itself. It is safe to run again; pictures already there are not downloaded twice. Afterwards use <strong>Revert all</strong> and <strong>Convert</strong> again, so the gallery and documentation are built from the repaired pictures.</p>
 	<?php if ( $phase && 'reset' !== $phase ) : ?>
 		<div class="notice notice-info"><p>
-			<?php echo 'posts' === $phase ? 'Fixing posts' : 'Restoring files'; ?>: <?php echo (int) $left; ?> left
+			<?php echo 'posts' === $phase ? 'Fixing posts' : ( 'booklets' === $phase ? 'Fetching booklets' : 'Restoring files' ); ?>: <?php echo (int) $left; ?> left
 			<?php echo $left < 0 ? ' — STOPPED: this server cannot reach the old site (see the problem below).' : ( $left > 0 ? ' — continuing automatically…' : ' — finished.' ); ?>
 		</p></div>
 		<?php if ( $left > 0 ) : ?>
@@ -706,6 +799,7 @@ function cemeti_media_panel() {
 		<div class="notice notice-success"><p>Checks cleared. Run the steps again.</p></div>
 	<?php endif; ?>
 	<p>
+		Booklets fetched: <strong><?php echo (int) $report['booklets']; ?></strong> &nbsp;|&nbsp;
 		Files checked OK: <strong><?php echo (int) $report['ok']; ?></strong> · restored: <strong><?php echo (int) $report['restored']; ?></strong> · failed: <strong><?php echo (int) $report['failed']; ?></strong>
 		&nbsp;|&nbsp; Posts fixed: <strong><?php echo (int) $report['posts']; ?></strong> · pictures added: <strong><?php echo (int) $report['created']; ?></strong> · featured images set: <strong><?php echo (int) $report['thumbs']; ?></strong>
 	</p>
@@ -730,6 +824,7 @@ function cemeti_media_panel() {
 		<p>
 			<a class="button button-primary" data-phase="files" href="<?php echo esc_url( $url( 'files' ) ); ?>">1. Restore files</a>
 			<a class="button button-primary" data-phase="posts" href="<?php echo esc_url( $url( 'posts' ) . '&fresh=1' ); ?>">2. Fix posts</a>
+			<a class="button button-primary" data-phase="booklets" href="<?php echo esc_url( $url( 'booklets' ) . '&fresh=1' ); ?>">3. Fetch booklets</a>
 			<a class="button" data-phase="retry" href="<?php echo esc_url( $url( 'retry' ) ); ?>">Retry the failed files</a>
 			<a class="button" data-phase="reset" href="<?php echo esc_url( $url( 'reset' ) ); ?>">Start over</a>
 			<button type="button" class="button cemeti-media-stop" hidden>Stop</button>

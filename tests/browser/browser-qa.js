@@ -500,30 +500,10 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( color === 'rgb(241, 97, 84)', 'residency filter: the chosen category is shown in red (' + color + ')' );
 			await r.ctx.close();
 		}
-		/* Open Archive: a database of booklets and News, filtered in place by kind and year. */
-		for ( const [ w, label ] of [ [ 1440, 'desktop' ], [ 360, 'phone' ] ] ) {
-			const ar = await open( browser, 'page-open-archive', w, 900, { reducedMotion: 'reduce' } );
-			const visible = () => ar.page.locator( '.cemeti-archive__item:not([hidden])' ).count();
-			const total = await visible();
-			ok( total >= 3 && await ar.page.locator( '.cemeti-archive__type' ).count() === 3, `archive (${ label }): the database lists the booklets and News, with All / Booklet / News filters (${ total })` );
-			await ar.page.locator( '.cemeti-archive__type[data-type="news"]' ).click();
-			const news = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.type ) );
-			ok( news.length >= 1 && news.every( ( t ) => t === 'news' ) && await ar.page.locator( '.cemeti-archive__type.is-active' ).textContent().then( ( t ) => /News/.test( t ) ), `archive (${ label }): choosing News shows only News (${ news.length })` );
-			await ar.page.locator( '.cemeti-archive__type[data-type="booklet"]' ).click();
-			const booklets = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.type ) );
-			ok( booklets.length >= 1 && booklets.every( ( t ) => t === 'booklet' ), `archive (${ label }): choosing Booklet shows only booklets (${ booklets.length })` );
-			await ar.page.locator( '.cemeti-archive__type[data-type=""]' ).click();
-			const years = await ar.page.locator( '.cemeti-archive__year select option' ).evaluateAll( ( o ) => o.map( ( x ) => x.value ).filter( Boolean ) );
-			await ar.page.selectOption( '.cemeti-archive__year select', years[ 0 ] );
-			const inYear = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.year ) );
-			ok( inYear.length >= 1 && inYear.every( ( y ) => y === years[ 0 ] ), `archive (${ label }): choosing a year shows only that year (${ years[ 0 ] })` );
-			await ar.page.selectOption( '.cemeti-archive__year select', '' );
-			ok( await visible() === total, `archive (${ label }): clearing the choices shows everything again` );
-			ok( await ar.page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth + 1 ), `archive (${ label }): no sideways scrolling` );
-			const act = await ar.page.locator( '.cemeti-archive__action' ).first().boundingBox();
-			ok( act && act.height >= 36 && act.width >= 60, `archive (${ label }): the Download / Read button is big enough to press (${ act && Math.round( act.height ) } px high)` );
-			await ar.ctx.close();
-		}
+		const ar = await open( browser, 'page-open-archive', 1440, 900, { reducedMotion: 'reduce' } );
+		const l = await ar.page.locator( '.cemeti-az__col' ).nth( 1 ).boundingBox();
+		ok( Math.abs( l.x - 729 ) < 3, `figma: Open Archive right column starts at x=729 (${ Math.round( l.x ) })` );
+		await ar.ctx.close();
 	}
 
 	/* ---- 7h. QA round 1: sticky contents bar, back to contents, sticky titles, hover, scroll loading, share, About. */
@@ -654,6 +634,10 @@ async function open( browser, name, width, height, extra = {} ) {
 			const pitch = await rows.page.locator( 'details' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top ) ) );
 			ok( pitch.length > 2 && pitch.slice( 1 ).every( ( v, i ) => v - pitch[ i ] === 82 ), `figma: Support Us rows 82 px apart (${ pitch })` );
 			await rows.ctx.close();
+			const az = await open( browser, 'page-open-archive', 1440, 900 );
+			const ys = await az.page.locator( '.cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
+			ok( ys.length >= 2 && ys.every( ( y, i ) => i === 0 || y >= ys[ i - 1 ] ), `figma: Open Archive letter blocks run down the columns (${ ys })` );
+			await az.ctx.close();
 		}
 		{
 			// Thumbnails show the whole picture in an unchanged box.

@@ -122,12 +122,12 @@ mutate "archive: booklets missing from Open Archive"  $T/inc/archive.php "		if (
 			continue;
 		}" render-pages
 mutate "history: legacy About text ignored"          $T/inc/history.php "if ( is_array( \$legacy ) && \$legacy ) {" "if ( false ) {" flows-pages
+mutate "booklets: PDFs of other websites downloaded" $T/inc/media.php "if ( '' !== cemeti_media_rel_path( \$url ) && cemeti_media_is_old_site( \$url ) ) {" "if ( true ) {" flows-media
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
   mutate "js: residency list is not swapped"        $T/assets/js/residency-filter.js "results.innerHTML = newResults.innerHTML;" "" browser
-  mutate "js: archive filter does not hide items"   $T/assets/js/archive-filter.js "item.hidden = ! show;" "" browser
   mutate "js: Escape no longer closes panels"      $T/assets/js/navigation.js "if ( event.key === 'Escape' ) {" "if ( event.key === 'F13' ) {" browser
 else
   echo "  (browser mutations skipped: Playwright not installed)"

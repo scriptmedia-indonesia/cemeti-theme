@@ -166,9 +166,9 @@ ok( false === strpos( $h, '<script>alert' ), 'open call: ?apply= value never ech
 $h = page( 'page-about', 'page-about.php', array( 'singular' => true ), array( 'post' => $ids['p_about'], 'path' => '/about/' ) );
 ok( false !== strpos( $h, 'Mella Jaarsma' ) && false !== strpos( $h, 'Dito Yuwono' ) && false !== strpos( $h, 'cemeti-people__heading' ), 'about: advisory board and team listed' );
 $h = page( 'page-open-archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $ids['p_archive'], 'path' => '/open-archive/' ) );
-ok( false !== strpos( $h, 'data-cemeti-archive' ) && false !== strpos( $h, 'cemeti-archive__item' ) && false === strpos( $h, 'cemeti-az' ), 'open archive: the database of booklets and writings, not the A-Z list' );
-ok( false !== strpos( $h, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $h, 'booklet-901.pdf' ) && false !== strpos( $h, 'residency.pdf' ) && false !== strpos( $h, 'data-type="news"' ) && false !== strpos( $h, 'data-type="booklet"' ), 'open archive: the booklet of an entry and the News posts are in it' );
-ok( 1 === preg_match( '/Download<span class="screen-reader-text"> — Harta yang Paling Berharga/', $h ) && 1 === preg_match( '/Read<span class="screen-reader-text"> — Rangkaian Perayaan/', $h ), 'open archive: Download for booklets, Read for News, each link named for screen readers' );
+ok( false !== strpos( $h, 'cemeti-az__letter' ) && false === strpos( $h, 'cemeti-archive' ), 'open archive: the A-Z design with letter groups (as designed)' );
+ok( false !== strpos( $h, '“Rangkaian Perayaan #37thCemeti”' ) && false !== strpos( $h, 'booklet-901.pdf' ) && false !== strpos( $h, 'residency.pdf' ), 'open archive: the News posts and the booklets of the entries are listed, each title links to its file or post' );
+ok( 1 === preg_match( '#<h2 class="cemeti-az__letter">R</h2>#', $h ) && 1 === preg_match( '#<h2 class="cemeti-az__letter">H</h2>#', $h ), 'open archive: grouped by first letter' );
 $h = page( 'page-history', 'page-history.php', array( 'singular' => true ), array( 'post' => $ids['p_history'], 'path' => '/history/' ) );
 ok( 39 <= substr_count( $h, '<details class="cemeti-accordion__row">' ) && false !== strpos( $h, 'cemeti-single--history' ) && false !== strpos( $h, 'Kronologi kegiatan Cemeti.' ), 'history: its own page with the description and one dropdown row per year' );
 $h = page( 'page-support-us', 'page-support-us.php', array( 'singular' => true ), array( 'post' => $ids['p_support'], 'path' => '/support-us/' ) );
