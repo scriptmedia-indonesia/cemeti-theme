@@ -128,6 +128,7 @@ mutate "compat: :focus-visible shares a rule"         $T/assets/css/pages.css ".
 mutate "compat: logo without a PNG fallback"          $T/header.php "<img src=\"<?php echo esc_url( CEMETI_URI . '/assets/img/logo-480.png' ); ?>\"" "<img src=\"<?php echo esc_url( CEMETI_URI . '/assets/img/logo-480.webp' ); ?>\"" render-pages
 mutate "compat: margin-inline without left/right"     $T/assets/css/layout.css "margin-left: auto; margin-right: auto; margin-inline: auto;" "margin-inline: auto;" static-checks
 mutate "compat: no clamp() fallback for the tokens"   $T/assets/css/tokens.css "@supports not (font-size: clamp(1rem, 1vw, 2rem)) {" "@supports (font-size: clamp(1rem, 1vw, 2rem)) and (display: none) {" static-checks
+mutate "booklets: PDFs in post text ignored"         $T/inc/media.php "return array_values( array_unique( array_merge( \$urls, cemeti_media_pdf_links( \$html ) ) ) );" "return \$urls;" flows-media
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

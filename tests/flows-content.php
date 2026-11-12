@@ -191,6 +191,11 @@ ok( in_array( 'open_call', $q->get( 'post_type' ), true ) && ! in_array( 'person
 $archive = cemeti_archive_items();
 ok( count( array_filter( $archive, static function ( $i ) { return 'booklet' === $i['type']; } ) ) >= 1 && count( array_filter( $archive, static function ( $i ) { return 'news' === $i['type']; } ) ) >= 1, 'open archive: booklets of the entries and News posts' );
 ok( ! in_array( 'Towards a Constellation of Friendship', array_column( $archive, 'title' ), true ), 'open archive: essays stay in the Journal' );
+$bk_post = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Buklet Pameran Kelompok: X', 'post_date' => '2025-02-02 10:00:00', 'meta' => array( 'cemeti_booklet' => 901 ) ) );
+wp_set_object_terms( $bk_post, array( 'News' ), 'journal_category' );
+$archive2 = cemeti_archive_items();
+$bk_item  = array_values( array_filter( $archive2, static function ( $i ) { return 'Buklet Pameran Kelompok: X' === $i['title']; } ) );
+ok( $bk_item && 'booklet' === $bk_item[0]['type'] && 'download' === $bk_item[0]['action'] && false !== strpos( $bk_item[0]['url'], 'booklet-901.pdf' ), 'open archive: an old "Buklet …" post links to its PDF (download), not to the post' );
 ok( array_column( $archive, 'date' ) === array_reverse( array_column( array_reverse( $archive ), 'date' ) ) && $archive === array_values( $archive ), 'open archive: newest first' );
 
 /* ------------------------------------------------------------ Open Call: one call, switched on and off by the team */

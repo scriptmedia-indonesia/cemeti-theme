@@ -437,6 +437,17 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 7e5. Pinned titles also stay pinned for visitors who asked for reduced motion; ?cemeti-debug=1 reports what the browser does. */
+	{
+		const { page, ctx } = await open( browser, 'home', 1280, 700, { reducedMotion: 'reduce' } );
+		ok( await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-home .cemeti-heading' ) ).position === 'sticky' && getComputedStyle( document.querySelector( '.cemeti-header' ) ).position === 'sticky' ), 'pin: with "reduce motion" on, the titles and the header are still pinned (pinning is not animation)' );
+		await page.goto( url( 'home' ) + '?cemeti-debug=1' );
+		await page.waitForSelector( 'pre' );
+		const report = await page.locator( 'body > pre' ).textContent();
+		ok( /Browser: /.test( report ) && /CSS sticky: yes/.test( report ) && /Title position: .*sticky/.test( report ) && /Reduced motion asked: yes/.test( report ), 'debug: ?cemeti-debug=1 shows what this browser supports and how the titles are positioned' );
+		await ctx.close();
+	}
+
 	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
 	{
 		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );

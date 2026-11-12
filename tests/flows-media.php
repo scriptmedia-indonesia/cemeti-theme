@@ -207,4 +207,19 @@ $_POST = $_REQUEST = array( 'nonce' => 'valid', 'phase' => 'booklets', 'fresh' =
 try { cemeti_media_ajax(); } catch ( CemetiJson $j ) { ok( 'booklets' === $j->payload['data']['phase'] && 0 === $j->payload['data']['remaining'], 'booklets: the page\'s own runner accepts the phase' ); }
 ok( (int) get_post_meta( $bk_gone, 'cemeti_booklet', true ) > 0 && 'ok' === get_post_meta( $bk_gone, '_cemeti_booklet_state', true ), 'booklets: pressing the button again tries the failed ones again (the file is there now)' );
 
+/* ---- the old site's "Booklet …" / "Buklet …" posts: the PDF is linked in the text (Journal posts) */
+$GLOBALS['qa_remote']['https://cemeti.art/wp-content/uploads/2024/10/Buklet-Pameran.pdf'] = "%PDF-1.4\n%buklet";
+$jb_ok   = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Buklet Pameran Kelompok: Dalam Gelap', 'post_content' => '<p>Unduh buklet.</p><div class="wp-block-file"><a href="https://cemeti.art/wp-content/uploads/2024/10/Buklet-Pameran.pdf">Buklet</a></div>' ) );
+$jb_far  = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Katalog elsewhere', 'post_content' => '<a href="https://issuu.example/doc/katalog.pdf">katalog</a>' ) );
+$jb_none = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'No file', 'post_content' => '<p>Kabar biasa.</p>' ) );
+ok( $jb_ok && 'https://cemeti.art/wp-content/uploads/2024/10/Buklet-Pameran.pdf' === cemeti_media_booklet_source( $jb_ok ) && '' === cemeti_media_booklet_source( $jb_far ) && '' === cemeti_media_booklet_source( $jb_none ), 'booklet posts: the PDF linked in a post\'s text is found; another website\'s PDF and a post without one are not' );
+delete_option( 'cemeti_media_report' );
+$left = cemeti_media_step( 'booklets', 18.0 );
+$jid  = (int) get_post_meta( $jb_ok, 'cemeti_booklet', true );
+ok( 0 === $left && $jid && is_file( $uploads . '/2024/10/Buklet-Pameran.pdf' ) && 'ok' === get_post_meta( $jb_ok, '_cemeti_booklet_state', true ), 'booklet posts: the PDF is downloaded and becomes the post\'s Booklet (PDF)' );
+ok( ! get_post_meta( $jb_far, 'cemeti_booklet', true ) && ! get_post_meta( $jb_none, 'cemeti_booklet', true ), 'booklet posts: nothing is fetched for the others' );
+$notes = cemeti_media_booklet_notes();
+ok( 1 <= count( array_filter( $notes, static function ( $n ) { return false !== strpos( $n['url'], 'issuu.example' ) && false !== strpos( $n['why'], 'not' ); } ) ), 'booklet posts: a PDF that is not the old site\'s is listed with the reason, so a "0" is explained' );
+ok( 0 === cemeti_media_step( 'booklets', 18.0 ) && 1 === cemeti_media_report()['booklets'], 'booklet posts: running again changes nothing' );
+
 qa_done();

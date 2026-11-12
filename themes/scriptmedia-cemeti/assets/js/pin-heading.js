@@ -10,9 +10,6 @@
 	if ( ! window.requestAnimationFrame ) {
 		return;
 	}
-	if ( window.matchMedia && window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches ) {
-		return;
-	}
 	var heads = Array.prototype.slice.call( document.querySelectorAll( '.cemeti-page-head, .cemeti-home .cemeti-heading' ) );
 	var header = document.querySelector( '.cemeti-header' );
 	if ( ! heads.length || ! header ) {

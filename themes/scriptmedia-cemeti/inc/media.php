@@ -515,57 +515,156 @@ function cemeti_media_unrepaired_posts( $limit ) {
 }
 
 /**
- * Entries whose booklet is still a link to the old site (a PDF under /wp-content/uploads/) and has not been brought into
- * the Media Library yet. A booklet link to another website is left as it is.
+ * Post types whose booklet (a PDF) can be brought in: the entries, and the Journal posts that were the old site's
+ * "Booklet …" / "Buklet …" / catalogue posts (the PDF is linked in their text).
+ *
+ * @return string[]
+ */
+function cemeti_media_booklet_types() {
+	return array( 'exhibition', 'residency', 'public_program', 'open_studio', 'journal' );
+}
+
+/**
+ * Addresses of PDF files linked or embedded in some HTML.
+ *
+ * @param string $html HTML.
+ * @return string[]
+ */
+function cemeti_media_pdf_links( $html ) {
+	$found = array();
+	if ( preg_match_all( '/(?:href|src|data|data-src)\s*=\s*["\']([^"\']+?\.pdf(?:[?#][^"\']*)?)["\']/i', (string) $html, $m ) ) {
+		foreach ( $m[1] as $url ) {
+			$found[] = html_entity_decode( $url, ENT_QUOTES );
+		}
+	}
+	return array_values( array_unique( $found ) );
+}
+
+/**
+ * Every PDF address a post names: its booklet link, then the PDFs in its text and in the original text the converter kept.
+ *
+ * @param int $post_id Post.
+ * @return string[]
+ */
+function cemeti_media_post_pdf_urls( $post_id ) {
+	$urls = array();
+	$own  = (string) get_post_meta( $post_id, 'cemeti_booklet_url', true );
+	if ( false !== stripos( $own, '.pdf' ) ) {
+		$urls[] = $own;
+	}
+	$html = (string) get_post_field( 'post_content', $post_id ) . "\n" . (string) get_post_meta( $post_id, '_cemeti_original_content', true );
+	return array_values( array_unique( array_merge( $urls, cemeti_media_pdf_links( $html ) ) ) );
+}
+
+/**
+ * The PDF of a post that can be fetched from the old site: the first one under the old site's /wp-content/uploads/.
+ *
+ * @param int $post_id Post.
+ * @return string Address, '' when there is none.
+ */
+function cemeti_media_booklet_source( $post_id ) {
+	foreach ( cemeti_media_post_pdf_urls( $post_id ) as $url ) {
+		if ( '' !== cemeti_media_rel_path( $url ) && cemeti_media_is_old_site( $url ) ) {
+			return $url;
+		}
+	}
+	return '';
+}
+
+/**
+ * Posts that name a PDF (in their booklet link or their text), found with one search on the text and one on the booklet link.
+ *
+ * @return int[]
+ */
+function cemeti_media_posts_with_pdf() {
+	$base = array(
+		'post_type'        => cemeti_media_booklet_types(),
+		'post_status'      => array( 'publish', 'draft', 'pending', 'private', 'future' ),
+		'posts_per_page'   => -1,
+		'fields'           => 'ids',
+		'orderby'          => 'ID',
+		'order'            => 'ASC',
+		'no_found_rows'    => true,
+		'suppress_filters' => true,
+	);
+	$in_text = new WP_Query( array_merge( $base, array( 's' => '.pdf' ) ) );
+	$linked  = new WP_Query( array_merge( $base, array( 'meta_key' => 'cemeti_booklet_url' ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+	$ids     = array_unique( array_merge( array_map( 'intval', $in_text->posts ), array_map( 'intval', $linked->posts ) ) );
+	sort( $ids );
+	if ( $ids && function_exists( 'update_meta_cache' ) ) {
+		update_meta_cache( 'post', $ids );
+	}
+	return $ids;
+}
+
+/**
+ * Posts whose booklet is still a PDF on the old site and has not been brought into the Media Library yet.
  *
  * @param int $limit Maximum.
  * @return array{ids:int[],total:int}
  */
 function cemeti_media_unfetched_booklets( $limit ) {
-	$q = new WP_Query(
-		array(
-			'post_type'        => array( 'exhibition', 'residency', 'public_program', 'open_studio' ),
-			'post_status'      => array( 'publish', 'draft', 'pending', 'private', 'future' ),
-			'posts_per_page'   => -1,
-			'fields'           => 'ids',
-			'orderby'          => 'ID',
-			'order'            => 'ASC',
-			'no_found_rows'    => true,
-			'suppress_filters' => true,
-			'meta_key'         => 'cemeti_booklet_url', // phpcs:ignore WordPress.DB.SlowDBQuery
-		)
-	);
 	$ids = array();
-	foreach ( $q->posts as $post_id ) {
-		if ( '' !== (string) get_post_meta( (int) $post_id, '_cemeti_booklet_state', true ) ) {
+	foreach ( cemeti_media_posts_with_pdf() as $post_id ) {
+		if ( '' !== (string) get_post_meta( $post_id, '_cemeti_booklet_state', true ) ) {
 			continue; // Done, or failed (the button tries the failed ones again).
 		}
-		$url = (string) get_post_meta( (int) $post_id, 'cemeti_booklet_url', true );
-		if ( false === stripos( $url, '.pdf' ) ) {
-			continue;
-		}
-		$own = (int) get_post_meta( (int) $post_id, 'cemeti_booklet', true );
+		$own = (int) get_post_meta( $post_id, 'cemeti_booklet', true );
 		if ( $own && 'attachment' === get_post_type( $own ) ) {
-			update_post_meta( (int) $post_id, '_cemeti_booklet_state', 'ok' ); // Already a file of this site.
+			update_post_meta( $post_id, '_cemeti_booklet_state', 'ok' ); // Already a file of this site.
 			continue;
 		}
-		if ( '' !== cemeti_media_rel_path( $url ) && cemeti_media_is_old_site( $url ) ) {
-			$ids[] = (int) $post_id;
+		if ( '' !== cemeti_media_booklet_source( $post_id ) ) {
+			$ids[] = $post_id;
 		}
 	}
 	return array( 'ids' => array_slice( $ids, 0, $limit ), 'total' => count( $ids ) );
 }
 
 /**
- * Bring the booklet of an entry from the old site into this site's Media Library and make it the entry's Booklet (PDF).
+ * Why nothing (more) was fetched: a few PDF addresses that were found but are not the old site's uploads, so a "0" is
+ * explained on the page.
+ *
+ * @return array<int, array{title:string,url:string,why:string}>
+ */
+function cemeti_media_booklet_notes() {
+	$notes = array();
+	foreach ( cemeti_media_posts_with_pdf() as $post_id ) {
+		$state = (string) get_post_meta( $post_id, '_cemeti_booklet_state', true );
+		foreach ( cemeti_media_post_pdf_urls( $post_id ) as $url ) {
+			$why = '';
+			if ( 'failed' === $state ) {
+				$why = 'download failed (see the problems above)';
+			} elseif ( '' === cemeti_media_rel_path( $url ) ) {
+				$why = 'not under /wp-content/uploads/';
+			} elseif ( ! cemeti_media_is_old_site( $url ) ) {
+				$why = 'not on the old site (' . (string) wp_parse_url( $url, PHP_URL_HOST ) . ')';
+			}
+			if ( '' !== $why ) {
+				$notes[] = array( 'title' => get_the_title( $post_id ), 'url' => $url, 'why' => $why );
+				break;
+			}
+		}
+		if ( count( $notes ) >= 8 ) {
+			break;
+		}
+	}
+	return $notes;
+}
+
+/**
+ * Bring the booklet of a post from the old site into this site's Media Library and make it the post's Booklet (PDF).
  * The link is kept as it was.
  *
- * @param int $post_id Entry.
+ * @param int $post_id Post.
  * @return int|string Attachment ID, or an error message.
  */
 function cemeti_media_import_booklet( $post_id ) {
-	$url = (string) get_post_meta( $post_id, 'cemeti_booklet_url', true );
-	$id  = cemeti_media_find_by_url( $url );
+	$url = cemeti_media_booklet_source( $post_id );
+	if ( '' === $url ) {
+		return 'No PDF of the old site found in this post.';
+	}
+	$id = cemeti_media_find_by_url( $url );
 	if ( ! $id ) {
 		$id = cemeti_media_create_from_url( $url, $post_id );
 	}
@@ -701,7 +800,7 @@ function cemeti_media_prepare( $phase, $fresh = false ) {
 				delete_post_meta( (int) $id, '_cemeti_media_post' );
 			}
 		}
-		$booklets = new WP_Query( array( 'post_type' => array( 'exhibition', 'residency', 'public_program', 'open_studio' ), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'reset' === $phase ? '' : 'failed', 'meta_compare' => 'reset' === $phase ? '!=' : '=' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$booklets = new WP_Query( array( 'post_type' => cemeti_media_booklet_types(), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'reset' === $phase ? '' : 'failed', 'meta_compare' => 'reset' === $phase ? '!=' : '=' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		foreach ( $booklets->posts as $id ) {
 			delete_post_meta( (int) $id, '_cemeti_booklet_state' );
 		}
@@ -710,7 +809,7 @@ function cemeti_media_prepare( $phase, $fresh = false ) {
 	}
 	$phase = in_array( $phase, array( 'posts', 'booklets' ), true ) ? $phase : 'files';
 	if ( 'booklets' === $phase && $fresh ) {
-		$failed = new WP_Query( array( 'post_type' => array( 'exhibition', 'residency', 'public_program', 'open_studio' ), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'failed' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
+		$failed = new WP_Query( array( 'post_type' => cemeti_media_booklet_types(), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'suppress_filters' => true, 'meta_key' => '_cemeti_booklet_state', 'meta_value' => 'failed' ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 		foreach ( $failed->posts as $id ) {
 			delete_post_meta( (int) $id, '_cemeti_booklet_state' ); // Pressing the button again tries the failed ones again.
 		}
@@ -803,6 +902,12 @@ function cemeti_media_panel() {
 		Files checked OK: <strong><?php echo (int) $report['ok']; ?></strong> · restored: <strong><?php echo (int) $report['restored']; ?></strong> · failed: <strong><?php echo (int) $report['failed']; ?></strong>
 		&nbsp;|&nbsp; Posts fixed: <strong><?php echo (int) $report['posts']; ?></strong> · pictures added: <strong><?php echo (int) $report['created']; ?></strong> · featured images set: <strong><?php echo (int) $report['thumbs']; ?></strong>
 	</p>
+	<?php $cemeti_notes = $report['booklets'] ? array() : cemeti_media_booklet_notes(); ?>
+	<?php if ( $cemeti_notes ) : ?>
+		<details open><summary>PDF links that were found but not fetched (booklets)</summary>
+			<ul><?php foreach ( $cemeti_notes as $note ) : ?><li><?php echo esc_html( $note['title'] ); ?> — <code><?php echo esc_html( $note['url'] ); ?></code> (<?php echo esc_html( $note['why'] ); ?>)</li><?php endforeach; ?></ul>
+		</details>
+	<?php endif; ?>
 	<?php if ( $report['errors'] ) : ?>
 		<details open><summary>Last problems (usually: the old site no longer has that file, or the uploads folder is not writable)</summary>
 			<ul><?php foreach ( $report['errors'] as $message ) : ?><li><code><?php echo esc_html( $message ); ?></code></li><?php endforeach; ?></ul>

@@ -66,11 +66,12 @@ function cemeti_archive_items() {
 	}
 	foreach ( cemeti_archive_entry_ids( array( 'journal' ) ) as $id ) {
 		$date    = gmdate( 'Ymd', strtotime( (string) get_post_field( 'post_date', $id ) ) );
+		$file    = cemeti_booklet_url( $id ); // The old site's "Booklet …" / "Buklet …" posts: the PDF itself.
 		$items[] = array(
-			'type'   => 'news',
+			'type'   => '' !== $file ? 'booklet' : 'news',
 			'title'  => cemeti_title( $id ),
-			'url'    => (string) get_permalink( $id ),
-			'action' => 'read',
+			'url'    => '' !== $file ? $file : (string) get_permalink( $id ),
+			'action' => '' !== $file ? 'download' : 'read',
 			'date'   => $date,
 			'year'   => substr( $date, 0, 4 ),
 			'from'   => '',

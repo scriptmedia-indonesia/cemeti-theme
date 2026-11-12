@@ -237,10 +237,7 @@
 	.cemeti-home .cemeti-heading { position: -webkit-sticky; position: sticky; top: calc(var(--header-h) + 0.5rem); z-index: 5; pointer-events: none; }
 	.cemeti-home .cemeti-heading a { pointer-events: auto; }
 }
-@media (prefers-reduced-motion: reduce) {
-	.cemeti-page-head, .cemeti-home .cemeti-heading { position: static; }
-	.cemeti-header { position: relative; }
-}
+/* Pinning is positioning, not animation: it stays for visitors who asked for reduced motion too (the page itself still scrolls normally). */
 .cemeti-home .cemeti-btn { width: min(100%, 17rem); }
 
 /* ---- Detail page: the contents bar stays at the top while reading ---- */

@@ -3,6 +3,20 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.53
+
+- **"3. Fetch booklets" finished at once with 0.** It only looked at the booklet link of the Exhibition / Residency / Public
+  Program / Open Studio entries, but the old site's booklets are separate **Journal posts** ("Booklet Pameran Kelompok …",
+  "Buklet …") with the PDF linked in their text. The step now also reads the text of those posts (and the original text the
+  converter kept), takes the first PDF under the old site's `/wp-content/uploads/` and brings it into the Media Library as
+  the post's **Booklet (PDF)**. In the **Open Archive**, such a post now links straight to its PDF. When a "0" remains, the
+  panel lists the PDF links it found and why they were not fetched (other website, not under uploads, download failed).
+- **Pinned titles ("parallax") in Firefox and Safari.** A Mac with "Reduce motion" on (System Settings → Accessibility →
+  Display) made the theme turn the pinning off in Firefox and Safari, which follow that setting. Pinning is positioning, not
+  animation, so the titles and the header stay pinned for those visitors too. If it still does not work, open any page
+  with `?cemeti-debug=1` at the end of the address: a black box shows what the browser supports and how the titles are
+  positioned (send a screenshot of it).
+
 ## 0.9.52
 
 Older browsers, checked against the browsers' published support data (doiuse / caniuse for the CSS, es-check for the
