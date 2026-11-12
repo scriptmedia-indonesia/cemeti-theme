@@ -25,8 +25,10 @@ docs/                  you are here
 | `content-model.php` | registers post types/taxonomies from `config/`, seeds default terms, rewrite flush |
 | `fields.php`, `relations.php` | the "Details" meta box, saving, two-way "related" |
 | `status.php` | Current / Upcoming / Previous from dates; `cemeti_status_query()` |
-| `queries.php` | main-query rules for archives and search, A–Z list |
-| `templates.php` | helpers used by templates (headings, photos, share, A–Z grouping) |
+| `queries.php` | main-query rules for archives and search, News left out of Journal, second-language lists |
+| `templates.php` | helpers used by templates (headings, photos, share, stand-in pictures) |
+| `history.php` | the History page: chronology rows per year and the box to edit them |
+| `archive.php` | the Open Archive database: booklets of the entries and News posts, filters |
 | `navigation.php` | overlay menu definition and rendering |
 | `applications.php` | Open Call form handler, uploads, e-mails, admin side |
 | `search.php`, `seo.php`, `security.php` | people-aware search; meta/JSON-LD/robots; hardening and headers |
@@ -36,7 +38,7 @@ docs/                  you are here
 | `move-posts.php` | "Move to …" bulk action and box on the Posts screen (same conversion as the Converter, with the editor's choice) |
 | `tests/browser/sweep.js` | final-QA sweep: every page at 14 screen sizes (phone, tablet, laptop, 2560 px, landscape) plus touch tests of menu, search, contents links, accordion; part of `bash tests/run.sh` |
 | `contact.php` | the "Contact details" box on the Contact Us page (address, hours, email, phone, Google Maps link; empty = Settings → Cemeti) |
-| `pages.php` | creates the fixed pages (About, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
+| `pages.php` | creates the fixed pages (About, History, Open Archive, Support Us + 4 rows, Contact Us) on activation, notice + button when one is missing, keeps the template if the slug changes |
 | `core-bridge.php` | `cemeti_config()` loader + optional hand-over to Scriptmedia Core |
 
 Rules the code follows: every function is prefixed `cemeti_`; every file starts with the `ABSPATH` guard;
@@ -180,3 +182,13 @@ PY
 - The Scriptmedia Core hand-over (`core-bridge.php`) is off by default and its filter names were never checked
   against a real Core; verify them before turning on `CEMETI_USE_CORE_REGISTRAR`.
 - Content-Security-Policy, malware scanning and a WAF are host-level work (`LAUNCH-CHECKLIST.md` §7).
+
+## Journal, Open Archive and History (client review, 0.9.49)
+
+- **Journal** is the collection of writings and essays to read on the web: Essay and Curatorial Essay. Entries of the
+  Journal category **News** are not listed in Journal (nor on Home); they appear in the Open Archive.
+- **Open Archive** is a database of what can be read or downloaded freely. It is made by itself: every entry
+  (Exhibition, Residency, Public Program, Open Studio) that has a **Booklet (PDF)** or a booklet link, and every News
+  post. Add a booklet in the entry's editor (section Booklet) and it appears here (Download); News posts have a Read link.
+- **History** is its own page, below About in the menu. The years are edited in Pages → History → "History (chronology)"
+  (Add Year each year). Text that was saved on the About page earlier is used until the History page has its own.

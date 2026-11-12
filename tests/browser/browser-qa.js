@@ -46,7 +46,7 @@ async function open( browser, name, width, height, extra = {} ) {
 	const browser = await chromium.launch();
 
 	/* ---- 1. Every page at four widths: no horizontal scroll, no script errors. */
-	const pages = [ 'home', 'archive-exhibition', 'archive-residency', 'archive-journal', 'single-exhibition', 'single-exhibition-bare', 'single-public-program', 'single-journal', 'single-open-call', 'single-open-call-sent', 'page-about', 'page-open-archive', 'page-support-us', 'page-contact-us', 'search', 'not-found' ];
+	const pages = [ 'home', 'archive-exhibition', 'archive-residency', 'archive-journal', 'single-exhibition', 'single-exhibition-bare', 'single-public-program', 'single-journal', 'single-open-call', 'single-open-call-sent', 'page-about', 'page-history', 'page-open-archive', 'page-support-us', 'page-contact-us', 'search', 'not-found' ];
 	for ( const w of [ 360, 768, 1280, 1920 ] ) {
 		for ( const name of pages ) {
 			const { page, ctx, errors } = await open( browser, name, w );
@@ -77,7 +77,7 @@ async function open( browser, name, width, height, extra = {} ) {
 		const hb = await page.locator( '.cemeti-header__bar' ).boundingBox();
 		ok( Math.abs( box.y - ( hb.y + hb.height ) ) < 6, 'menu: sits directly under the header bar' );
 		const links = await page.locator( '#cemeti-menu a' ).evaluateAll( ( a ) => a.map( ( x ) => x.textContent.trim() ) );
-		ok( [ 'Home', 'About', 'Exhibition', 'Solo', 'Group', 'Residency', 'Public Program', 'Open Studio', 'Open Call', 'Journal', 'Open Archive', 'Support Us', 'Contact Us' ].every( ( l ) => links.includes( l ) ), 'menu: all entries present: ' + links.join( ', ' ) );
+		ok( [ 'Home', 'About', 'History', 'Exhibition', 'Solo', 'Group', 'Residency', 'Public Program', 'Open Studio', 'Open Call', 'Journal', 'Open Archive', 'Support Us', 'Contact Us' ].every( ( l ) => links.includes( l ) ), 'menu: all entries present: ' + links.join( ', ' ) );
 		await page.screenshot( { path: path.join( shots, 'menu-open-1280.png' ), clip: { x: 0, y: 0, width: 1280, height: 520 } } );
 		await page.keyboard.press( 'Escape' );
 		await page.waitForTimeout( 450 );
@@ -464,9 +464,9 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( second !== '' && openIds.join() === second, 'support us: an address ending in #row opens that dropdown row (' + openIds.join() + ')' );
 			await hp.ctx.close();
 		}
-		/* About → History: same dropdown rows as Support Us, one per year, entries inside. */
+		/* History page: same layout and dropdown rows as Support Us, one per year, entries inside. */
 		for ( const [ w, label ] of [ [ 1440, 'desktop' ], [ 360, 'phone' ] ] ) {
-			const ab = await open( browser, 'page-about', w, 900, { reducedMotion: 'reduce' } );
+			const ab = await open( browser, 'page-history', w, 900, { reducedMotion: 'reduce' } );
 			const years = await ab.page.locator( '.cemeti-history .cemeti-accordion__row summary' ).allTextContents();
 			ok( years.length >= 39 && years[ 0 ] === '1988' && years[ years.length - 1 ] === '2026', `history (${ label }): one row per year, oldest first (${ years.length })` );
 			ok( 48 === await ab.page.evaluate( () => parseFloat( getComputedStyle( document.querySelector( '.cemeti-history summary' ) ).fontSize ) ) || w < 600, `history (${ label }): rows use the Support Us row style` );
@@ -500,10 +500,30 @@ async function open( browser, name, width, height, extra = {} ) {
 			ok( color === 'rgb(241, 97, 84)', 'residency filter: the chosen category is shown in red (' + color + ')' );
 			await r.ctx.close();
 		}
-		const ar = await open( browser, 'page-open-archive', 1440, 900, { reducedMotion: 'reduce' } );
-		const l = await ar.page.locator( '.cemeti-az__col' ).nth( 1 ).boundingBox();
-		ok( Math.abs( l.x - 729 ) < 3, `figma: Open Archive right column starts at x=729 (${ Math.round( l.x ) })` );
-		await ar.ctx.close();
+		/* Open Archive: a database of booklets and News, filtered in place by kind and year. */
+		for ( const [ w, label ] of [ [ 1440, 'desktop' ], [ 360, 'phone' ] ] ) {
+			const ar = await open( browser, 'page-open-archive', w, 900, { reducedMotion: 'reduce' } );
+			const visible = () => ar.page.locator( '.cemeti-archive__item:not([hidden])' ).count();
+			const total = await visible();
+			ok( total >= 3 && await ar.page.locator( '.cemeti-archive__type' ).count() === 3, `archive (${ label }): the database lists the booklets and News, with All / Booklet / News filters (${ total })` );
+			await ar.page.locator( '.cemeti-archive__type[data-type="news"]' ).click();
+			const news = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.type ) );
+			ok( news.length >= 1 && news.every( ( t ) => t === 'news' ) && await ar.page.locator( '.cemeti-archive__type.is-active' ).textContent().then( ( t ) => /News/.test( t ) ), `archive (${ label }): choosing News shows only News (${ news.length })` );
+			await ar.page.locator( '.cemeti-archive__type[data-type="booklet"]' ).click();
+			const booklets = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.type ) );
+			ok( booklets.length >= 1 && booklets.every( ( t ) => t === 'booklet' ), `archive (${ label }): choosing Booklet shows only booklets (${ booklets.length })` );
+			await ar.page.locator( '.cemeti-archive__type[data-type=""]' ).click();
+			const years = await ar.page.locator( '.cemeti-archive__year select option' ).evaluateAll( ( o ) => o.map( ( x ) => x.value ).filter( Boolean ) );
+			await ar.page.selectOption( '.cemeti-archive__year select', years[ 0 ] );
+			const inYear = await ar.page.locator( '.cemeti-archive__item:not([hidden])' ).evaluateAll( ( els ) => els.map( ( e ) => e.dataset.year ) );
+			ok( inYear.length >= 1 && inYear.every( ( y ) => y === years[ 0 ] ), `archive (${ label }): choosing a year shows only that year (${ years[ 0 ] })` );
+			await ar.page.selectOption( '.cemeti-archive__year select', '' );
+			ok( await visible() === total, `archive (${ label }): clearing the choices shows everything again` );
+			ok( await ar.page.evaluate( () => document.documentElement.scrollWidth <= window.innerWidth + 1 ), `archive (${ label }): no sideways scrolling` );
+			const act = await ar.page.locator( '.cemeti-archive__action' ).first().boundingBox();
+			ok( act && act.height >= 36 && act.width >= 60, `archive (${ label }): the Download / Read button is big enough to press (${ act && Math.round( act.height ) } px high)` );
+			await ar.ctx.close();
+		}
 	}
 
 	/* ---- 7h. QA round 1: sticky contents bar, back to contents, sticky titles, hover, scroll loading, share, About. */
@@ -634,10 +654,6 @@ async function open( browser, name, width, height, extra = {} ) {
 			const pitch = await rows.page.locator( 'details' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top ) ) );
 			ok( pitch.length > 2 && pitch.slice( 1 ).every( ( v, i ) => v - pitch[ i ] === 82 ), `figma: Support Us rows 82 px apart (${ pitch })` );
 			await rows.ctx.close();
-			const az = await open( browser, 'page-open-archive', 1440, 900 );
-			const ys = await az.page.locator( '.cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
-			ok( 144 === ys[ 4 ] - ys[ 3 ] || 144 === ys[ 5 ] - ys[ 4 ], `figma: Open Archive letter blocks of three entries are 144 px apart (${ ys })` );
-			await az.ctx.close();
 		}
 		{
 			// Thumbnails show the whole picture in an unchanged box.

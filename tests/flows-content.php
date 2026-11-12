@@ -141,7 +141,7 @@ ok( $ids['ex_current'] === cemeti_featured_post( 'exhibition' )->ID, 'featured: 
 CemetiWP::$today = '20270101';
 ok( $ids['ex_future'] === cemeti_featured_post( 'exhibition' )->ID, 'featured: else the latest previous' );
 CemetiWP::$today = '20260315';
-ok( $ids['j_news'] === cemeti_featured_post( 'journal' )->ID, 'featured: journal = newest' );
+ok( $ids['j_essay'] === cemeti_featured_post( 'journal' )->ID, 'featured: journal = the newest writing (News posts are not Journal)' );
 ok( 'Current' === cemeti_status_label( 'current' ) && 'Upcoming' === cemeti_status_label( 'upcoming' ) && 'Previous' === cemeti_status_label( 'previous' ) && '' === cemeti_status_label( 'bogus' ), 'status labels (public helper)' );
 
 /* ------------------------------------------------------------ What's on */
@@ -188,9 +188,10 @@ $q = $run( array( 'post_type' => 'journal' ), array( 'pta' => 'journal' ) );
 ok( 20 === $q->get( 'posts_per_page' ), 'journal: 20 per page' );
 $q = $run( array( 's' => 'x' ), array( 'search' => true ) );
 ok( in_array( 'open_call', $q->get( 'post_type' ), true ) && ! in_array( 'person', $q->get( 'post_type' ), true ) && ! in_array( 'application', $q->get( 'post_type' ), true ), 'search: content types only, never people or applications' );
-$entries = cemeti_archive_entries();
-ok( 10 === count( $entries ), 'open archive: 5 exhibitions, 2 residencies, 2 public programs, 1 open studio (' . count( $entries ) . ' entries)' );
-ok( ! in_array( 'Rangkaian Perayaan #37thCemeti', array_column( $entries, 'title' ), true ), 'open archive: journal excluded' );
+$archive = cemeti_archive_items();
+ok( count( array_filter( $archive, static function ( $i ) { return 'booklet' === $i['type']; } ) ) >= 1 && count( array_filter( $archive, static function ( $i ) { return 'news' === $i['type']; } ) ) >= 1, 'open archive: booklets of the entries and News posts' );
+ok( ! in_array( 'Towards a Constellation of Friendship', array_column( $archive, 'title' ), true ), 'open archive: essays stay in the Journal' );
+ok( array_column( $archive, 'date' ) === array_reverse( array_column( array_reverse( $archive ), 'date' ) ) && $archive === array_values( $archive ), 'open archive: newest first' );
 
 /* ------------------------------------------------------------ Open Call: one call, switched on and off by the team */
 $current = cemeti_current_open_call();

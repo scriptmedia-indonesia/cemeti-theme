@@ -27,7 +27,7 @@ $h = page( 'home', 'front-page.php', array( 'front' => true ) );
 ok( false !== strpos( $h, 'Harta yang Paling Berharga' ), 'home: featured current exhibition shown' );
 ok( false !== strpos( $h, 'Residency Program 2026' ) && ( false !== strpos( $h, 'Current Residence' ) || false !== strpos( $h, 'Residen saat ini' ) ) && false !== strpos( $h, 'Zulfian Amrullah, Julian Grosmann' ), 'home: current residency with residents' );
 ok( false !== strpos( $h, 'Open Studio: Angki Purbandono' ), 'home: open studio shown' );
-ok( false !== strpos( $h, 'Previous Journal' ) && 3 === substr_count( $h, 'class="cemeti-row"' ), 'home: three journal rows and the Previous Journal button' );
+ok( false !== strpos( $h, 'Previous Journal' ) && 2 === substr_count( $h, 'class="cemeti-row"' ) && false === strpos( $h, 'Rangkaian Perayaan #37thCemeti' ), 'home: the journal rows are the essays only (News is in the Open Archive) and the Previous Journal button' );
 ok( false !== strpos( $h, '>Previous Exhibition<' ), 'home: "Previous Exhibition" button' );
 
 // ---- Archives
@@ -59,7 +59,7 @@ ok( 1 === preg_match( '/href="[^"]*\/residency\/"\s+class="is-active"/', $h_res 
 ok( false !== strpos( $h_reg, 'cemeti-card-grid' ) && false === strpos( $h_res, 'cemeti-card-grid' ) && false !== strpos( $h_res, 'cemeti-empty' ), 'residency: Regular shows its entries, Research (none in the fixture) shows the empty message' );
 ok( false !== strpos( $h, 'cemeti-residency-intro' ) && false !== strpos( $h, 'Regular' ) && false !== strpos( $h, 'Research' ), 'archive residency: Regular and Research intros from term descriptions' );
 $h = page( 'archive-journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/journal/', 'query' => array( 'post_type' => 'journal' ), 'flags' => array( 'pta' => 'journal' ) ) );
-ok( 3 === substr_count( $h, 'class="cemeti-row"' ) && strpos( $h, '15-01-2025' ) < strpos( $h, '01-07-2024' ), 'archive journal: rows with dd-mm-yyyy, newest first' );
+ok( 2 === substr_count( $h, 'class="cemeti-row"' ) && strpos( $h, '01-07-2024' ) < strpos( $h, '08-11-2023' ) && false === strpos( $h, '15-01-2025' ), 'archive journal: essays only, rows with dd-mm-yyyy, newest first; News is left out' );
 ok( false !== strpos( $h, 'Curatorial Essay' ) && false !== strpos( $h, '>Essay<' ), 'archive journal: category label per row' );
 $h = page( 'archive-open-call', 'archive-open_call.php', array( 'pta' => 'open_call' ), array( 'path' => '/open-call/', 'query' => array( 'post_type' => 'open_call' ), 'flags' => array( 'pta' => 'open_call' ) ) );
 ok( 1 === substr_count( $h, 'cemeti-single--open_call' ), 'archive open call: only one call is shown' );
@@ -166,7 +166,11 @@ ok( false === strpos( $h, '<script>alert' ), 'open call: ?apply= value never ech
 $h = page( 'page-about', 'page-about.php', array( 'singular' => true ), array( 'post' => $ids['p_about'], 'path' => '/about/' ) );
 ok( false !== strpos( $h, 'Mella Jaarsma' ) && false !== strpos( $h, 'Dito Yuwono' ) && false !== strpos( $h, 'cemeti-people__heading' ), 'about: advisory board and team listed' );
 $h = page( 'page-open-archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $ids['p_archive'], 'path' => '/open-archive/' ) );
-ok( false !== strpos( $h, 'cemeti-az__letter' ), 'open archive: letter groups' );
+ok( false !== strpos( $h, 'data-cemeti-archive' ) && false !== strpos( $h, 'cemeti-archive__item' ) && false === strpos( $h, 'cemeti-az' ), 'open archive: the database of booklets and writings, not the A-Z list' );
+ok( false !== strpos( $h, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $h, 'booklet-901.pdf' ) && false !== strpos( $h, 'residency.pdf' ) && false !== strpos( $h, 'data-type="news"' ) && false !== strpos( $h, 'data-type="booklet"' ), 'open archive: the booklet of an entry and the News posts are in it' );
+ok( 1 === preg_match( '/Download<span class="screen-reader-text"> — Harta yang Paling Berharga/', $h ) && 1 === preg_match( '/Read<span class="screen-reader-text"> — Rangkaian Perayaan/', $h ), 'open archive: Download for booklets, Read for News, each link named for screen readers' );
+$h = page( 'page-history', 'page-history.php', array( 'singular' => true ), array( 'post' => $ids['p_history'], 'path' => '/history/' ) );
+ok( 39 <= substr_count( $h, '<details class="cemeti-accordion__row">' ) && false !== strpos( $h, 'cemeti-single--history' ) && false !== strpos( $h, 'Kronologi kegiatan Cemeti.' ), 'history: its own page with the description and one dropdown row per year' );
 $h = page( 'page-support-us', 'page-support-us.php', array( 'singular' => true ), array( 'post' => $ids['p_support'], 'path' => '/support-us/' ) );
 ok( 4 === substr_count( $h, '<details' ), 'support us: four accordion rows from child pages' );
 page( 'page-contact-us', 'page-contact-us.php', array( 'singular' => true ), array( 'post' => $ids['p_contact'], 'path' => '/contact-us/' ) );
@@ -197,7 +201,7 @@ foreach ( $empty as $tpl => $args ) {
 	page( 'empty-' . basename( $tpl, '.php' ), $tpl, $args[0], $args[1] );
 }
 $p1 = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'About', 'post_name' => 'about' ) );
-foreach ( array( 'page-about.php', 'page-open-archive.php', 'page-support-us.php', 'page-contact-us.php' ) as $tpl ) {
+foreach ( array( 'page-about.php', 'page-history.php', 'page-open-archive.php', 'page-support-us.php', 'page-contact-us.php' ) as $tpl ) {
 	page( 'empty-' . basename( $tpl, '.php' ), $tpl, array( 'singular' => true ), array( 'post' => $p1, 'path' => '/about/' ) );
 }
 $ex = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Tanpa isi' ) );

@@ -114,11 +114,20 @@ mutate "label: language shown as a category"          $T/inc/templates.php "\$ta
 mutate "entries: empty title gives an empty link"    $T/inc/templates.php "return '' !== \$title ? get_the_title( \$post ) : cemeti_t( 'untitled' );" "return get_the_title( \$post );" flows-bilingual
 mutate "lists: remembered list never refreshed"      $T/inc/queries.php "add_action( 'save_post', 'cemeti_listing_cache_clear' );" "" flows-polylang
 mutate "twin: different event on the same day"       $T/inc/templates.php "if ( ! array_intersect( \$words( \$post->post_title ), \$words( get_post_field( 'post_title', \$best ) ) ) ) {" "if ( false ) {" flows-polylang
+mutate "journal: News shown in the Journal list"     $T/inc/queries.php "\$query->set( 'tax_query', array_merge( (array) \$query->get( 'tax_query' ), cemeti_journal_tax_query() ) );" "" render-pages
+mutate "archive: News missing from the Open Archive"  $T/inc/archive.php "foreach ( cemeti_archive_entry_ids( array( 'journal' ) ) as \$id ) {" "foreach ( array() as \$id ) {" render-pages
+mutate "archive: booklets missing from Open Archive"  $T/inc/archive.php "		if ( '' === \$url ) {
+			continue;
+		}" "		if ( true ) {
+			continue;
+		}" render-pages
+mutate "history: legacy About text ignored"          $T/inc/history.php "if ( is_array( \$legacy ) && \$legacy ) {" "if ( false ) {" flows-pages
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
   mutate "js: residency list is not swapped"        $T/assets/js/residency-filter.js "results.innerHTML = newResults.innerHTML;" "" browser
+  mutate "js: archive filter does not hide items"   $T/assets/js/archive-filter.js "item.hidden = ! show;" "" browser
   mutate "js: Escape no longer closes panels"      $T/assets/js/navigation.js "if ( event.key === 'Escape' ) {" "if ( event.key === 'F13' ) {" browser
 else
   echo "  (browser mutations skipped: Playwright not installed)"

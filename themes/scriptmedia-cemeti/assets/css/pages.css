@@ -171,13 +171,6 @@
 
 /* ---- Open Archive A–Z ---- */
 /* Figma: two columns 18 px apart; letter 48 Medium, entries 24 indented 33 px, 30 px apart. */
-.cemeti-az { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 1.125rem; margin-top: 4rem; }
-.cemeti-az__letter { margin: 0.478rem 0 -0.1rem; font-size: var(--fs-xl); font-weight: 500; line-height: 1; }
-.cemeti-az ul { list-style: none; margin: 0; padding: 0 0 0 2.0625rem; font-size: var(--fs-single); line-height: 1.25; }
-.cemeti-az li { margin-bottom: 0; }   /* Figma: entries 30 px apart, letter blocks 144 px apart (3 entries) */
-.cemeti-az a { text-decoration: none; }
-.cemeti-az a:hover { color: var(--c-salmon); text-decoration: underline; }
-@media (min-width: 40rem) { .cemeti-az { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 
 /* ---- Support Us accordion ---- */
 .cemeti-accordion { margin-top: 2rem; border-top: var(--rule); }
@@ -190,11 +183,37 @@
 .cemeti-accordion__row summary:hover { color: var(--c-blue); }
 .cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
 
-/* ---- About → History: the dropdown rows of Support Us, with the entries inside ---- */
-.cemeti-history { margin-top: clamp(2.5rem, 1rem + 5vw, 5rem); }
+/* ---- History page: the dropdown rows of Support Us, with the entries inside ---- */
+.cemeti-history__panel { padding-top: 1rem; }
 .cemeti-history__item { margin: 0 0 1.4167em; }
 .cemeti-history__item strong { display: block; font-weight: 500; }
 .cemeti-history__item span { display: block; overflow-wrap: anywhere; }
+
+/* ---- Open Archive: filters, then ruled rows (year, title and kind, Download / Read) ---- */
+.cemeti-archive { margin-top: clamp(1.5rem, 1rem + 2vw, 3rem); }
+.cemeti-archive__filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; margin-bottom: clamp(1rem, 0.5rem + 1.5vw, 2rem); font-size: var(--fs-single); }
+.cemeti-archive__types { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; margin: 0; padding: 0; list-style: none; }
+.cemeti-archive__type { text-decoration: none; font-weight: 500; }
+.cemeti-archive__type:hover,
+.cemeti-archive__type:focus-visible,
+.cemeti-archive__type.is-active { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.15em; }
+.cemeti-archive__count { font-size: 0.8em; font-weight: 400; color: var(--c-muted); vertical-align: super; }
+.cemeti-archive__year { display: flex; align-items: center; gap: 0.75rem; }
+.cemeti-archive__year select { min-width: 7rem; padding: 0.4rem 0.6rem; border: 2px solid var(--c-ink); border-radius: 0; background: var(--c-cream); color: inherit; font: inherit; }
+.cemeti-archive__list { margin: 0; padding: 0; list-style: none; border-top: var(--rule); }
+.cemeti-archive__item { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) auto; align-items: center; gap: 0.5rem 1.25rem; padding: 0.9rem 0; border-bottom: var(--rule); }
+.cemeti-archive__item[hidden] { display: none; }
+.cemeti-archive__year-label { font-size: var(--fs-single); line-height: 1.2; }
+.cemeti-archive__main { min-width: 0; }
+.cemeti-archive__title { display: block; font-size: var(--fs-single-lead); font-weight: 500; line-height: 1.05; overflow-wrap: anywhere; }
+.cemeti-archive__meta { display: block; margin-top: 0.3rem; font-size: var(--fs-single-small, 1rem); color: var(--c-muted); }
+.cemeti-archive__action { display: inline-block; padding: 0.75rem 1.1rem; background: var(--c-green); color: var(--c-cream); font-family: var(--font-script); font-size: 1rem; line-height: 1; text-decoration: none; white-space: nowrap; }
+.cemeti-archive__action:hover,
+.cemeti-archive__action:focus-visible { background: var(--c-salmon); color: var(--c-ink); }
+@media (max-width: 40rem) {
+	.cemeti-archive__item { grid-template-columns: minmax(0, 1fr) auto; }
+	.cemeti-archive__year-label { grid-column: 1 / -1; font-size: 1rem; color: var(--c-muted); }
+}
 
 /* ---- Contact, 404 ---- */
 .cemeti-contact { font-style: normal; max-width: var(--col, 83.333%); margin: 1.5rem auto 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
@@ -225,7 +244,8 @@
 .cemeti-single__figure { width: min(100%, 53rem); margin: 0 auto 2.5rem; }
 .cemeti-single__figure .cemeti-single__hero { display: block; width: 100%; aspect-ratio: 848 / 602; object-fit: cover; margin: 0; }
 .cemeti-single__figure figcaption { margin: 0.75rem 0 0; padding-inline: 12.7%; font-size: var(--fs-single-small); line-height: 1.35; text-align: left; }
-.cemeti-single--support .cemeti-single__body { max-width: 53rem; }
+.cemeti-single--support .cemeti-single__body,
+.cemeti-single--history .cemeti-single__body { max-width: 53rem; }
 
 /* ---- Section titles stay pinned under the header while their section scrolls; the content slides underneath
    and the title stays ON TOP of it (prototype behaviour). The title box lets clicks through except on the link. ---- */

@@ -118,16 +118,16 @@ qa_reset_data();
 $GLOBALS['pll']['lang'] = $GLOBALS['pll']['groups'] = array();
 do_action( 'after_switch_theme' );
 $pages = array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } );
-ok( 16 === count( $pages ), 'Polylang: 8 pages in each of two languages (' . count( $pages ) . ')' );
+ok( 18 === count( $pages ), 'Polylang: 9 pages in each of two languages (' . count( $pages ) . ')' );
 $about = array_keys( array_filter( $pages, static function ( $p ) { return 'about' === $p['post_name']; } ) );
 ok( 2 === count( $about ) && array( 'en', 'id' ) === ( function ( $ids ) { $l = array_map( static function ( $i ) { return $GLOBALS['pll']['lang'][ $i ]; }, $ids ); sort( $l ); return $l; } )( $about ), 'Polylang: "about" exists in id and en with the same slug' );
-ok( 8 === count( $GLOBALS['pll']['groups'] ), 'Polylang: each page is linked to its translation (' . count( $GLOBALS['pll']['groups'] ) . ' groups)' );
+ok( 9 === count( $GLOBALS['pll']['groups'] ), 'Polylang: each page is linked to its translation (' . count( $GLOBALS['pll']['groups'] ) . ' groups)' );
 $support_ids = array_keys( array_filter( $pages, static function ( $p ) { return 'support-us' === $p['post_name']; } ) );
 $kids = array_filter( $pages, static function ( $p ) { return 'collaboration' === $p['post_name']; } );
 foreach ( $kids as $kid_id => $kid ) {
 	ok( (int) $GLOBALS['pll']['lang'][ $kid_id ] === (int) $GLOBALS['pll']['lang'][ $kid['post_parent'] ] || $GLOBALS['pll']['lang'][ $kid_id ] === $GLOBALS['pll']['lang'][ $kid['post_parent'] ], 'Polylang: a Support Us row sits under the Support Us page of its own language' );
 }
-ok( 0 === cemeti_create_missing_pages() && 16 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
+ok( 0 === cemeti_create_missing_pages() && 18 === count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ), 'Polylang: running again creates nothing' );
 
 // ---- menu links lead to the real page of the current language (Indonesian slugs differ: "tentang", "kontak")
 $by = static function ( $slug, $lang ) { foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'page' === $pp['post_type'] && $slug === $pp['post_name'] && ( $GLOBALS['pll']['lang'][ $pid ] ?? '' ) === $lang ) { return $pid; } } return 0; };
@@ -221,10 +221,10 @@ CemetiWP::$options = array();
 $count_id = static function () { return count( array_filter( CemetiWP::$posts, static function ( $p ) { return 'page' === $p['post_type']; } ) ); };
 CemetiWP::$caps = false;
 do_action( 'admin_init' );
-ok( 8 === $count_id(), 'update: a visitor who is not an administrator creates nothing' );
+ok( 9 === $count_id(), 'update: a visitor who is not an administrator creates nothing' );
 CemetiWP::$caps = true;
 do_action( 'admin_init' );
-ok( 16 === $count_id() && 8 === count( $GLOBALS['pll']['groups'] ), 'update: the admin dashboard creates the missing Indonesian Open Archive, Support Us and Contact Us pages and links them' );
+ok( 18 === $count_id() && 9 === count( $GLOBALS['pll']['groups'] ), 'update: the admin dashboard creates the missing Indonesian Open Archive, Support Us and Contact Us pages and links them' );
 $before = $count_id();
 foreach ( CemetiWP::$posts as $pid => $pp ) { if ( 'contact-us' === $pp['post_name'] ) { unset( CemetiWP::$posts[ $pid ] ); break; } }
 do_action( 'admin_init' );

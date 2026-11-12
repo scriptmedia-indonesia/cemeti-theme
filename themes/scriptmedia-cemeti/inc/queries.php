@@ -56,6 +56,11 @@ function cemeti_pre_get_posts( $query ) {
 		}
 	}
 
+	// Journal is the collection of writings and essays to read on the web: News posts live in the Open Archive.
+	if ( $query->is_post_type_archive( 'journal' ) ) {
+		$query->set( 'tax_query', array_merge( (array) $query->get( 'tax_query' ), cemeti_journal_tax_query() ) );
+	}
+
 	if ( $query->is_post_type_archive( 'journal' ) || $query->is_tax( 'journal_category' ) ) {
 		$query->set( 'posts_per_page', 20 );
 	}
@@ -89,34 +94,6 @@ function cemeti_pre_get_posts( $query ) {
 	}
 }
 add_action( 'pre_get_posts', 'cemeti_pre_get_posts' );
-
-/**
- * Title of the entries for the A–Z list (programs only, newest query-free).
- *
- * @return array<int, array{title:string,url:string}>
- */
-function cemeti_archive_entries() {
-	$cache_key = 'cemeti_az_' . cemeti_current_lang() . '_' . (int) get_option( 'cemeti_content_version', 0 );
-	$cached    = get_transient( $cache_key );
-	if ( is_array( $cached ) ) {
-		return $cached;
-	}
-	$entries = array();
-	$posts   = get_posts(
-		array(
-			'post_type'      => array( 'exhibition', 'residency', 'public_program', 'open_studio' ),
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'no_found_rows'  => true,
-		)
-	);
-	foreach ( $posts as $post ) {
-		$entries[] = array( 'title' => get_the_title( $post ), 'url' => get_permalink( $post ) );
-	}
-	set_transient( $cache_key, $entries, DAY_IN_SECONDS );
-	return $entries;
-}
-
 
 /**
  * People for the About page, split into Advisory Board and Team.
@@ -377,3 +354,37 @@ function cemeti_polylang_unfilter_lists( $excluded, $query ) {
 	return cemeti_current_lang() !== cemeti_default_lang() ? true : $excluded;
 }
 add_filter( 'pll_filter_query_excluded_query', 'cemeti_polylang_unfilter_lists', 10, 2 );
+
+/**
+ * Term IDs of the Journal category "News" and of its copy in the other language.
+ *
+ * @return int[]
+ */
+function cemeti_news_term_ids() {
+	static $cache = null;
+	if ( null !== $cache ) {
+		return $cache;
+	}
+	$ids = array();
+	foreach ( array( 'news', 'news-en', 'news-id' ) as $slug ) {
+		$term = get_term_by( 'slug', $slug, 'journal_category' );
+		if ( $term ) {
+			$ids[] = (int) $term->term_id;
+			if ( function_exists( 'pll_get_term_translations' ) ) {
+				$ids = array_merge( $ids, array_map( 'intval', array_values( (array) pll_get_term_translations( $term->term_id ) ) ) );
+			}
+		}
+	}
+	$cache = array_values( array_unique( array_filter( $ids ) ) );
+	return $cache;
+}
+
+/**
+ * tax_query part that leaves News out of Journal lists.
+ *
+ * @return array
+ */
+function cemeti_journal_tax_query() {
+	$ids = cemeti_news_term_ids();
+	return $ids ? array( array( 'taxonomy' => 'journal_category', 'field' => 'term_id', 'terms' => $ids, 'operator' => 'NOT IN' ) ) : array();
+}

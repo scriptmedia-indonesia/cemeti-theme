@@ -70,7 +70,7 @@ $id_os   = $twin( $ids['os_current'], 'Studio Terbuka: Angki Purbandono' );
 $id_j    = $twin( $ids['j_essay'], 'Esai Menuju Konstelasi Persahabatan' );
 $id_oc   = $twin( $ids['oc_open'], 'Program Residensi Seniman Asia Tenggara' );
 $id_page = array();
-foreach ( array( 'about' => array( 'Tentang', 'tentang', $ids['p_about'] ), 'open-archive' => array( 'Arsip Terbuka', 'arsip-terbuka', $ids['p_archive'] ), 'support-us' => array( 'Dukung Kami', 'dukung-kami', $ids['p_support'] ), 'contact-us' => array( 'Kontak Kami', 'kontak-kami', $ids['p_contact'] ) ) as $key => $def ) {
+foreach ( array( 'about' => array( 'Tentang', 'tentang', $ids['p_about'] ), 'history' => array( 'Kronologi', 'kronologi', $ids['p_history'] ), 'open-archive' => array( 'Arsip Terbuka', 'arsip-terbuka', $ids['p_archive'] ), 'support-us' => array( 'Dukung Kami', 'dukung-kami', $ids['p_support'] ), 'contact-us' => array( 'Kontak Kami', 'kontak-kami', $ids['p_contact'] ) ) as $key => $def ) {
 	$pid = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => $def[0], 'post_name' => $def[1], 'post_content' => 'Teks Indonesia untuk ' . $def[0] ) );
 	$GLOBALS['pll']['lang'][ $pid ] = 'id';
 	$GLOBALS['pll']['groups'][] = array( 'en' => $def[2], 'id' => $pid );
@@ -178,8 +178,8 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 foreach ( array( 'en', 'id' ) as $lang ) {
 	$GLOBALS['pll']['current'] = $lang;
 	$set = 'en' === $lang
-		? array( 'ex' => $ids['ex_current'], 'res' => $ids['res_current'], 'pp' => $ids['pp_past'], 'os' => $ids['os_current'], 'oc' => $ids['oc_open'], 'j' => $ids['j_essay'], 'about' => $ids['p_about'], 'archive' => $ids['p_archive'], 'support' => $ids['p_support'], 'contact' => $ids['p_contact'] )
-		: array( 'ex' => $id_ex, 'res' => $id_res, 'pp' => $id_pp, 'os' => $id_os, 'oc' => $id_oc, 'j' => $id_j, 'about' => $id_page['about'], 'archive' => $id_page['open-archive'], 'support' => $id_page['support-us'], 'contact' => $id_page['contact-us'] );
+		? array( 'ex' => $ids['ex_current'], 'res' => $ids['res_current'], 'pp' => $ids['pp_past'], 'os' => $ids['os_current'], 'oc' => $ids['oc_open'], 'j' => $ids['j_essay'], 'about' => $ids['p_about'], 'history' => $ids['p_history'], 'archive' => $ids['p_archive'], 'support' => $ids['p_support'], 'contact' => $ids['p_contact'] )
+		: array( 'ex' => $id_ex, 'res' => $id_res, 'pp' => $id_pp, 'os' => $id_os, 'oc' => $id_oc, 'j' => $id_j, 'about' => $id_page['about'], 'history' => $id_page['history'], 'archive' => $id_page['open-archive'], 'support' => $id_page['support-us'], 'contact' => $id_page['contact-us'] );
 
 	$check( $lang, 'home', $render( $lang, 'home', 'front-page.php', array( 'front' => true ), array( 'path' => '/' ) ) );
 	foreach ( array( 'exhibition' => 'archive.php', 'residency' => 'archive-residency.php', 'public_program' => 'archive.php', 'open_studio' => 'archive.php', 'open_call' => 'archive-open_call.php', 'journal' => 'archive-journal.php' ) as $type => $tpl ) {
@@ -190,7 +190,7 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 	foreach ( array( 'ex' => 'single.php', 'res' => 'single.php', 'pp' => 'single.php', 'os' => 'single.php', 'oc' => 'single-open_call.php', 'j' => 'single-journal.php' ) as $k => $tpl ) {
 		$check( $lang, "single $k", $render( $lang, "single $k", $tpl, array( 'singular' => true ), array( 'post' => $set[ $k ], 'path' => '/x/' ) ) );
 	}
-	foreach ( array( 'about' => 'page-about.php', 'archive' => 'page-open-archive.php', 'support' => 'page-support-us.php', 'contact' => 'page-contact-us.php' ) as $k => $tpl ) {
+	foreach ( array( 'about' => 'page-about.php', 'history' => 'page-history.php', 'archive' => 'page-open-archive.php', 'support' => 'page-support-us.php', 'contact' => 'page-contact-us.php' ) as $k => $tpl ) {
 		$check( $lang, "page $k", $render( $lang, "page $k", $tpl, array( 'singular' => true ), array( 'post' => $set[ $k ], 'path' => '/p/' ) ) );
 	}
 	$check( $lang, 'search', $render( $lang, 'search', 'search.php', array( 'search' => true ), array( 'path' => '/?s=a', 'query' => array( 's' => 'a' ) ) ) );
@@ -244,9 +244,9 @@ foreach ( array( 'about' => array( $ids['p_about'], $id_page['about'] ), 'suppor
 // The overlay menu of each language opens that language's own fixed pages.
 $home_id = $render( 'id', 'home', 'front-page.php', array( 'front' => true ), array( 'path' => '/id/' ) );
 $home_en = $render( 'en', 'home', 'front-page.php', array( 'front' => true ), array( 'path' => '/' ) );
-foreach ( array( 'about', 'open-archive', 'support-us', 'contact-us' ) as $k ) {
+foreach ( array( 'about', 'history', 'open-archive', 'support-us', 'contact-us' ) as $k ) {
 	ok( false !== strpos( $home_id, 'href="' . get_permalink( $id_page[ $k ] ) . '"' ), "[id] overlay menu: $k opens the Indonesian page" );
-	$en_page = array( 'about' => $ids['p_about'], 'open-archive' => $ids['p_archive'], 'support-us' => $ids['p_support'], 'contact-us' => $ids['p_contact'] )[ $k ];
+	$en_page = array( 'about' => $ids['p_about'], 'history' => $ids['p_history'], 'open-archive' => $ids['p_archive'], 'support-us' => $ids['p_support'], 'contact-us' => $ids['p_contact'] )[ $k ];
 	ok( false !== strpos( $home_en, 'href="' . get_permalink( $en_page ) . '"' ) && false === strpos( $home_en, 'href="' . get_permalink( $id_page[ $k ] ) . '"' ), "[en] overlay menu: $k opens the English page" );
 }
 // Support Us: each language shows its own rows.
@@ -270,5 +270,13 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 }
 $jr_id = $render( 'id', 'journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/id/journal/', 'query' => array( 'post_type' => 'journal', 'lang' => 'id' ), 'flags' => array( 'pta' => 'journal' ) ) );
 ok( false !== strpos( $jr_id, 'class="cemeti-row__cat">Essay<' ), '[id] Journal list: the category of the old site (Essay) is shown, not the language' );
+// Journal is essays only; the Open Archive holds the booklets and the News in each language.
+foreach ( array( 'en', 'id' ) as $lang ) {
+	$jr = $render( $lang, 'journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/j/', 'query' => array( 'post_type' => 'journal', 'lang' => $lang ), 'flags' => array( 'pta' => 'journal' ) ) );
+	ok( false === strpos( $jr, 'Rangkaian Perayaan #37thCemeti' ), "[$lang] Journal list: News posts are not in it" );
+	$oa = $render( $lang, 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => 'en' === $lang ? $ids['p_archive'] : $id_page['open-archive'], 'path' => '/oa/' ) );
+	ok( false !== strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-archive__action' ), "[$lang] Open Archive: the News post and the booklets are listed" );
+	ok( false !== strpos( $oa, 'en' === $lang ? '>Download<' : '>Unduh<' ), "[$lang] Open Archive: the action button is in the page's language" );
+}
 if ( getenv( "QA_DUMP" ) ) { file_put_contents( "/tmp/id-home.html", $home_id ); file_put_contents( "/tmp/id-single.html", $render( "id", "x", "single.php", array( "singular" => true ), array( "post" => $id_ex, "path" => "/x/" ) ) ); }
 qa_done();

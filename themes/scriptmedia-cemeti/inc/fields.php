@@ -420,7 +420,7 @@ function cemeti_admin_assets( $hook ) {
 		return;
 	}
 	$screen = get_current_screen();
-	$about  = $screen && 'page' === $screen->post_type && ! empty( $_GET['post'] ) && 'about' === cemeti_page_key( absint( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- About has the History box.
+	$about  = $screen && 'page' === $screen->post_type && ! empty( $_GET['post'] ) && 'history' === cemeti_page_key( absint( $_GET['post'] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- History has the chronology box.
 	if ( ! $screen || ( ! $about && ! array_key_exists( $screen->post_type, cemeti_config( 'fields' ) ) ) ) {
 		return;
 	}

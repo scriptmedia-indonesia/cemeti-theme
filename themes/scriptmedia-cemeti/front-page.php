@@ -59,7 +59,7 @@ $cemeti_sections = array( 'exhibition', 'residency', 'public_program', 'open_stu
 	<?php endforeach; ?>
 
 	<?php
-	$cemeti_journal = new WP_Query( array( 'post_type' => 'journal', 'posts_per_page' => 3, 'no_found_rows' => true ) );
+	$cemeti_journal = new WP_Query( array( 'post_type' => 'journal', 'posts_per_page' => 3, 'no_found_rows' => true, 'tax_query' => cemeti_journal_tax_query() ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
 	if ( $cemeti_journal->have_posts() ) :
 		?>
 		<section class="cemeti-home__section cemeti-home__section--journal">

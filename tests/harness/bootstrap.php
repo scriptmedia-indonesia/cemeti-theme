@@ -131,6 +131,7 @@ function qa_seed() {
 	wp_set_object_terms( $ids['ex_current'], array( 'Maintenance Works' ), 'project' );
 
 	$ids['p_about']   = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'About', 'post_name' => 'about', 'thumb' => 507, 'post_content' => "Cemeti adalah platform seni kontemporer.\n\nDidirikan 1988." ) );
+	$ids['p_history'] = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'History', 'post_name' => 'history', 'post_content' => 'Kronologi kegiatan Cemeti.' ) );
 	$ids['p_archive'] = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Open Archive', 'post_name' => 'open-archive', 'post_content' => 'Daftar karya dan program.' ) );
 	$ids['p_support'] = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Support Us', 'post_name' => 'support-us', 'post_content' => 'Misi kami.' ) );
 	foreach ( array( 'Patron of Cemeti', 'Friends of Cemeti', 'Annual Benefit', 'Collaboration' ) as $i => $t ) {

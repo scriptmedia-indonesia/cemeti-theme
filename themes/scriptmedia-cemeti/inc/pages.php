@@ -28,9 +28,23 @@ function cemeti_default_pages() {
 			'title' => 'About',
 			'order' => 10,
 		),
+		'history'      => array(
+			'title'   => 'History',
+			'order'   => 15,
+			// Opening text; the team replaces it under Pages → History (the years are in the box "History (chronology)").
+			'content' => array(
+				'en' => 'A chronology of the exhibitions, residencies, public programs and other events at Rumah Seni Cemeti since 1988. Choose a year to see what took place.',
+				'id' => 'Kronologi pameran, residensi, program publik, dan kegiatan lain di Rumah Seni Cemeti sejak 1988. Pilih tahun untuk melihat apa yang berlangsung.',
+			),
+		),
 		'open-archive' => array(
-			'title' => 'Open Archive',
-			'order' => 20,
+			'title'   => 'Open Archive',
+			'order'   => 20,
+			// Opening text; the list below it is made by itself from the booklets of the entries and the News posts.
+			'content' => array(
+				'en' => 'A database of the booklets and writings published by Cemeti, free to read and download.',
+				'id' => 'Basis data buklet dan tulisan yang diterbitkan Cemeti, bebas dibaca dan diunduh.',
+			),
 		),
 		'support-us'   => array(
 			'title'    => 'Support Us',
@@ -359,6 +373,9 @@ function cemeti_page_slug_aliases() {
 		'tentang'         => 'about',
 		'tentang-cemeti'  => 'about',
 		'about-us'        => 'about',
+		'sejarah'         => 'history',
+		'kronologi'       => 'history',
+		'riwayat'         => 'history',
 		'arsip-terbuka'   => 'open-archive',
 		'dukung-kami'     => 'support-us',
 		'dukung'          => 'support-us',
@@ -412,7 +429,7 @@ function cemeti_page_key( $post_id ) {
 		}
 	}
 	// Indonesian titles that begin like the page: "Tentang Kami", "Tentang Rumah Seni Cemeti", "Hubungi Cemeti" …
-	$prefixes = array( 'tentang' => 'about', 'arsip-terbuka' => 'open-archive', 'dukung' => 'support-us', 'dukungan' => 'support-us', 'hubungi' => 'contact-us', 'kontak' => 'contact-us' );
+	$prefixes = array( 'tentang' => 'about', 'sejarah' => 'history', 'kronologi' => 'history', 'arsip-terbuka' => 'open-archive', 'dukung' => 'support-us', 'dukungan' => 'support-us', 'hubungi' => 'contact-us', 'kontak' => 'contact-us' );
 	foreach ( $candidates as $candidate ) {
 		foreach ( $prefixes as $start => $page_key ) {
 			if ( '' !== $candidate && ( $candidate === $start || 0 === strpos( $candidate, $start . '-' ) ) ) {

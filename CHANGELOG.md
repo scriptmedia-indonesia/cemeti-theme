@@ -3,6 +3,25 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.49
+
+Client review of the structure of the site.
+
+- **History is its own page** (slug `history`), in the menu directly below About (not a submenu, not a section of
+  About). Layout of Support Us: page title, description (the page's text), then one dropdown row per year. It is edited on
+  the page itself: Pages → History → box "History (chronology)", **Add Year** each year (the chronology 1988 – 2026 from the
+  supplied documents is built in; what was saved on About in 0.9.37 – 0.9.48 is used until the History page has its own).
+  The History pages (English and Indonesian) are created by themselves after the update; the menu shows "History" in both
+  languages.
+- **Journal = writings and essays to read on the web.** The Journal list, Home and "featured" show Essay and Curatorial
+  Essay only. Entries of the category **News** are no longer listed there (they are not deleted).
+- **Open Archive = a database of what can be read or downloaded freely**, no longer an A–Z list of titles. It is made by
+  itself from the **booklets** of the entries (the "Booklet (PDF)" or booklet link of Exhibition, Residency, Public
+  Program, Open Studio → Download) and the **News** posts (→ Read). Filters: All / Booklet / News and Year, applied at
+  once; newest first; works without JavaScript through the links. In Indonesian, entries that have no Indonesian version
+  yet are included.
+- Docs updated (MAINTENANCE, ARCHITECTURE, DESIGN-NOTES); the A–Z code and styles were removed.
+
 ## 0.9.48
 
 - **Residency editor:** the same information fields as Exhibition — **Opening**, **Public program info** and **Venue and

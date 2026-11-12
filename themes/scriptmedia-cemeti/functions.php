@@ -41,6 +41,7 @@ $cemeti_includes = array(
 	'translate',
 	'contact',
 	'history',
+	'archive',
 	'applications',
 	'search',
 	'seo',

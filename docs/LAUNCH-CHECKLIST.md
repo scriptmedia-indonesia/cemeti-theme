@@ -15,7 +15,7 @@ Everything here is a manual step in WordPress or at the host. The theme cannot d
 
 ## 3. Content
 - [ ] Move the old posts with **Tools → Cemeti Converter** (see `MIGRATION.md`, `CATEGORY-MAPPING.md`); run it on a copy first.
-- [ ] The pages About, Open Archive, Support Us (+ four rows) and Contact Us are created when the theme is activated
+- [ ] The pages About, History, Open Archive, Support Us (+ four rows) and Contact Us are created when the theme is activated
       (both languages with Polylang). If the Dashboard shows "Create them", press it. Then write their texts under Pages.
 - [ ] About: add People (Advisory Board, Team).
 - [ ] Residency Type: write the Reguler and Research introductions in the term descriptions.

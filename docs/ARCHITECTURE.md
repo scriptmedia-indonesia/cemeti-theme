@@ -59,7 +59,8 @@ Not yet: page templates for these types (M3), Open Call form handling and search
 | Journal detail | `single-journal.php` | |
 | Open Call detail | `single-open_call.php` | Button hidden after the deadline |
 | About | `page-about.php` (slug `about`) | Advisory Board and Team come from the **People** type, grouped by Person Group |
-| Open Archive | `page-open-archive.php` (slug `open-archive`) | A–Z of Exhibition, Residency, Public Program, Open Studio titles, two columns |
+| History | `page-history.php` (slug `history`) | title, description, one dropdown row per year (edited on the page: box "History (chronology)") |
+| Open Archive | `page-open-archive.php` (slug `open-archive`) | database of booklets (PDF / link of the entries) and News posts, filtered by kind and year; Download / Read |
 | Support Us | `page-support-us.php` (slug `support-us`) | Accordion rows are the **child pages** of Support Us |
 | Contact Us, Search, 404 | `page-contact-us.php`, `search.php`, `404.php` | Derived (not in the PDF) |
 | Any other page | `page.php` | |

@@ -26,6 +26,7 @@ function cemeti_default_menu() {
 				'items' => array(
 					array( 'label' => 'Home', 'path' => '' ),
 					array( 'label' => 'About', 'path' => 'about' ),
+					array( 'label' => 'History', 'path' => 'history' ),
 				),
 			),
 			array(

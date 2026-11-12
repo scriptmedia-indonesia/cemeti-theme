@@ -301,7 +301,7 @@ class WP_Query {
 							$ok = true;
 						}
 					}
-					if ( ! $ok ) {
+					if ( isset( $tq['operator'] ) && 'NOT IN' === $tq['operator'] ? $ok : ! $ok ) {
 						continue 2;
 					}
 				}
@@ -863,6 +863,9 @@ function get_post_type( $id = null ) {
 		return 'attachment';
 	}
 	return isset( CemetiWP::$posts[ $id ] ) ? CemetiWP::$posts[ $id ]['post_type'] : false;
+}
+function wp_list_pluck( $list, $field ) {
+	return array_values( array_map( static function ( $row ) use ( $field ) { return is_object( $row ) ? $row->$field : $row[ $field ]; }, (array) $list ) );
 }
 function wp_attachment_is_image( $id ) {
 	return isset( CemetiWP::$posts[ $id ] ) ? 'attachment' === CemetiWP::$posts[ $id ]['post_type'] : true;

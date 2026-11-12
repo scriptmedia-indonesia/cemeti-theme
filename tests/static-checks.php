@@ -317,7 +317,7 @@ foreach ( $rules['types'] as $r ) {
 		$err( "migration rule targets unknown type {$r['type']}" );
 	}
 }
-foreach ( array( 'about', 'open-archive', 'support-us', 'contact-us' ) as $page ) {
+foreach ( array( 'about', 'history', 'open-archive', 'support-us', 'contact-us' ) as $page ) {
 	if ( ! is_file( "$root/page-$page.php" ) ) {
 		$err( "page template page-$page.php missing" );
 	}
@@ -325,7 +325,7 @@ foreach ( array( 'about', 'open-archive', 'support-us', 'contact-us' ) as $page 
 // Menu entries point at something that exists.
 $nav = file_get_contents( "$root/inc/navigation.php" );
 preg_match_all( "/'path'\s*=>\s*'([^'?]*)/", $nav, $m );
-$pages = array( 'about', 'open-archive', 'support-us', 'contact-us', '' );
+$pages = array( 'about', 'history', 'open-archive', 'support-us', 'contact-us', '' );
 foreach ( array_unique( array_map( static function ( $p ) { return trim( $p, '/' ); }, $m[1] ) ) as $path ) {
 	if ( ! in_array( $path, $pages, true ) && ! isset( $slugs[ $path ] ) ) {
 		$err( "menu path '$path' is neither a content type URL nor a known page" );

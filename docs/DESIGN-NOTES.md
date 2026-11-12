@@ -33,7 +33,7 @@ All 30 pages were viewed. Values below were measured from rasterised pages (pdft
 | 27 | Journal detail | `single-journal.php` | M3 |
 | 28 | Journal list | `archive-journal.php` | M3 |
 | 29 | About (image, text, Advisory Board, Team) | `page-about.php` | M3 |
-| 30 | Open Archive A–Z, two columns A–M / N–Z | `page-open-archive.php` | M3 |
+| 30 | Open Archive: database of booklets and News to read or download (replaces the A–Z list, client review 0.9.49) | `page-open-archive.php`, `inc/archive.php` | M3 |
 
 No page exists for Contact Us, Search results, 404 or Open Call application form. They will be derived from the design system and listed here as derived designs when built (M3/M4).
 
@@ -142,7 +142,7 @@ Calibration used for text boxes: Figma trims text to its cap height (0.72 of the
 | Home residency | picture 416 x 333, text 16 px to its right | |
 | Journal row | date 24, title 40 Medium, category 24; rule between rows spanning the full width | `.cemeti-row` |
 | Open Call | picture 416 x 520, text 848 wide 16 px to its right: title 48 Medium, text 24 Medium, blue button 272 wide level with the picture's bottom | `.cemeti-opencall` |
-| Open Archive A-Z | two columns 18 px apart; letter 48, entries 24 indented 33 px, 30 px apart | `.cemeti-az` |
+| Open Archive (0.9.49) | filters (All / Booklet / News, year) then ruled rows: year, title 40 Medium, kind, Download / Read button | `.cemeti-archive` |
 | Support rows | label 48 uppercase, 82 px pitch, full-width rules | `.cemeti-accordion` |
 
 Cream text on the green button is 3.21:1 (below AA); it is the design colour pair and is listed as known.
@@ -156,7 +156,7 @@ Measured from the node geometry of the Figma file (every frame is 1440 wide; hea
 page title ink y 180 and Back y 197; first row / card / picture y 265; detail poster y 247 (524 x 655); reading column x 188,
 1064 wide; galleries 524 x 351 in two columns 16 px apart, rows 12 px apart; biography photo 308, text 740 at x 512;
 Related cards 324 wide, 15 px apart; Journal article picture 848 x 602 at y 247, in-text pictures 906 (wide 1067);
-Support rows 82 px; Open Archive entries 30 px, letter blocks 144 px; Residency columns 524 at x 176 / 740.
+Support rows 82 px (the History page uses the same rows); Residency columns 524 at x 176 / 740.
 `tests/browser/browser-qa.js` keeps these as `figma:` checks.
 Not read from Figma (no access to those nodes at the time): the icons of the Share block ("Share this:" label with an image of
 icons), the overlay menu and search frames, interactions of the prototype.

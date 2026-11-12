@@ -3,7 +3,7 @@
 require __DIR__ . '/harness/bootstrap.php';
 qa_boot();
 
-$slugs = array( 'about', 'open-archive', 'support-us', 'patron-of-cemeti', 'friends-of-cemeti', 'annual-benefit', 'collaboration', 'contact-us' );
+$slugs = array( 'about', 'history', 'open-archive', 'support-us', 'patron-of-cemeti', 'friends-of-cemeti', 'annual-benefit', 'collaboration', 'contact-us' );
 $by_slug = static function ( $slug ) {
 	foreach ( CemetiWP::$posts as $id => $p ) {
 		if ( 'page' === $p['post_type'] && $slug === $p['post_name'] ) {
@@ -14,7 +14,7 @@ $by_slug = static function ( $slug ) {
 };
 
 /* ---- a fresh install has none of them: every menu link would be "page not found" */
-ok( 8 === count( cemeti_missing_pages() ), 'fresh site: all 8 pages are missing (' . count( cemeti_missing_pages() ) . ')' );
+ok( 9 === count( cemeti_missing_pages() ), 'fresh site: all 9 pages are missing (' . count( cemeti_missing_pages() ) . ')' );
 foreach ( array( 'about', 'open-archive', 'support-us', 'contact-us' ) as $slug ) {
 	ok( false !== strpos( cemeti_default_menu_paths(), "|$slug|" ), "menu links to /$slug/" );
 }
@@ -115,7 +115,7 @@ $render = static function ( $slug, $template ) use ( $by_slug ) {
 	return $html;
 };
 $h = $render( 'open-archive', 'page-open-archive.php' );
-ok( false !== strpos( $h, 'cemeti-az__letter' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ), 'Open Archive lists the entries A-Z' );
+ok( false !== strpos( $h, 'cemeti-archive__item' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ) && false === strpos( $h, 'cemeti-az' ), 'Open Archive lists the booklets and News as a database (no A-Z)' );
 $h = $render( 'support-us', 'page-support-us.php' );
 ok( 4 === substr_count( $h, '<summary>' ) && false !== strpos( $h, 'Patron of Cemeti' ) && false !== strpos( $h, 'Coming soon' ), 'Support Us shows its four rows' );
 $h = $render( 'contact-us', 'page-contact-us.php' );
@@ -145,14 +145,14 @@ foreach ( array( 'Tentang Kami' => 'about', 'Tentang Rumah Seni Cemeti' => 'abou
 	ok( $expect === cemeti_page_key( $tp ), "page key: \"$title\" is " . ( $expect ?: 'an ordinary page' ) );
 }
 
-/* ---- About → History: dropdown rows per year, edited on the About page, bundled chronology until then */
-$ap = $by_slug( 'about' );
+/* ---- History page: dropdown rows per year, edited on the History page, bundled chronology until then */
+$ap = $by_slug( 'history' );
 CemetiWP::$caps = true;
 $rows = cemeti_history_rows( $ap );
 ok( count( $rows ) >= 39 && '1988' === $rows[0]['year'] && '2026' === $rows[ count( $rows ) - 1 ]['year'], 'history: the supplied chronology (1988–2026) is shown until the page has its own' );
 ok( false !== strpos( $rows[0]['entries'], 'Inaugural Group Exhibition' ) && 11 === count( cemeti_history_entries( $rows[0]['entries'] ) ), 'history: 1988 has its eleven entries, split at the empty lines' );
-$h = $render( 'about', 'page-about.php' );
-ok( substr_count( $h, '<details class="cemeti-accordion__row">' ) >= 39 && false !== strpos( $h, '<summary>1988</summary>' ) && false !== strpos( $h, 'cemeti-history__item' ), 'history: About shows one dropdown row per year' );
+$h = $render( 'history', 'page-history.php' );
+ok( substr_count( $h, '<details class="cemeti-accordion__row">' ) >= 39 && false !== strpos( $h, '<summary>1988</summary>' ) && false !== strpos( $h, 'cemeti-history__item' ), 'history: the History page shows one dropdown row per year' );
 ok( 1 === preg_match( '/<summary>1988<\/summary>.*?<summary>1989<\/summary>/s', $h ), 'history: oldest year first' );
 ob_start(); do_action( 'add_meta_boxes_page', CemetiWP::obj( $ap ) ); call_user_func( CemetiWP::$meta_boxes['page']['cemeti_history'], CemetiWP::obj( $ap ) ); $box = ob_get_clean();
 ok( false !== strpos( $box, 'cemeti_fields[history][0][year]' ) && false !== strpos( $box, 'Add Year' ), 'history: the box lists the years and an Add Year button' );
@@ -164,7 +164,7 @@ $_POST = array( 'cemeti_history_nonce' => 'valid', 'cemeti_fields' => array( 'hi
 do_action( 'save_post_page', $ap );
 $own = get_post_meta( $ap, 'cemeti_history', true );
 ok( is_array( $own ) && 2 === count( $own ), 'history: saved rows are the page\'s own (empty row dropped)' );
-$h = $render( 'about', 'page-about.php' );
+$h = $render( 'history', 'page-history.php' );
 ok( 2 === substr_count( $h, '<details class="cemeti-accordion__row">' ) && 1 === preg_match( '/<summary>2026<\/summary>.*?<summary>2027<\/summary>/s', $h ) && false === strpos( $h, '<b>x</b>' ) && false === strpos( $h, '<summary>1988' ), 'history: own rows replace the supplied ones, sorted by year, tags stripped' );
 ok( 2 === count( cemeti_history_entries( $own[0]['entries'] ) ) && '375. 1 – 30 January 2027' === cemeti_history_entries( $own[0]['entries'] )[0][0], 'history: the first line of an entry is its number and date' );
 $_POST = array( 'cemeti_fields' => array( 'history' => array( array( 'year' => '2030', 'entries' => 'x' ) ) ) );
@@ -175,7 +175,17 @@ do_action( 'save_post_page', $ap );
 ok( ! get_post_meta( $ap, 'cemeti_history', true ) && count( cemeti_history_rows( $ap ) ) >= 39, 'history: emptied = back to the supplied chronology' );
 $op = $by_slug( 'open-archive' );
 ob_start(); do_action( 'add_meta_boxes_page', CemetiWP::obj( $op ) ); ob_end_clean();
-ok( ! isset( CemetiWP::$meta_boxes['page']['cemeti_history'] ) || 'about' === cemeti_page_key( $ap ), 'history: the box belongs to About only' );
+$about_p = $by_slug( 'about' );
+unset( CemetiWP::$meta_boxes['page']['cemeti_history'] );
+do_action( 'add_meta_boxes_page', CemetiWP::obj( $about_p ) );
+ok( ! isset( CemetiWP::$meta_boxes['page']['cemeti_history'] ), 'history: the About page does not have the box any more' );
+/* what was written on the About page before History had its own page is used until the History page has its own */
+update_post_meta( $about_p, 'cemeti_history', array( array( 'year' => '2001', 'entries' => '1. Old text' ) ) );
+$legacy = cemeti_history_rows( $ap );
+ok( 1 === count( $legacy ) && '2001' === $legacy[0]['year'], 'history: text saved on About in earlier versions is used by the History page until it has its own' );
+delete_post_meta( $about_p, 'cemeti_history' );
+$haboutpage = $render( 'about', 'page-about.php' );
+ok( false === strpos( $haboutpage, 'cemeti-history' ), 'history: About no longer carries the chronology' );
 $_POST = array();
 
 /* ---- Contact Us is edited on the page itself (like About), with Settings as the fallback */
@@ -317,6 +327,6 @@ qa_reset_data();
 do_action( 'after_switch_theme' );
 $id = $by_slug( 'open-archive' );
 $html = qa_render( 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $id, 'path' => '/open-archive/' ) );
-ok( ! qa_check_html( $html ) && false !== strpos( $html, 'cemeti-az' ), 'Open Archive on an empty site renders without entries' );
+ok( ! qa_check_html( $html ) && false !== strpos( $html, 'data-cemeti-archive' ), 'Open Archive on an empty site renders without entries' );
 
 qa_done();
