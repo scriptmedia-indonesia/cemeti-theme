@@ -8,7 +8,21 @@ CemetiWP::$loose_pictures = false; // This suite makes real attachments; a numbe
 
 /* ---- stubs of what WordPress does with files */
 $uploads = sys_get_temp_dir() . '/cemeti-qa-uploads-' . getmypid();
+// A folder left by an earlier run that had the same process number would already hold the "missing" files: start empty.
+if ( is_dir( $uploads ) ) {
+	foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $uploads, FilesystemIterator::SKIP_DOTS ), RecursiveIteratorIterator::CHILD_FIRST ) as $leftover ) {
+		$leftover->isDir() ? @rmdir( $leftover->getPathname() ) : @unlink( $leftover->getPathname() );
+	}
+}
 @mkdir( $uploads, 0777, true );
+register_shutdown_function( static function () use ( $uploads ) {
+	if ( is_dir( $uploads ) ) {
+		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $uploads, FilesystemIterator::SKIP_DOTS ), RecursiveIteratorIterator::CHILD_FIRST ) as $f ) {
+			$f->isDir() ? @rmdir( $f->getPathname() ) : @unlink( $f->getPathname() );
+		}
+		@rmdir( $uploads );
+	}
+} );
 if ( ! function_exists( 'wp_get_upload_dir' ) ) {
 	function wp_get_upload_dir() { return array( 'basedir' => $GLOBALS['qa_uploads'], 'baseurl' => 'http://new.test/wp-content/uploads' ); }
 	function untrailingslashit( $s ) { return rtrim( $s, '/' ); }
