@@ -426,6 +426,17 @@ async function open( browser, name, width, height, extra = {} ) {
 		await b.ctx.close();
 	}
 
+	/* ---- 7e4. Older-browser fallbacks: flex gap detection and its margin form. */
+	{
+		const { page, ctx } = await open( browser, 'single-journal', 1280, 800 );
+		ok( await page.evaluate( () => ! document.documentElement.classList.contains( 'cemeti-no-flex-gap' ) ), 'compat: a browser with flex gap is not given the fallback class' );
+		const before = await page.evaluate( () => { const e = document.querySelector( '.cemeti-share > * + *' ); return e ? getComputedStyle( e ).marginLeft : null; } );
+		await page.evaluate( () => document.documentElement.classList.add( 'cemeti-no-flex-gap' ) );
+		const after = await page.evaluate( () => { const e = document.querySelector( '.cemeti-share > * + *' ); return e ? getComputedStyle( e ).marginLeft : null; } );
+		ok( before === '0px' && after === '8px', `compat: with the class the share buttons are spaced by margins (${ before } -> ${ after })` );
+		await ctx.close();
+	}
+
 	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
 	{
 		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );

@@ -17,8 +17,8 @@
 .cemeti-heading a { color: inherit; text-decoration: none; }
 .cemeti-heading a:hover { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }
 .cemeti-heading a:focus-visible { color: var(--c-blue); text-decoration: underline; text-underline-offset: 0.1em; text-decoration-thickness: 3px; }   /* prototype: blue #1C75BC and underlined on hover */
-.cemeti-container--wide { width: 100%; padding-inline: 0; }
-.cemeti-container--wide .cemeti-page-head { padding-inline: var(--gutter); }
+.cemeti-container--wide { width: 100%; padding-left: 0; padding-right: 0; padding-inline: 0; }
+.cemeti-container--wide .cemeti-page-head { padding-left: var(--gutter); padding-right: var(--gutter); padding-inline: var(--gutter); }
 .cemeti-empty { text-align: center; }
 .cemeti-btn--inline { display: inline-block; }
 
@@ -76,9 +76,9 @@
 .cemeti-home__text > p:not([class]) { font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-home__current { margin: 1.4167em 0 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-home__section--journal .cemeti-row-list { margin-bottom: 0.75rem; }
-.cemeti-home__section--journal { margin-inline: calc(-1 * var(--gutter)); }
+.cemeti-home__section--journal { margin-left: calc(-1 * var(--gutter)); margin-right: calc(-1 * var(--gutter)); margin-inline: calc(-1 * var(--gutter)); }
 .cemeti-home__section--journal .cemeti-heading,
-.cemeti-home__section--journal > .cemeti-btn { margin-inline: var(--gutter); }
+.cemeti-home__section--journal > .cemeti-btn { margin-left: var(--gutter); margin-right: var(--gutter); margin-inline: var(--gutter); }
 .cemeti-home__section--journal > .cemeti-btn { max-width: 17rem; }
 @media (max-width: 40rem) { .cemeti-home__item { grid-template-columns: minmax(0, 1fr); } .cemeti-home__poster { max-width: 15rem; } }
 
@@ -100,7 +100,7 @@
 .cemeti-toc__links a:hover { color: var(--c-ink); }
 .cemeti-single__head,
 .cemeti-single__info,
-.cemeti-single__body { max-width: var(--col); margin-inline: auto; }
+.cemeti-single__body { max-width: var(--col); margin-left: auto; margin-right: auto; margin-inline: auto; }
 .cemeti-single__head { margin-bottom: 0; text-align: left; }
 /* Poster inside the column: centred on phones; from 48rem it is 524/1064 of the column, 216/1064 in. */
 .cemeti-single__poster { width: min(100%, 25rem); margin: 0 auto clamp(1.5rem, 1rem + 1.5vw, 2.375rem); }
@@ -114,14 +114,14 @@
 .cemeti-single__body p { margin: 0 0 1.4167em; }
 .cemeti-single__body .has-text-align-right { text-align: right; }
 .cemeti-single__body .has-text-align-center { text-align: center; }
-.cemeti-single__body img { margin-block: 1.5rem; }
+.cemeti-single__body img { margin-top: 1.5rem; margin-bottom: 1.5rem; margin-block: 1.5rem; }
 .cemeti-single__body figcaption { font-size: var(--fs-single-small); text-align: center; }
 .cemeti-single__section { margin-top: clamp(1.75rem, 1rem + 2.4vw, 3rem); }
 .cemeti-section-heading { margin: 0 0 calc(clamp(0.75rem, 0.4rem + 1.3vw, 1.25rem) + 2px); color: var(--c-blue); font-size: var(--fs-single-script); font-weight: 400; line-height: 1.1; }
 .cemeti-toc-back { margin: 0.75rem 0 0; text-align: right; font-size: var(--fs-single-small); }
 .cemeti-toc-back a { color: var(--c-salmon); }
 .cemeti-photos { margin: 0; }
-.cemeti-photos__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1rem; max-width: var(--col); margin-inline: auto; }
+.cemeti-photos__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.75rem 1rem; max-width: var(--col); margin-left: auto; margin-right: auto; margin-inline: auto; }
 .cemeti-photos__grid img { width: 100%; aspect-ratio: 3 / 2; object-fit: contain; background: var(--c-panel); }
 .cemeti-photos figcaption { margin: 0.6rem 0 0; font-size: var(--fs-single-small); }
 /* Biography: 308 px square photo, 16 px gap, text 24 on 34; 80 px between artists. */
@@ -156,7 +156,7 @@
 .cemeti-opencall__poster img { width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--c-panel); }
 .cemeti-opencall__text { display: flex; flex-direction: column; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-opencall__text .cemeti-single__title { max-width: none; margin: 0 0 0.83em; font-size: var(--fs-xl); }
-.cemeti-opencall__text .cemeti-single__body { max-width: none; margin-inline: 0; }
+.cemeti-opencall__text .cemeti-single__body { max-width: none; margin-left: 0; margin-right: 0; margin-inline: 0; }
 .cemeti-opencall__text .cemeti-btn { margin-top: auto; max-width: 17rem; }
 @media (min-width: 48rem) { .cemeti-opencall { grid-template-columns: 32.5% minmax(0, 1fr); } }
 
@@ -189,7 +189,7 @@
 }
 .cemeti-accordion__row summary::-webkit-details-marker { display: none; }
 .cemeti-accordion__row summary:hover { color: var(--c-blue); }
-.cemeti-accordion__panel { padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
+.cemeti-accordion__panel { padding-top: 0.5rem; padding-bottom: 1.5rem; padding-block: 0.5rem 1.5rem; font-size: var(--fs-single); line-height: 1.4167; }
 
 /* ---- History page: the dropdown rows of Support Us, with the entries inside ---- */
 .cemeti-history__panel { padding-top: 1rem; }
@@ -225,7 +225,7 @@
 /* Journal (Figma): the picture is 848 wide like About, the caption sits under it, indented from the left. */
 .cemeti-single__figure { width: min(100%, 53rem); margin: 0 auto 2.5rem; }
 .cemeti-single__figure .cemeti-single__hero { display: block; width: 100%; aspect-ratio: 848 / 602; object-fit: cover; margin: 0; }
-.cemeti-single__figure figcaption { margin: 0.75rem 0 0; padding-inline: 12.7%; font-size: var(--fs-single-small); line-height: 1.35; text-align: left; }
+.cemeti-single__figure figcaption { margin: 0.75rem 0 0; padding-left: 12.7%; padding-right: 12.7%; padding-inline: 12.7%; font-size: var(--fs-single-small); line-height: 1.35; text-align: left; }
 .cemeti-single--support .cemeti-single__body,
 .cemeti-single--history .cemeti-single__body { max-width: 53rem; }
 
@@ -244,7 +244,7 @@
 .cemeti-home .cemeti-btn { width: min(100%, 17rem); }
 
 /* ---- Detail page: the contents bar stays at the top while reading ---- */
-.cemeti-single__nav--sticky { position: -webkit-sticky; position: sticky; top: var(--header-h); z-index: 50; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
+.cemeti-single__nav--sticky { position: -webkit-sticky; position: sticky; top: var(--header-h); z-index: 50; padding-top: 0.75rem; padding-bottom: 0.75rem; padding-block: 0.75rem; margin-top: -0.75rem; background: var(--c-cream); }
 html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 6rem); }
 @media (max-width: 40rem) { .cemeti-single__nav--sticky { position: static; } html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h) + 1rem); } }
 .cemeti-single__lead { max-width: var(--col); margin: 0 auto 1.4167em; font-weight: 500; }
@@ -291,7 +291,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 @media (min-width: 48rem) {
 	/* Figma: a 524 x 655 poster box (4:5), centred (x 458); the whole picture shows inside it. */
 	.cemeti-single--public_program .cemeti-single__poster,
-	.cemeti-single--open_studio .cemeti-single__poster { width: 32.75rem; max-width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--c-panel); margin-inline: auto; }
+	.cemeti-single--open_studio .cemeti-single__poster { width: 32.75rem; max-width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: var(--c-panel); margin-left: auto; margin-right: auto; margin-inline: auto; }
 }
 
 /* ---- About, compact: Advisory Board cards fill their cell (bigger photo, bigger text, tighter rows);
@@ -302,7 +302,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-people--advisory-board .cemeti-people__role { margin-top: 0.35rem; font-size: var(--fs-body); line-height: 1.3; }
 .cemeti-people--advisory-board .cemeti-people__quote { margin-top: 0.6rem; font-size: var(--fs-body); line-height: 1.35; }
 .cemeti-people--team { margin-top: clamp(1.5rem, 1rem + 2vw, 3rem); }
-.cemeti-team { max-width: 45rem; margin: 0 auto; padding: clamp(1.5rem, 1rem + 2vw, 3rem) 0; border-block: 1px solid var(--c-ink); text-align: center; font-size: var(--fs-single); line-height: 1.35; }
+.cemeti-team { max-width: 45rem; margin: 0 auto; padding: clamp(1.5rem, 1rem + 2vw, 3rem) 0; border-top: 1px solid var(--c-ink); border-bottom: 1px solid var(--c-ink); border-block: 1px solid var(--c-ink); text-align: center; font-size: var(--fs-single); line-height: 1.35; }
 .cemeti-team__role { margin: 0 0 1.5em; }
 .cemeti-team__role:last-child { margin-bottom: 0; }
 .cemeti-team__role strong { display: block; font-weight: 500; }
@@ -320,7 +320,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 	/* Contents bar: plain wrapped links, no bars that would start a line. */
 	.cemeti-toc__links { gap: 0.25rem 1rem; }
 	.cemeti-toc__links a,
-	.cemeti-toc__links a:first-child { padding-inline: 0; border-left: 0; }
+	.cemeti-toc__links a:first-child { padding-left: 0; padding-right: 0; padding-inline: 0; border-left: 0; }
 }
 @media (max-width: 40rem) {
 	/* Home: one column, full-width picture, residency stacked like the others, air between sections. */
@@ -343,9 +343,9 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-apply__form input, .cemeti-apply__form textarea { max-width: 100%; min-width: 0; box-sizing: border-box; }
 .cemeti-apply__form input[type="file"] { box-sizing: border-box; overflow: hidden; }
 /* Tap targets of at least 24 px without changing the look. */
-.cemeti-back { padding-block: 0.4rem; margin-block: -0.4rem; }
-.cemeti-toc__links a, .cemeti-toc-back a { display: inline-block; padding-block: 0.35rem; margin-block: -0.35rem; }
-@media (pointer: coarse) { .cemeti-back { padding-block: 0.7rem; margin-block: -0.7rem; } }
+.cemeti-back { padding-top: 0.4rem; padding-bottom: 0.4rem; padding-block: 0.4rem; margin-top: -0.4rem; margin-bottom: -0.4rem; margin-block: -0.4rem; }
+.cemeti-toc__links a, .cemeti-toc-back a { display: inline-block; padding-top: 0.35rem; padding-bottom: 0.35rem; padding-block: 0.35rem; margin-top: -0.35rem; margin-bottom: -0.35rem; margin-block: -0.35rem; }
+@media (pointer: coarse) { .cemeti-back { padding-top: 0.7rem; padding-bottom: 0.7rem; padding-block: 0.7rem; margin-top: -0.7rem; margin-bottom: -0.7rem; margin-block: -0.7rem; } }
 /* Landscape phones: nothing stays pinned, the page needs the room. */
 @media (max-height: 37.5rem) {
 	.cemeti-single__nav--sticky { position: static; }
@@ -364,7 +364,7 @@ html:has(.cemeti-single__nav--sticky) { scroll-padding-top: calc(var(--header-h)
 .cemeti-people--advisory-board .cemeti-people__grid img { width: 100%; aspect-ratio: 1; object-fit: cover; margin: 0 0 1rem; }
 .cemeti-people--advisory-board .cemeti-people__text { text-align: center; }
 /* Bigger screens: the archive cards grow with the page instead of staying at the 1440 px size. */
-@media (min-width: 100rem) { .cemeti-card-grid { width: min(100%, 1520px); margin-inline: auto; } }
+@media (min-width: 100rem) { .cemeti-card-grid { width: min(100%, 1520px); margin-left: auto; margin-right: auto; margin-inline: auto; } }
 
 /* ---- iOS / real content (QA): one long word or address must never widen the page ---- */
 /* Back never breaks letter by letter; the contents links wrap instead. */
@@ -404,14 +404,14 @@ html, body { overflow-x: clip; }
 	.cemeti-residency-intro h2 { text-align: left; padding-left: 34.5%; }
 }
 /* About: the text block is 1064 px wide (x 188 to 1252). */
-.cemeti-single--about .cemeti-single__body { max-width: 66.5rem; margin-inline: auto; }
+.cemeti-single--about .cemeti-single__body { max-width: 66.5rem; margin-left: auto; margin-right: auto; margin-inline: auto; }
 
 /* ---- Journal article (Figma 'JOURNAL ARTICLE TEMPLATE', measured at 1440): picture 848 x 602 at y 247; caption 605 wide, 121 px in,
    18 px; title 64, blank 40 line, author 40, two blank 24 lines, then text 24/34 in a 1064 px block (x 188);
    pictures in the text 906 wide with a left caption, wide ones 1067; 59 px above and below each picture. ---- */
 .cemeti-single--journal .cemeti-single__nav { margin-bottom: 2.3125rem; }
 .cemeti-single--journal .cemeti-single__figure { margin-bottom: 2.5625rem; }
-.cemeti-single--journal .cemeti-single__figure figcaption { margin-top: 0.5rem; padding-inline: 14.3%; font-size: 1.125rem; line-height: 1; }
+.cemeti-single--journal .cemeti-single__figure figcaption { margin-top: 0.5rem; padding-left: 14.3%; padding-right: 14.3%; padding-inline: 14.3%; font-size: 1.125rem; line-height: 1; }
 .cemeti-single--journal .cemeti-single__head,
 .cemeti-single--journal .cemeti-single__body,
 .cemeti-single--journal .cemeti-single__lead { max-width: 66.5rem; }

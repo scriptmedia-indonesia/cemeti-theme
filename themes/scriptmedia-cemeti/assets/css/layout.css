@@ -1,9 +1,11 @@
 /* Header, overlays, footer and page container. */
 .cemeti-main { min-height: 50vh; outline: none; }
 .cemeti-container {
+	width: calc(100% - 2 * var(--gutter));   /* without min(): the same, up to the maximum below */
+	max-width: var(--content-max);
 	width: min(100% - 2 * var(--gutter), var(--content-max));
-	margin-inline: auto;
-	padding-block: clamp(1.5rem, 1rem + 2vw, 3rem);
+	margin-left: auto; margin-right: auto; margin-inline: auto;
+	padding-top: clamp(1.5rem, 1rem + 2vw, 3rem); padding-bottom: clamp(1.5rem, 1rem + 2vw, 3rem); padding-block: clamp(1.5rem, 1rem + 2vw, 3rem);
 }
 
 /* ---- Header ---- */
@@ -126,6 +128,8 @@
 	position: absolute;
 	top: 100%;
 	left: var(--gutter);
+	width: 31.5rem;
+	max-width: calc(100% - 2 * var(--gutter));
 	width: min(31.5rem, 100% - 2 * var(--gutter));
 	background: var(--c-black);
 	color: var(--c-white);

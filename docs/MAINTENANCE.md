@@ -199,10 +199,18 @@ PY
 
 ## Browser support
 
-Designed for the current and previous major versions of Chrome, Edge, Firefox and Safari (iOS and macOS), with graceful
-fallbacks down to Safari 13/14: logo as PNG where WebP is not shown, `-webkit-sticky`, selector lists without
-`:focus-visible` mixed in, `inset` and card boxes with older forms. `tests/static-checks.php` fails when CSS/JS uses
-something those browsers cannot read without a fallback. Chromium is the only engine in the automated tests; before a
-launch open the pages once in Safari (macOS and iPhone) and Firefox. **Pictures uploaded as WebP** are not shown by Safari
-before macOS 11 / Safari 14 whatever the theme does: use JPEG for the Media Library (or a plugin that serves JPEG to those
-browsers).
+**Fully supported:** the current and previous versions of Chrome, Edge, Firefox and Safari (macOS and iOS) and what has
+been out since mid-2020: Safari 14.1 / iOS 14.5, Chrome and Edge 84, Firefox 78 (ESR).
+
+**Older browsers** (Safari 13 – 14.0, iOS 13 – 14.4, Chrome 80 – 83, Firefox before 78) still show a readable, working
+site, with these differences: no flex `gap` (compat.js switches to margins), no `clamp()` (fixed sizes in three steps), no
+`aspect-ratio` (pictures keep their own proportions; the archive card has a padding fallback), no `:focus-visible` /
+`:has()` (the browser's own focus ring; no scroll offset under the contents bar), logo as PNG where WebP is not shown,
+`-webkit-sticky`, margin / padding / border `-inline` / `-block` and `inset` with their four-side form. Below that (Internet
+Explorer, Safari 12 and older) the site is not supported.
+
+`tests/static-checks.php` fails when CSS or JS uses something these browsers cannot read without a fallback (selector lists
+mixed with `:focus-visible` / `:has()`, sticky or inset or logical shorthands without their older form, `clamp()` tokens
+without the fixed fallback, optional chaining, `??`, `replaceAll`, `.at()` …). Chromium is the only engine in the automated
+tests, so before a launch open the pages once in Safari (macOS and iPhone) and Firefox. **Pictures uploaded as WebP** are
+not shown by Safari before macOS 11 / Safari 14 whatever the theme does.

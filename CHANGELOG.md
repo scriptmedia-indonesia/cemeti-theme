@@ -3,6 +3,24 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.52
+
+Older browsers, checked against the browsers' published support data (doiuse / caniuse for the CSS, es-check for the
+scripts) with a baseline of Safari 14.1 / iOS 14.5 / Chrome and Edge 84 / Firefox 78 for the full design and graceful
+fallbacks below it.
+
+- **No `clamp()`** (Safari 13.0 and older, Chrome 78 and older): the fluid text, gutter and header sizes now have fixed
+  fallbacks in three steps (phone, tablet, desktop); the page container and the menu panel have a width without `min()`.
+- **No flex `gap`** (Safari 14.0 and older, iOS up to 14.4, Chrome 83 and older): `compat.js` detects it and the spacing of
+  the card text, search bar, share buttons, related list, pagination, contents bar and file blocks comes from margins.
+- **Logical shorthands** (`margin-inline`, `padding-block`, `border-block` … Safari before 14.1): 25 declarations now have
+  their left / right / top / bottom form first (the page container was not centred without it); `inset` (card text,
+  overlays) likewise.
+- Scripts checked as ES2017 (Safari 11+): nothing newer is used.
+- Static checks now also fail for logical shorthands or `inset` without their older form, tokens without the `clamp()`
+  fallback, and the flex-gap fallbacks missing.
+- Docs: "Browser support" in MAINTENANCE.md lists what is fully supported and what degrades.
+
 ## 0.9.51
 
 Cross-browser round (Safari and Firefox), after a test in an older Safari (macOS Mojave / Safari 14) showed no logo, no

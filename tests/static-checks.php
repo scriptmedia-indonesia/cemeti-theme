@@ -381,12 +381,27 @@ foreach ( glob( "$root/assets/css/*.css" ) as $cssfile ) {
 			}
 		}
 	}
-	if ( preg_match_all( '/(?<![-\w])inset:\s*0\s*;/', $text, $m, PREG_OFFSET_CAPTURE ) ) {
+	if ( preg_match_all( '/(?<![-\w])inset:\s*[^;{}]+;/', $text, $m, PREG_OFFSET_CAPTURE ) ) {
 		foreach ( $m[0] as $hit ) {
-			if ( ! preg_match( '/top:\s*0;\s*right:\s*0;\s*bottom:\s*0;\s*left:\s*0;\s*$/', substr( $text, max( 0, $hit[1] - 60 ), 60 ) ) ) {
-				$err( "$name: inset: 0 without top / right / bottom / left before it" );
+			if ( ! preg_match( '/top:\s*[^;]+;\s*right:\s*[^;]+;\s*bottom:\s*[^;]+;\s*left:\s*[^;]+;\s*$/', substr( $text, max( 0, $hit[1] - 100 ), 100 ) ) ) {
+				$err( "$name: " . trim( $hit[0] ) . ' without top / right / bottom / left before it' );
 			}
 		}
+	}
+	// Logical shorthands (margin-inline …) arrived in Safari 14.1: the left / right / top / bottom form comes first.
+	if ( preg_match_all( '/(?<![-\w])(margin|padding|border)-(inline|block):\s*([^;{}]+);/', $text, $m, PREG_OFFSET_CAPTURE ) ) {
+		foreach ( $m[0] as $i => $hit ) {
+			$side = 'inline' === $m[2][ $i ][0] ? 'left' : 'top';
+			if ( ! preg_match( '/' . $m[1][ $i ][0] . '-' . ( 'border' === $m[1][ $i ][0] ? '' : '' ) . $side . ':[^;]*;\s*' . $m[1][ $i ][0] . '-' . ( 'left' === $side ? 'right' : 'bottom' ) . ':[^;]*;\s*$/', substr( $text, max( 0, $hit[1] - 160 ), 160 ) ) ) {
+				$err( "$name: " . trim( $hit[0] ) . ' without the left / right / top / bottom form before it' );
+			}
+		}
+	}
+	if ( 'components.css' === $name && false === strpos( $text, '.cemeti-no-flex-gap' ) ) {
+		$err( 'components.css: the flex-gap fallbacks (.cemeti-no-flex-gap) are missing' );
+	}
+	if ( 'tokens.css' === $name && false === strpos( $text, '@supports not (font-size: clamp(' ) ) {
+		$err( 'tokens.css: the fluid sizes need the fixed-size fallback for browsers without clamp()' );
 	}
 	if ( 'components.css' === $name && false !== strpos( $text, 'aspect-ratio: 308 / 386' ) && false === strpos( $text, '@supports not (aspect-ratio: 1)' ) ) {
 		$err( 'components.css: the archive card needs its padding fallback for browsers without aspect-ratio' );

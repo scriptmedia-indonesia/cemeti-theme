@@ -57,6 +57,7 @@
 .cemeti-card__image { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; background: var(--c-panel); } /* the whole picture, same box; landscape ones sit at the top, clear of the title panel */
 .cemeti-card__body {
 	position: absolute;
+	top: auto; right: 0; bottom: 0; left: 0;
 	inset: auto 0 0 0;
 	display: flex;
 	flex-direction: column;
@@ -93,3 +94,16 @@
 .cemeti-row__title { display: block; margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 0.94; }
 .cemeti-row__cat { display: block; font-size: var(--fs-single); font-weight: 500; line-height: 1.2; }
 .cemeti-row a:hover .cemeti-row__title { color: var(--c-salmon); }
+
+/* Browsers without flex `gap` (Safari 14.0 and older, Chrome 83 and older): compat.js adds this class and the spacing
+   comes from margins instead. */
+.cemeti-no-flex-gap .cemeti-card__body > * + * { margin-top: 1.5rem; }
+.cemeti-no-flex-gap .cemeti-search__form > * + * { margin-left: 0.9rem; }
+.cemeti-no-flex-gap .cemeti-whats-on__bar > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .pagination .nav-links > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .cemeti-single__nav > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .cemeti-related > * + * { margin-left: 0.9375rem; }
+.cemeti-no-flex-gap .cemeti-related a > * + * { margin-top: 1rem; }
+.cemeti-no-flex-gap .cemeti-share > * + * { margin-left: 0.5rem; }
+.cemeti-no-flex-gap .cemeti-share__btn > * + * { margin-left: 0.4em; }
+.cemeti-no-flex-gap .cemeti-single__body .wp-block-file > * + * { margin-left: 1rem; }
