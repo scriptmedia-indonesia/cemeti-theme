@@ -55,7 +55,8 @@
 
 /* ---- Home (Figma): header 64 px script; poster 272 x 340 + 52 px gap + text; green button 272 x 31 under the
    poster; 40 px between a button and the next heading; residency picture 416 x 333 + 16 px gap. ---- */
-.cemeti-home__section { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
+/* A little more air between the home sections (client review); the heading-to-content gap stays as in Figma. */
+.cemeti-home__section { margin-bottom: clamp(2.5rem, 1.5rem + 3vw, 4.25rem); }
 .cemeti-home .cemeti-heading { margin-bottom: clamp(1.5rem, 1rem + 1.5vw, 2.5rem); }
 .cemeti-home__item {
 	display: grid;
@@ -388,7 +389,7 @@ html, body { overflow-x: clip; }
 /* Home: first picture at y 265 (it sat 12 px low) and 508 px from one section to the next (it was 512). */
 @media (min-width: 48rem) {
 	.cemeti-container.cemeti-home { padding-top: calc(clamp(1.5rem, 1rem + 2vw, 3rem) - 0.75rem); }
-	.cemeti-home__section { margin-bottom: calc(clamp(1.5rem, 1rem + 1.5vw, 2.5rem) - 0.3125rem); }
+	.cemeti-home__section { margin-bottom: calc(clamp(2.5rem, 1.5rem + 3vw, 4.25rem) - 0.3125rem); }
 }
 /* Residency page: two columns of 524 px 40 px apart (x 176 and 740), the title 181 px in, text 79 px under the title top,
    cards 63 px under the text. */

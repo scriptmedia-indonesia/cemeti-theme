@@ -73,7 +73,10 @@ $fields = array(
 	'residency'      => array_merge(
 		$dates,
 		array(
-			array( 'key' => 'artists', 'label' => 'Residents', 'type' => 'list', 'section' => 'Residents', 'help' => 'One name per row. Shown under the dates.' ),
+			array( 'key' => 'artists', 'label' => 'Residents', 'type' => 'list', 'section' => 'Residents and information', 'help' => 'One name per row. Shown under the dates.' ),
+			array( 'key' => 'opening', 'label' => 'Opening', 'type' => 'text', 'help' => 'e.g. 21 November 2025 | 13.00 WIB' ),
+			array( 'key' => 'public_program_info', 'label' => 'Public program info', 'type' => 'textarea' ),
+			array( 'key' => 'venue_info', 'label' => 'Venue and hours', 'type' => 'textarea' ),
 			array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery', 'help' => 'Shown as "Gallery" on the page, two photos per row.' ),
 			array( 'key' => 'gallery_caption', 'label' => 'Gallery caption', 'type' => 'text' ),
 		),

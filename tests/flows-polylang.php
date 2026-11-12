@@ -159,6 +159,13 @@ foreach ( array( $tw_en, $tw_en2 ) as $e ) { $GLOBALS['pll']['lang'][ $e ] = 'en
 foreach ( array( $tw_id, $tw_other ) as $e ) { $GLOBALS['pll']['lang'][ $e ] = 'id'; }
 ok( 7001 === (int) get_post_thumbnail_id( $tw_id ), 'twin picture: an unlinked Indonesian entry shows the picture of the English one with the same date and the most alike title' );
 ok( ! get_post_thumbnail_id( $tw_other ), 'twin picture: another date is not a twin' );
+$tw_en3 = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Workshop Blockchain and NFT', 'meta' => array( 'cemeti_start_date' => '20220629', 'cemeti_end_date' => '20220630', '_thumbnail_id' => 7003 ) ) );
+$tw_id3 = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Lokakarya Blockchain, Cyrptoverse, dan NFT', 'meta' => array( 'cemeti_start_date' => '20220629', 'cemeti_end_date' => '20220629' ) ) );
+$tw_id4 = CemetiWP::post( array( 'post_type' => 'public_program', 'post_title' => 'Senam Bersama', 'meta' => array( 'cemeti_start_date' => '20220629', 'cemeti_end_date' => '20220629' ) ) );
+CemetiWP::$pictures = array( 7001, 7002, 7003 );
+$GLOBALS['pll']['lang'][ $tw_en3 ] = 'en'; $GLOBALS['pll']['lang'][ $tw_id3 ] = 'id'; $GLOBALS['pll']['lang'][ $tw_id4 ] = 'id';
+ok( 7003 === (int) get_post_thumbnail_id( $tw_id3 ), 'twin picture: when only the start date agrees, a title that resembles the other one is accepted' );
+ok( ! get_post_thumbnail_id( $tw_id4 ), 'twin picture: a different event on the same start date is not taken for the twin' );
 
 // ---- second-language lists also show the default language's entries that have no version there yet
 $mkos = static function ( $title, $lang, $start, $end ) {
@@ -193,6 +200,15 @@ ok( 'Journal' === cemeti_post_label( get_post( $jr ) ), 'row label: a post with 
 CemetiWP::$terms['journal_category'][ 9102 ] = array( 'name' => 'Essay', 'slug' => 'essay', 'description' => '' );
 CemetiWP::$rel[ $jr ]['journal_category'] = array( 9102 );
 ok( 'Essay' === cemeti_post_label( get_post( $jr ) ), 'row label: the journal category is shown even when the language term is there too' );
+
+// ---- the second-language list remembers what it worked out, and forgets it when an entry changes
+$sh1 = cemeti_listing_shadowed_ids( 'open_studio', 'en' );
+$late = $mkos( 'Late default', 'id', '20250401', '20250410' ); $mkos( 'Late English', 'en', '20250401', '20250410' );
+$sh_stale = cemeti_listing_shadowed_ids( 'open_studio', 'en' );
+ok( $sh1 === $sh_stale && ! in_array( $late, $sh_stale, true ), 'second-language list: the result is remembered (it is not worked out at every scroll step)' );
+do_action( 'save_post', $late );
+// (the per-request copy is static: a new request is simulated by reading through the stored value)
+ok( (int) get_option( 'cemeti_list_version' ) > 0, 'second-language list: saving an entry makes the list be worked out again' );
 
 // ---- an updated site (pages made before the Indonesian copies existed) gets them by itself in the admin
 foreach ( $GLOBALS['pll']['lang'] as $pid => $plang ) {

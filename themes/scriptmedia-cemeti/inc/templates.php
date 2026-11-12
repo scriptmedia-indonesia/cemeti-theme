@@ -452,6 +452,31 @@ function cemeti_translation_thumbnail_id( $post_id, $deep = false ) {
 }
 
 /**
+ * Entries of the other language with the same type and start date (and the same end date when one is given).
+ *
+ * @param WP_Post $post  Entry.
+ * @param string  $start Start date (Ymd).
+ * @param string  $end   End date ('' = any).
+ * @param string  $mine  Language of the entry.
+ * @return int[]
+ */
+function cemeti_counterpart_candidates( $post, $start, $end, $mine ) {
+	$found = array();
+	foreach ( get_posts( array( 'post_type' => $post->post_type, 'post_status' => array( 'publish', 'draft', 'pending', 'future', 'private' ), 'posts_per_page' => 20, 'fields' => 'ids', 'meta_key' => 'cemeti_start_date', 'meta_value' => $start, 'lang' => '', 'suppress_filters' => false ) ) as $other ) { // phpcs:ignore WordPress.DB.SlowDBQuery
+		$other = (int) ( is_object( $other ) ? $other->ID : $other );
+		$lang  = (string) pll_get_post_language( $other );
+		if ( $other === (int) $post->ID || '' === $lang || $lang === $mine ) {
+			continue;
+		}
+		if ( '' !== $end && (string) get_post_meta( $other, 'cemeti_end_date', true ) !== $end ) {
+			continue;
+		}
+		$found[] = $other;
+	}
+	return $found;
+}
+
+/**
  * The entry of the other language that is the same event, when the two are not linked as translations: same type, same
  * dates, and (when several match) the most alike title. Imported Indonesian and English entries are separate posts.
  *
@@ -468,22 +493,33 @@ function cemeti_counterpart_entry_id( $post ) {
 		return 0;
 	}
 	$end   = (string) get_post_meta( $post->ID, 'cemeti_end_date', true );
+	$loose = false;
+	$twins = cemeti_counterpart_candidates( $post, $start, $end, $mine );
+	if ( ! $twins && '' !== $end ) {
+		$twins = cemeti_counterpart_candidates( $post, $start, '', $mine ); // The two versions do not always give the same end date.
+		$loose = true;
+	}
+	if ( ! $twins ) {
+		return 0;
+	}
 	$title = function_exists( 'wp_strip_all_tags' ) ? strtolower( wp_strip_all_tags( $post->post_title ) ) : strtolower( $post->post_title );
 	$best  = 0;
 	$score = -1.0;
-	foreach ( get_posts( array( 'post_type' => $post->post_type, 'post_status' => array( 'publish', 'draft', 'pending', 'future', 'private' ), 'posts_per_page' => 20, 'fields' => 'ids', 'meta_key' => 'cemeti_start_date', 'meta_value' => $start, 'lang' => '', 'suppress_filters' => false ) ) as $other ) { // phpcs:ignore WordPress.DB.SlowDBQuery
-		$other = (int) ( is_object( $other ) ? $other->ID : $other );
-		$lang  = (string) pll_get_post_language( $other );
-		if ( $other === (int) $post->ID || '' === $lang || $lang === $mine ) {
-			continue;
-		}
-		if ( '' !== $end && (string) get_post_meta( $other, 'cemeti_end_date', true ) !== $end ) {
-			continue;
-		}
+	foreach ( $twins as $other ) {
 		similar_text( $title, strtolower( (string) get_post_field( 'post_title', $other ) ), $percent );
 		if ( $percent > $score ) {
 			$score = $percent;
 			$best  = $other;
+		}
+	}
+	if ( $loose && $best ) {
+		// Only the start date agrees: the two titles must also share a word (a name, a subject), else it is another event.
+		$words = static function ( $text ) {
+			preg_match_all( '/[\p{L}\p{N}]{4,}/u', strtolower( wp_strip_all_tags( (string) $text ) ), $m );
+			return array_unique( $m[0] );
+		};
+		if ( ! array_intersect( $words( $post->post_title ), $words( get_post_field( 'post_title', $best ) ) ) ) {
+			return 0;
 		}
 	}
 	return $best;

@@ -80,7 +80,7 @@
 		if ( entries.some( function ( entry ) { return entry.isIntersecting; } ) ) {
 			load();
 		}
-	}, { rootMargin: '0px 0px 400px 0px' } );
+	}, { rootMargin: '0px 0px 1400px 0px' } );
 	observer.observe( sentinel );
 	}
 

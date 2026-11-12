@@ -603,7 +603,7 @@ async function open( browser, name, width, height, extra = {} ) {
 			const chk = async ( name, page, sel, want, tol, label ) => { const g = await box( page, sel ); ok( near( g, want, tol ), `figma: ${ name } ${ label } ${ JSON.stringify( want ) } (got ${ JSON.stringify( g ) })` ); };
 			await chk( 'Home', fg.page, '.cemeti-home__section:nth-of-type(1) .cemeti-home__poster img', [ 80, 265, 272, 340 ], 1, 'first poster' );
 			await chk( 'Home', fg.page, '.cemeti-home__section:nth-of-type(1) .cemeti-btn', [ 80, 617, 272, 31 ], 1, 'button' );
-			await chk( 'Home', fg.page, '.cemeti-home__section--residency .cemeti-home__poster img', [ 80, 773, 416, 333 ], 1, 'residency picture' );
+			await chk( 'Home', fg.page, '.cemeti-home__section--residency .cemeti-home__poster img', [ 80, 802, 416, 333 ] /* Figma 773; +29 px of air between the home sections, asked for in the client review */, 1, 'residency picture' );
 			await chk( 'Header', fg.page, '.cemeti-logo img', [ 620, 36, 200, 85 ], 1, 'logo' );
 			const lbl = await box( fg.page, '.cemeti-menu-toggle__label' );
 			ok( Math.abs( lbl[ 1 ] - 96 ) <= 1 && Math.abs( lbl[ 1 ] + lbl[ 3 ] - 132 ) <= 1, `figma: Menu label baseline at y 122 (box ${ lbl })` );

@@ -311,6 +311,14 @@ function cemeti_listing_shadowed_ids( $type, $lang ) {
 	if ( isset( $cache[ $type . $lang ] ) ) {
 		return $cache[ $type . $lang ];
 	}
+	// Worked out once and remembered (every page of the list, and every scroll step, asks for it); any save, trash or
+	// delete of an entry makes it be worked out again.
+	$key    = 'cemeti_shadow_' . (int) get_option( 'cemeti_list_version', 0 ) . '_' . $type . '_' . $lang;
+	$stored = get_transient( $key );
+	if ( is_array( $stored ) ) {
+		$cache[ $type . $lang ] = array_map( 'intval', $stored );
+		return $cache[ $type . $lang ];
+	}
 	$all = get_posts( array( 'post_type' => $type, 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids', 'no_found_rows' => true, 'lang' => '', 'suppress_filters' => false ) );
 	$all = array_map( 'intval', $all );
 	if ( function_exists( 'update_meta_cache' ) ) {
@@ -338,9 +346,21 @@ function cemeti_listing_shadowed_ids( $type, $lang ) {
 			$result[] = $post_id;
 		}
 	}
+	set_transient( $key, $result, HOUR_IN_SECONDS );
 	$cache[ $type . $lang ] = $result;
 	return $result;
 }
+
+/**
+ * Forget the remembered lists (see cemeti_listing_shadowed_ids) when an entry changes.
+ */
+function cemeti_listing_cache_clear() {
+	update_option( 'cemeti_list_version', (int) get_option( 'cemeti_list_version', 0 ) + 1, false );
+}
+add_action( 'save_post', 'cemeti_listing_cache_clear' );
+add_action( 'deleted_post', 'cemeti_listing_cache_clear' );
+add_action( 'trashed_post', 'cemeti_listing_cache_clear' );
+add_action( 'pll_save_post_translations', 'cemeti_listing_cache_clear' );
 
 /**
  * Polylang: do not filter a second-language list by language (see cemeti_pre_get_posts: the default language's entries

@@ -302,6 +302,14 @@ $_GET = $_REQUEST = array( '_wpnonce' => 'valid' );
 try { cemeti_handle_fill_thumbnails(); } catch ( CemetiRedirect $r ) { ok( false !== strpos( $r->url, 'cemeti_thumbs_filled=' ), 'thumbnail button: returns to Settings with the count' ); }
 ok( 8802 === (int) get_post_meta( $p_broken, '_thumbnail_id', true ) && ! get_post_meta( $p_broken_none, '_thumbnail_id', true ), 'thumbnail button: a broken featured image is replaced, or removed when there is nothing to put in its place' );
 ok( 8801 === (int) get_post_meta( $p_gal, '_thumbnail_id', true ) && 8899 === (int) get_post_meta( $real, '_thumbnail_id', true ) && ! get_post_meta( $p_none, '_thumbnail_id', true ), 'thumbnail button: stores the picture where one was found and changes nothing else' );
+/* ---- a residency has the same information fields as an exhibition (opening, public program info, venue and hours) */
+ok( null !== cemeti_field_def( 'residency', 'opening' ) && null !== cemeti_field_def( 'residency', 'public_program_info' ) && null !== cemeti_field_def( 'residency', 'venue_info' ), 'residency: Opening, Public program info and Venue and hours fields exist' );
+$rinfo = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Info residency', 'meta' => array( 'cemeti_start_date' => '20251001', 'cemeti_end_date' => '20251130', 'cemeti_opening' => '1 Oktober 2025 | 16.00 WIB', 'cemeti_public_program_info' => "Wicara Seniman\n21 Maret 2024", 'cemeti_venue_info' => "Cemeti\nSelasa – Sabtu | 10:00 – 17:00" ) ) );
+$rhtml = qa_render( 'single.php', array( 'singular' => true ), array( 'post' => $rinfo, 'path' => '/residency/info/' ) );
+ok( false !== strpos( $rhtml, '1 Oktober 2025 | 16.00 WIB' ) && false !== strpos( $rhtml, 'Wicara Seniman' ) && false !== strpos( $rhtml, 'Selasa' ), 'residency: the information is shown on the page, like an exhibition\'s' );
+ob_start(); cemeti_render_meta_box( CemetiWP::obj( $rinfo ) ); $rbox = ob_get_clean();
+ok( false !== strpos( $rbox, 'cemeti_fields[venue_info]' ) && false !== strpos( $rbox, 'cemeti_fields[public_program_info]' ), 'residency: the Details box has the fields' );
+
 /* ---- one field that cannot be shown must not blank the whole editing box */
 $bad = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Odd data', 'meta' => array( 'cemeti_gallery' => array( array( 'x' ), 'y' ), 'cemeti_artists' => "A\nB" ) ) );
 set_error_handler( static function ( $no, $str ) { throw new ErrorException( $str, 0, $no ); } );

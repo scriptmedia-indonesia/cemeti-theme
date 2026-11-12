@@ -18,6 +18,19 @@ Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowher
   recognised as Contact Us (also About, Open Archive, Support Us), so the box and the design apply. If a page still is not
   recognised, choose it in the side box "Cemeti page design" and save.
 
+## 0.9.48
+
+- **Residency editor:** the same information fields as Exhibition — **Opening**, **Public program info** and **Venue and
+  hours** — shown on the entry's page like an exhibition's (and copied into the other-language version).
+- **Home:** more space between the sections (Residency, Public Program, Journal …).
+- **Public Program / Open Studio in Indonesian: scrolling stuttered and many thumbnails were missing.**
+  - What the second-language list works out (which entries are shown once) is remembered for an hour and renewed when an
+    entry is saved, trashed or deleted, instead of being worked out at every page and every scroll step.
+  - The next page is requested earlier (1400 px before the end of the list), so scrolling does not wait.
+  - An entry without a picture finds its twin in the other language also when only the **start date** agrees (the two
+    versions often have different end dates), provided the titles share a word, so a different event on the same day is
+    never taken for it.
+
 ## 0.9.47
 
 - **Journal rows showed "Bahasa Indonesia" / "English" as the category.** Polylang's own "language" taxonomy was taken for a
