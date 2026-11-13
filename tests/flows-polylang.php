@@ -367,6 +367,7 @@ ok( in_array( 'cemeti_gallery', apply_filters( 'pll_copy_post_metas', array() ),
 
 $sync = apply_filters( 'pll_copy_post_metas', array(), true );
 ok( ! in_array( 'cemeti_file', $sync, true ) && ! in_array( 'cemeti_file_url', $sync, true ) && ! in_array( 'cemeti_booklet', $sync, true ), 'translate: Polylang sync leaves the PDF of each language alone' );
+ok( ! in_array( 'cemeti_biographies', $sync, true ), 'translate: each language keeps its own profile text' );
 ok( in_array( 'cemeti_gallery', $sync, true ) && in_array( '_thumbnail_id', $sync, true ), 'translate: Polylang sync still shares gallery and picture' );
 ok( in_array( 'cemeti_file', apply_filters( 'pll_copy_post_metas', array(), false ), true ), 'translate: a new translation still starts with a copy of the PDF' );
 

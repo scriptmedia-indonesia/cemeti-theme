@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.58
+
+Open Archive items get Gallery, Documentation and Profile fields (photos, captions, one block per person with photo,
+name and text) in the editor, and their page looks like an Exhibition: poster, contents bar, Galeri / Dokumentasi /
+Profil sections (only the ones with content) and the Download Booklet button. Gallery and documentation are shared
+between EN and ID; profile text and captions are per language. Tests and mutation added.
+
 ## 0.9.57
 
 Each language keeps its own PDF. Polylang's "Synchronization → Custom fields" copied every Cemeti field between the

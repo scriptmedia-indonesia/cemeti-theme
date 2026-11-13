@@ -176,10 +176,12 @@ ok( false === strpos( $h, 'Rangkaian Perayaan #37thCemeti' ) && false === strpos
 ok( 1 === preg_match( '#<h2 class="cemeti-az__letter">K</h2>#', $h ) && 1 === preg_match( '#<h2 class="cemeti-az__letter">Z</h2>#', $h ), 'open archive: grouped by first letter' );
 $h = page( 'single-archive-item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_catalog'], 'path' => '/archive/katalog/' ) );
 ok( 1 === preg_match( '#<a class="cemeti-btn cemeti-btn--inline cemeti-btn--download" href="[^"]*booklet-901\.pdf" download[^>]*>Download Booklet</a>#', $h ) && false !== strpos( $h, 'Tim Cemeti · 2024' ) && false !== strpos( $h, 'Katalog pameran tahun 2024.' ), 'archive item: title, authors and year, the text and the Download Booklet button for its file' );
+ok( false !== strpos( $h, 'id="gallery"' ) && false !== strpos( $h, 'id="documentation"' ) && false !== strpos( $h, 'id="profile"' ) && false !== strpos( $h, 'Ibu Editor' ) && false !== strpos( $h, 'class="cemeti-toc"' ) && false !== strpos( $h, 'cemeti-single--exhibition' ), 'archive item: gallery, documentation and profile sections with a contents bar, like an Exhibition' );
 $h = page( 'single-archive-item-link', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_link'], 'path' => '/archive/zine/' ) );
 ok( false !== strpos( $h, 'href="https://example.org/zine.pdf"' ) && false !== strpos( $h, 'Download Booklet' ), 'archive item: a link to a file elsewhere works too' );
 $h = page( 'single-archive-item-nofile', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_nofile'], 'path' => '/archive/tulisan/' ) );
 ok( false === strpos( $h, 'cemeti-btn--download' ) && false !== strpos( $h, 'Hanya teks.' ), 'archive item: without a file there is no button' );
+ok( false === strpos( $h, 'id="gallery"' ) && false === strpos( $h, 'id="profile"' ) && false === strpos( $h, 'class="cemeti-toc"' ), 'archive item: sections without content are not shown' );
 $h = page( 'page-history', 'page-history.php', array( 'singular' => true ), array( 'post' => $ids['p_history'], 'path' => '/history/' ) );
 ok( 39 <= substr_count( $h, '<details class="cemeti-accordion__row">' ) && false !== strpos( $h, 'cemeti-single--history' ) && false !== strpos( $h, 'Kronologi kegiatan Cemeti.' ), 'history: its own page with the description and one dropdown row per year' );
 $h = page( 'page-support-us', 'page-support-us.php', array( 'singular' => true ), array( 'post' => $ids['p_support'], 'path' => '/support-us/' ) );
