@@ -36,18 +36,31 @@ function cemeti_translatable_types() {
  * @param string[] $keys Meta keys Polylang copies.
  * @return string[]
  */
-function cemeti_polylang_copy_metas( $keys ) {
-	$extra = array( '_thumbnail_id' );
+function cemeti_polylang_copy_metas( $keys, $sync = false ) {
+	// Per-language fields: copied once when a translation is made, but never kept in sync afterwards,
+	// so each language can hold its own PDF, text and credits.
+	$per_language = array( 'file', 'file_url', 'booklet', 'booklet_url', 'seo_description', 'opening', 'public_program_info', 'venue_info', 'time_text', 'gallery_caption', 'documentation_caption', 'biographies', 'authors', 'year', 'role', 'quote' );
+	$extra        = array( '_thumbnail_id' );
 	foreach ( cemeti_config( 'fields' ) as $defs ) {
 		foreach ( (array) $defs as $def ) {
-			if ( ! empty( $def['key'] ) ) {
-				$extra[] = 'cemeti_' . $def['key'];
+			if ( empty( $def['key'] ) ) {
+				continue;
 			}
+			if ( $sync && in_array( $def['key'], $per_language, true ) ) {
+				continue;
+			}
+			$extra[] = 'cemeti_' . $def['key'];
 		}
 	}
-	return array_values( array_unique( array_merge( (array) $keys, $extra ) ) );
+	$keys = (array) $keys;
+	if ( $sync ) {
+		foreach ( $per_language as $k ) {
+			$keys = array_diff( $keys, array( 'cemeti_' . $k ) );
+		}
+	}
+	return array_values( array_unique( array_merge( $keys, $extra ) ) );
 }
-add_filter( 'pll_copy_post_metas', 'cemeti_polylang_copy_metas' );
+add_filter( 'pll_copy_post_metas', 'cemeti_polylang_copy_metas', 10, 2 );
 
 /**
  * Make the other-language copy of an entry.

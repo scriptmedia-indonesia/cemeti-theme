@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.57
+
+Each language keeps its own PDF. Polylang's "Synchronization → Custom fields" copied every Cemeti field between the
+translations on each save, so removing the English PDF in the Indonesian editor changed the English entry too. Now
+the PDF (file, file link, booklet), texts, credits and captions are copied once when a translation is made and are
+not synchronised afterwards. Gallery, dates and featured image are still shared. Test and mutation added.
+
 ## 0.9.56
 
 Full QA round on both languages and across browsers.

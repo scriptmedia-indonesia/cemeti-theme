@@ -365,6 +365,11 @@ ob_start(); call_user_func( CemetiWP::$meta_boxes['residency']['cemeti_translate
 ok( false !== strpos( $box, 'edit translation' ) && false === strpos( $box, 'Create EN version' ), 'translate: an existing translation is linked, not offered again' );
 ok( in_array( 'cemeti_gallery', apply_filters( 'pll_copy_post_metas', array() ), true ) && in_array( '_thumbnail_id', apply_filters( 'pll_copy_post_metas', array() ), true ), 'translate: Polylang\'s own "+" copies the Cemeti fields too' );
 
+$sync = apply_filters( 'pll_copy_post_metas', array(), true );
+ok( ! in_array( 'cemeti_file', $sync, true ) && ! in_array( 'cemeti_file_url', $sync, true ) && ! in_array( 'cemeti_booklet', $sync, true ), 'translate: Polylang sync leaves the PDF of each language alone' );
+ok( in_array( 'cemeti_gallery', $sync, true ) && in_array( '_thumbnail_id', $sync, true ), 'translate: Polylang sync still shares gallery and picture' );
+ok( in_array( 'cemeti_file', apply_filters( 'pll_copy_post_metas', array(), false ), true ), 'translate: a new translation still starts with a copy of the PDF' );
+
 // ---- the Residency page lists Regular AND Research in every language (a missing translation never hides one)
 qa_reset_data();
 CemetiWP::$terms['residency_type'] = array();

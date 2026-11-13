@@ -130,6 +130,7 @@ mutate "archive: item without its download button"    $T/single-archive_item.php
 mutate "archive: Indonesian button in English"        $T/inc/i18n.php "'download_booklet'   => array( 'id' => 'Unduh Booklet'," "'download_booklet'   => array( 'id' => 'Download Booklet'," flows-bilingual
 mutate "archive: tick saved without the nonce"        $T/inc/archive.php "! isset( \$_POST['cemeti_archive_flag_nonce'] ) ||" "false ||" flows-content
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
+mutate "translate: sync overwrites each language PDF"  $T/inc/translate.php "if ( \$sync && in_array( \$def['key'], \$per_language, true ) ) {" "if ( false ) {" flows-polylang
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
