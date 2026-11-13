@@ -435,8 +435,3 @@ html, body { overflow-x: clip; }
 }
 
 .cemeti-section-heading + .cemeti-related { margin-top: -0.625rem; }   /* cards start 75 px under the title (Figma), the photos 85 */
-
-/* PDF reader inside the page (Archive item, Booklet) */
-.cemeti-pdf { margin: 2rem auto; max-width: var(--col, 53rem); }
-.cemeti-pdf__frame { display: block; width: 100%; height: 80vh; min-height: 28rem; background: #f4f1ea; border: 1px solid rgba(0, 0, 0, 0.2); }
-.cemeti-pdf__fallback { padding: 1.5rem; margin: 0; }

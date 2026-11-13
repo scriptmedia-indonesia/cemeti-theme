@@ -596,20 +596,3 @@ function cemeti_find_entry_picture( $post ) {
 	return $attached ? (int) $attached[0] : 0;
 }
 add_filter( 'post_thumbnail_id', 'cemeti_fallback_thumbnail_id', 10, 2 );
-
-/**
- * A PDF shown inside the page (browser's own reader), with the download link as the fallback inside it.
- * Only for a file that ends in .pdf; a phone browser that cannot show a PDF in the page shows the link instead.
- *
- * @param string $url   PDF address.
- * @param string $title Accessible title.
- */
-function cemeti_render_pdf_reader( $url, $title = '' ) {
-	$path = (string) wp_parse_url( (string) $url, PHP_URL_PATH );
-	if ( '' === $url || '.pdf' !== strtolower( substr( $path, -4 ) ) ) {
-		return;
-	}
-	echo '<div class="cemeti-pdf"><object class="cemeti-pdf__frame" data="' . esc_url( $url . '#view=FitH' ) . '" type="application/pdf" aria-label="' . esc_attr( $title ) . '">';
-	echo '<p class="cemeti-pdf__fallback"><a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( cemeti_t( 'open_pdf' ) ) . '</a></p>';
-	echo '</object></div>' . "\n";
-}

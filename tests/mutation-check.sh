@@ -132,7 +132,6 @@ mutate "archive: tick saved without the nonce"        $T/inc/archive.php "! isse
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 mutate "translate: sync overwrites each language PDF"  $T/inc/translate.php "if ( \$sync && in_array( \$def['key'], \$per_language, true ) ) {" "if ( false ) {" flows-polylang
 mutate "archive item: profile section missing"       $T/single-archive_item.php "cemeti_render_biographies( \$cemeti_bios );" "" render-pages
-mutate "archive item: reader ignores the tick"          $T/single-archive_item.php "'1' === (string) cemeti_get_field( 'show_reader', \$cemeti_id )" "true" render-pages
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser

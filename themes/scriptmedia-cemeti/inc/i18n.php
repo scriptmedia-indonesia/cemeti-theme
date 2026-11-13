@@ -104,7 +104,6 @@ function cemeti_ui_strings() {
 		'gallery'            => array( 'id' => 'Galeri', 'en' => 'Gallery' ),
 		'documentation'      => array( 'id' => 'Dokumentasi', 'en' => 'Documentation' ),
 		'biography'          => array( 'id' => 'Biografi', 'en' => 'Biography' ),
-		'open_pdf'           => array( 'id' => 'Buka PDF', 'en' => 'Open the PDF' ),
 		'profile'            => array( 'id' => 'Profil', 'en' => 'Profile' ),
 		'booklet'            => array( 'id' => 'Buklet', 'en' => 'Booklet' ),
 		'related'            => array( 'id' => 'Publikasi Terkait', 'en' => 'Related Publications' ),

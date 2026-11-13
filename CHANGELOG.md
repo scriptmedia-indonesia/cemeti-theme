@@ -3,6 +3,11 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.60
+
+The in-page PDF reader (0.9.59) is removed again: the "Show the PDF on the page" ticks, the reader markup and its
+CSS are gone. PDFs are shown with WordPress' own File block in the text; the Download Booklet button stays.
+
 ## 0.9.59
 
 PDF reader inside the page, like the existing website: a tick "Show the PDF on the page (reader)" on Archive items
