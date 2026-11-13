@@ -180,6 +180,7 @@ ok( false !== strpos( $h, 'id="gallery"' ) && false !== strpos( $h, 'id="documen
 ok( 1 === preg_match( '#<object class="cemeti-pdf__frame" data="[^"]*booklet-901\.pdf\#view=FitH" type="application/pdf"#', $h ) && false !== strpos( $h, 'Open the PDF' ), 'archive item: ticked "Show the PDF on the page" shows the reader with a fallback link' );
 $h = page( 'single-archive-item-link', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_link'], 'path' => '/archive/zine/' ) );
 ok( false !== strpos( $h, 'href="https://example.org/zine.pdf"' ) && false !== strpos( $h, 'Download Booklet' ), 'archive item: a link to a file elsewhere works too' );
+ok( false === strpos( $h, 'cemeti-pdf' ), 'archive item: the reader stays off until it is ticked' );
 $h = page( 'single-archive-item-nofile', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_nofile'], 'path' => '/archive/tulisan/' ) );
 ok( false === strpos( $h, 'cemeti-btn--download' ) && false !== strpos( $h, 'Hanya teks.' ) && false === strpos( $h, 'cemeti-pdf' ), 'archive item: without a file there is no button and no reader' );
 ok( false === strpos( $h, 'id="gallery"' ) && false === strpos( $h, 'id="profile"' ) && false === strpos( $h, 'class="cemeti-toc"' ), 'archive item: sections without content are not shown' );
