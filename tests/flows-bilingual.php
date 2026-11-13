@@ -277,7 +277,7 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 	$jr = $render( $lang, 'journal', 'archive-journal.php', array( 'pta' => 'journal' ), array( 'path' => '/j/', 'query' => array( 'post_type' => 'journal', 'lang' => $lang ), 'flags' => array( 'pta' => 'journal' ) ) );
 	ok( false === strpos( $jr, 'Rangkaian Perayaan #37thCemeti' ), "[$lang] Journal list: News posts are not in it" );
 	$oa = $render( $lang, 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => 'en' === $lang ? $ids['p_archive'] : $id_page['open-archive'], 'path' => '/oa/' ) );
-	ok( false !== strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-az__letter' ), "[$lang] Open Archive: the News post and the booklets are listed A-Z" );
+	ok( false === strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-az__letter' ), "[$lang] Open Archive: only what the team chose is listed (the News post is not added by itself)" );
 }
 // Open Archive items: the button says Download Booklet / Unduh Booklet; the list holds them in both languages.
 $ai_en = $render( 'en', 'single archive item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_catalog'], 'path' => '/archive/katalog/' ) );

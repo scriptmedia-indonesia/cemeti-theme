@@ -115,12 +115,6 @@ mutate "entries: empty title gives an empty link"    $T/inc/templates.php "retur
 mutate "lists: remembered list never refreshed"      $T/inc/queries.php "add_action( 'save_post', 'cemeti_listing_cache_clear' );" "" flows-polylang
 mutate "twin: different event on the same day"       $T/inc/templates.php "if ( ! array_intersect( \$words( \$post->post_title ), \$words( get_post_field( 'post_title', \$best ) ) ) ) {" "if ( false ) {" flows-polylang
 mutate "journal: News shown in the Journal list"     $T/inc/queries.php "\$query->set( 'tax_query', array_merge( (array) \$query->get( 'tax_query' ), cemeti_journal_tax_query() ) );" "" render-pages
-mutate "archive: News missing from the Open Archive"  $T/inc/archive.php "foreach ( cemeti_archive_entry_ids( array( 'journal' ) ) as \$id ) {" "foreach ( array() as \$id ) {" render-pages
-mutate "archive: booklets missing from Open Archive"  $T/inc/archive.php "		if ( '' === \$url ) {
-			continue;
-		}" "		if ( true ) {
-			continue;
-		}" render-pages
 mutate "history: legacy About text ignored"          $T/inc/history.php "if ( is_array( \$legacy ) && \$legacy ) {" "if ( false ) {" flows-pages
 mutate "booklets: PDFs of other websites downloaded" $T/inc/media.php "if ( '' !== cemeti_media_rel_path( \$url ) && cemeti_media_is_old_site( \$url ) ) {" "if ( true ) {" flows-media
 mutate "compat: sticky without the -webkit- form"    $T/assets/css/layout.css "position: -webkit-sticky; position: sticky;" "position: sticky;" static-checks
@@ -131,7 +125,7 @@ mutate "compat: no clamp() fallback for the tokens"   $T/assets/css/tokens.css "
 mutate "booklets: PDFs in post text ignored"         $T/inc/media.php "return array_values( array_unique( array_merge( \$urls, cemeti_media_pdf_links( \$html ) ) ) );" "return \$urls;" flows-media
 mutate "archive: ticked content not listed"          $T/inc/archive.php "	foreach ( cemeti_archive_flagged_ids() as \$id ) {
 		\$flagged[ \$id ] = 'flag';
-	}" "" render-pages
+	}" "" render-pages flows-content
 mutate "archive: item without its download button"    $T/single-archive_item.php "<?php if ( '' !== \$cemeti_file ) : ?>" "<?php if ( false ) : ?>" render-pages
 mutate "archive: Indonesian button in English"        $T/inc/i18n.php "'download_booklet'   => array( 'id' => 'Unduh Booklet'," "'download_booklet'   => array( 'id' => 'Download Booklet'," flows-bilingual
 mutate "archive: tick saved without the nonce"        $T/inc/archive.php "! isset( \$_POST['cemeti_archive_flag_nonce'] ) ||" "false ||" flows-content

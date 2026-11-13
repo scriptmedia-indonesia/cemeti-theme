@@ -115,7 +115,8 @@ $render = static function ( $slug, $template ) use ( $by_slug ) {
 	return $html;
 };
 $h = $render( 'open-archive', 'page-open-archive.php' );
-ok( false !== strpos( $h, 'cemeti-az__letter' ) && false !== strpos( $h, 'Harta yang Paling Berharga' ), 'Open Archive lists the booklets and News A-Z (the design)' );
+preg_match( '#<div class="cemeti-az">.*?</article>#s', $h, $azm );
+ok( ! empty( $azm[0] ) && false !== strpos( $azm[0], 'cemeti-az__letter' ) && false !== strpos( $azm[0], 'Katalog Pameran 2024' ) && false === strpos( $azm[0], 'Harta yang Paling Berharga' ), 'Open Archive lists what the team chose, A-Z (the design), and nothing else' );
 $h = $render( 'support-us', 'page-support-us.php' );
 ok( 4 === substr_count( $h, '<summary>' ) && false !== strpos( $h, 'Patron of Cemeti' ) && false !== strpos( $h, 'Coming soon' ), 'Support Us shows its four rows' );
 $h = $render( 'contact-us', 'page-contact-us.php' );

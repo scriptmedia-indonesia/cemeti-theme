@@ -172,11 +172,8 @@ $h = page( 'page-about', 'page-about.php', array( 'singular' => true ), array( '
 ok( false !== strpos( $h, 'Mella Jaarsma' ) && false !== strpos( $h, 'Dito Yuwono' ) && false !== strpos( $h, 'cemeti-people__heading' ), 'about: advisory board and team listed' );
 $h = page( 'page-open-archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $ids['p_archive'], 'path' => '/open-archive/' ) );
 ok( false !== strpos( $h, 'cemeti-az__letter' ) && false === strpos( $h, 'cemeti-archive' ), 'open archive: the A-Z design with letter groups (as designed)' );
-ok( false !== strpos( $h, '“Rangkaian Perayaan #37thCemeti”' ) && false !== strpos( $h, 'booklet-901.pdf' ) && false !== strpos( $h, 'residency.pdf' ), 'open archive: the News posts and the booklets of the entries are listed, each title links to its file or post' );
-ok( false !== strpos( $h, '“Katalog Pameran 2024”' ) && false !== strpos( $h, '“Zine Residensi”' ) && false !== strpos( $h, '“Tulisan Tanpa File”' ), 'open archive: the Archive items are listed' );
-ok( false !== strpos( $h, '“TAKAR-TELUSUR”' ), 'open archive: other content ticked "Show in the Open Archive" is listed' );
-ok( false !== strpos( $h, get_permalink( $ids['ai_catalog'] ) ), 'open archive: an Archive item links to its own page' );
-ok( 1 === preg_match( '#<h2 class="cemeti-az__letter">R</h2>#', $h ) && 1 === preg_match( '#<h2 class="cemeti-az__letter">H</h2>#', $h ), 'open archive: grouped by first letter' );
+ok( false === strpos( $h, 'Rangkaian Perayaan #37thCemeti' ) && false === strpos( $h, 'booklet-901.pdf' ) && false === strpos( $h, 'residency.pdf' ), 'open archive: nothing is added by itself (no News, no booklets of entries): the team chooses what is listed' );
+ok( 1 === preg_match( '#<h2 class="cemeti-az__letter">K</h2>#', $h ) && 1 === preg_match( '#<h2 class="cemeti-az__letter">Z</h2>#', $h ), 'open archive: grouped by first letter' );
 $h = page( 'single-archive-item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_catalog'], 'path' => '/archive/katalog/' ) );
 ok( 1 === preg_match( '#<a class="cemeti-btn cemeti-btn--inline cemeti-btn--download" href="[^"]*booklet-901\.pdf" download[^>]*>Download Booklet</a>#', $h ) && false !== strpos( $h, 'Tim Cemeti · 2024' ) && false !== strpos( $h, 'Katalog pameran tahun 2024.' ), 'archive item: title, authors and year, the text and the Download Booklet button for its file' );
 $h = page( 'single-archive-item-link', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_link'], 'path' => '/archive/zine/' ) );

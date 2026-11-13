@@ -1,8 +1,7 @@
 <?php
 /**
- * Open Archive: the list of the publications that can be read or downloaded freely — the booklets of the entries
- * (Exhibition, Residency, Public Program, Open Studio) and the News posts of the old Journal, shown A–Z as in the design.
- * Nothing is typed in again: a booklet is the "Booklet (PDF)" / link of an entry, News is a Journal category.
+ * Open Archive: the list of the publications that can be read or downloaded freely, shown A–Z as in the design. It holds
+ * what the team chose: Archive items (own page with the download button) and content ticked "Show in the Open Archive".
  *
  * @package Scriptmedia_Cemeti
  */
@@ -28,9 +27,6 @@ function cemeti_archive_entry_ids( array $types ) {
 		} elseif ( function_exists( 'pll_current_language' ) && pll_current_language() ) {
 			$args['lang'] = (string) pll_current_language(); // Say it, instead of relying on the language filter being on.
 		}
-		if ( 'journal' === $type ) {
-			$args['tax_query'] = array( array( 'taxonomy' => 'journal_category', 'field' => 'term_id', 'terms' => cemeti_news_term_ids() ?: array( 0 ) ) ); // phpcs:ignore WordPress.DB.SlowDBQuery
-		}
 		$found = get_posts( $args );
 		$ids   = array_merge( $ids, array_map( 'intval', $found ) );
 	}
@@ -47,10 +43,8 @@ function cemeti_archive_entry_ids( array $types ) {
  */
 function cemeti_archive_items() {
 	$items = array();
-	$types = array( 'exhibition', 'residency', 'public_program', 'open_studio' );
-
-	// 1. What the team put there on purpose: Archive items (they have their own page with the download button) and any
-	// other content with "Show in the Open Archive" ticked (listed with a link to its page).
+	// Only what the team put there on purpose: Archive items (they have their own page with the download button) and any
+	// other content with "Show in the Open Archive" ticked (listed with a link to its page). Nothing is added by itself.
 	$flagged = array();
 	foreach ( cemeti_archive_entry_ids( array( 'archive_item' ) ) as $id ) {
 		$flagged[ $id ] = 'item';
@@ -71,44 +65,6 @@ function cemeti_archive_items() {
 		);
 	}
 
-	// 2. Made by itself: the booklets of the entries, and the News posts.
-	foreach ( cemeti_archive_entry_ids( $types ) as $id ) {
-		if ( isset( $flagged[ $id ] ) ) {
-			continue; // Already listed, with its page.
-		}
-		$url = cemeti_booklet_url( $id );
-		if ( '' === $url ) {
-			continue;
-		}
-		$date    = (string) get_post_meta( $id, 'cemeti_start_date', true );
-		$date    = preg_match( '/^\d{8}$/', $date ) ? $date : gmdate( 'Ymd', strtotime( (string) get_post_field( 'post_date', $id ) ) );
-		$object  = get_post_type_object( get_post_type( $id ) );
-		$items[] = array(
-			'type'   => 'booklet',
-			'title'  => cemeti_title( $id ),
-			'url'    => $url,
-			'action' => 'download',
-			'date'   => $date,
-			'year'   => substr( $date, 0, 4 ),
-			'from'   => $object ? $object->labels->singular_name : '',
-		);
-	}
-	foreach ( cemeti_archive_entry_ids( array( 'journal' ) ) as $id ) {
-		if ( isset( $flagged[ $id ] ) ) {
-			continue;
-		}
-		$date    = gmdate( 'Ymd', strtotime( (string) get_post_field( 'post_date', $id ) ) );
-		$file    = cemeti_booklet_url( $id ); // The old site's "Booklet …" / "Buklet …" posts: the PDF itself.
-		$items[] = array(
-			'type'   => '' !== $file ? 'booklet' : 'news',
-			'title'  => cemeti_title( $id ),
-			'url'    => '' !== $file ? $file : (string) get_permalink( $id ),
-			'action' => '' !== $file ? 'download' : 'read',
-			'date'   => $date,
-			'year'   => substr( $date, 0, 4 ),
-			'from'   => '',
-		);
-	}
 	usort(
 		$items,
 		static function ( $a, $b ) {

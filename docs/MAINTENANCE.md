@@ -28,7 +28,7 @@ docs/                  you are here
 | `queries.php` | main-query rules for archives and search, News left out of Journal, second-language lists |
 | `templates.php` | helpers used by templates (headings, photos, share, stand-in pictures) |
 | `history.php` | the History page: chronology rows per year and the box to edit them |
-| `archive.php` | the Open Archive list: booklets of the entries and News posts |
+| `archive.php` | the Open Archive: Archive items, the "Show in the Open Archive" tick, the list |
 | `navigation.php` | overlay menu definition and rendering |
 | `applications.php` | Open Call form handler, uploads, e-mails, admin side |
 | `search.php`, `seo.php`, `security.php` | people-aware search; meta/JSON-LD/robots; hardening and headers |
@@ -187,13 +187,13 @@ PY
 
 - **Journal** is the collection of writings and essays to read on the web: Essay and Curatorial Essay. Entries of the
   Journal category **News** are not listed in Journal (nor on Home); they appear in the Open Archive.
-- **Open Archive** keeps its design (A–Z, two columns); each title opens its page. It lists, by itself and by choice:
+- **Open Archive** keeps its design (A–Z, two columns); each title opens its page. It lists what the team chooses:
   - **Archive items** (admin menu **Open Archive**): a page with the title, text, authors / year and a **Download Booklet**
     ("Unduh Booklet" in Indonesian) button for its PDF (chosen in the Media Library, or a link elsewhere). Kind (Writing,
     Booklet, Catalog) is a label for the team. Add the Indonesian copy with "Create ID version (copy)".
   - **Any other content** (Exhibition, Residency, Public Program, Open Studio, Open Call, Journal) with the side box
     **Open Archive → "Show in the Open Archive"** ticked.
-  - By itself: the booklets of the entries (title links to the file) and the News posts.
+  - Nothing is added by itself: until you create items or tick the box, the list is empty.
 - **Booklets from the old site:** Tools → Cemeti Converter → "0. Media" → **3. Fetch booklets** downloads the PDFs that
   entries still link to on the old site into this Media Library and sets them as the entry's Booklet (PDF), so they stay
   downloadable after the old site is replaced (like the pictures; needs the same outgoing connection to the old site).

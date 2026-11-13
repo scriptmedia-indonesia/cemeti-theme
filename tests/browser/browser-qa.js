@@ -690,8 +690,8 @@ async function open( browser, name, width, height, extra = {} ) {
 			await rows.ctx.close();
 			const az = await open( browser, 'page-open-archive', 1440, 900 );
 			const ys = await az.page.locator( '.cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
-			const colTops = await az.page.locator( '.cemeti-az__col:first-child .cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
-			ok( colTops.length >= 2 && colTops.every( ( y, i ) => i === 0 || y > colTops[ i - 1 ] ), `figma: Open Archive letter blocks run down the left column (${ colTops })` );
+			const colTops = await az.page.locator( '.cemeti-az__col:last-child .cemeti-az__letter' ).evaluateAll( ( els ) => els.map( ( e ) => Math.round( e.getBoundingClientRect().top + scrollY ) ) );
+			ok( colTops.length >= 2 && colTops.every( ( y, i ) => i === 0 || y > colTops[ i - 1 ] ), `figma: Open Archive letter blocks run down the right column (${ colTops })` );
 			await az.ctx.close();
 		}
 		{

@@ -189,14 +189,8 @@ ok( 20 === $q->get( 'posts_per_page' ), 'journal: 20 per page' );
 $q = $run( array( 's' => 'x' ), array( 'search' => true ) );
 ok( in_array( 'open_call', $q->get( 'post_type' ), true ) && ! in_array( 'person', $q->get( 'post_type' ), true ) && ! in_array( 'application', $q->get( 'post_type' ), true ), 'search: content types only, never people or applications' );
 $archive = cemeti_archive_items();
-ok( count( array_filter( $archive, static function ( $i ) { return 'booklet' === $i['type']; } ) ) >= 1 && count( array_filter( $archive, static function ( $i ) { return 'news' === $i['type']; } ) ) >= 1, 'open archive: booklets of the entries and News posts' );
-ok( ! in_array( 'Towards a Constellation of Friendship', array_column( $archive, 'title' ), true ), 'open archive: essays stay in the Journal' );
-$bk_post = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Buklet Pameran Kelompok: X', 'post_date' => '2025-02-02 10:00:00', 'meta' => array( 'cemeti_booklet' => 901 ) ) );
-wp_set_object_terms( $bk_post, array( 'News' ), 'journal_category' );
-$archive2 = cemeti_archive_items();
-$bk_item  = array_values( array_filter( $archive2, static function ( $i ) { return 'Buklet Pameran Kelompok: X' === $i['title']; } ) );
-ok( $bk_item && 'booklet' === $bk_item[0]['type'] && 'download' === $bk_item[0]['action'] && false !== strpos( $bk_item[0]['url'], 'booklet-901.pdf' ), 'open archive: an old "Buklet …" post links to its PDF (download), not to the post' );
-ok( array_column( $archive, 'date' ) === array_reverse( array_column( array_reverse( $archive ), 'date' ) ) && $archive === array_values( $archive ), 'open archive: newest first' );
+ok( ! in_array( 'Rangkaian Perayaan #37thCemeti', array_column( $archive, 'title' ), true ) && ! in_array( 'Towards a Constellation of Friendship', array_column( $archive, 'title' ), true ), 'open archive: News posts, essays and booklets of entries are not added by themselves' );
+ok( array_column( $archive, 'date' ) === array_reverse( array_column( array_reverse( $archive ), 'date' ) ), 'open archive: newest first' );
 
 /* ------------------------------------------------------------ Open Call: one call, switched on and off by the team */
 $current = cemeti_current_open_call();
@@ -326,10 +320,10 @@ $_POST = array( 'cemeti_archive_flag_nonce' => 'valid', 'cemeti_in_archive' => '
 do_action( 'save_post', $flag_post );
 $after = cemeti_archive_items();
 $mine  = array_values( array_filter( $after, static function ( $i ) { return 'Ticked exhibition' === $i['title']; } ) );
-ok( '1' === get_post_meta( $flag_post, 'cemeti_in_archive', true ) && 1 === count( $mine ) && 'flag' === $mine[0]['type'] && false !== strpos( $mine[0]['url'], '/exhibition/' ), 'open archive: ticking the box lists the page (once, with a link to the page and not to its booklet)' );
+ok( '1' === get_post_meta( $flag_post, 'cemeti_in_archive', true ) && 1 === count( $mine ) && 'flag' === $mine[0]['type'] && false !== strpos( $mine[0]['url'], '/exhibition/' ), 'open archive: ticking the box lists the page (once, with a link to its page)' );
 $_POST = array( 'cemeti_archive_flag_nonce' => 'valid' );
 do_action( 'save_post', $flag_post );
-ok( ! get_post_meta( $flag_post, 'cemeti_in_archive', true ) && 'booklet' === array_values( array_filter( cemeti_archive_items(), static function ( $i ) { return 'Ticked exhibition' === $i['title']; } ) )[0]['type'], 'open archive: unticking removes the tick (its booklet is listed by itself again)' );
+ok( ! get_post_meta( $flag_post, 'cemeti_in_archive', true ) && ! array_filter( cemeti_archive_items(), static function ( $i ) { return 'Ticked exhibition' === $i['title']; } ), 'open archive: unticking removes it from the list again' );
 $_POST = array( 'cemeti_in_archive' => '1' );
 do_action( 'save_post', $flag_post );
 ok( ! get_post_meta( $flag_post, 'cemeti_in_archive', true ), 'open archive: without the nonce nothing is saved' );

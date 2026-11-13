@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.55
+
+- **Open Archive starts empty.** The booklets of the entries and the News posts are no longer added by themselves: the page
+  lists only the **Archive items** the team creates and the content ticked **"Show in the Open Archive"**. (The Media tool's
+  "3. Fetch booklets" is unchanged: it still brings PDFs from the old site into the Media Library, to be chosen as the file of
+  an Archive item.)
+
 ## 0.9.54
 
 - **Open Archive: editor pages with a download button, and a tick for other content.** The front (A–Z, two columns) is
