@@ -31,6 +31,11 @@ $skeleton = static function ( $html ) {
 };
 $compare = static function ( $label, $template, $ctx, $o_en, $o_id = null ) use ( $skeleton, $out ) {
 	$o_id = null === $o_id ? $o_en : $o_id;
+	foreach ( CemetiWP::$posts as $pid => $p ) { // Like a real site: every entry has a language (English unless it was given another).
+		if ( empty( $GLOBALS['pll']['lang'][ $pid ] ) ) {
+			$GLOBALS['pll']['lang'][ $pid ] = 'en';
+		}
+	}
 	try {
 		$GLOBALS['pll']['current'] = 'en';
 		$en = qa_render( $template, $ctx, $o_en );

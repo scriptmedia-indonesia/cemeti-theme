@@ -75,7 +75,7 @@ function cemeti_register_content_model() {
 				'labels'       => cemeti_labels( $args['singular'], $args['plural'] ),
 				'public'       => $is_public,
 				'show_ui'      => true,
-				'has_archive'  => $is_public ? $args['slug'] : false,
+				'has_archive'  => isset( $args['has_archive'] ) ? $args['has_archive'] : ( $is_public ? $args['slug'] : false ),
 				'rewrite'      => $is_public ? array( 'slug' => $args['slug'] ) : false,
 				'show_in_rest' => true,
 				'menu_icon'    => isset( $args['icon'] ) ? $args['icon'] : 'dashicons-admin-post',

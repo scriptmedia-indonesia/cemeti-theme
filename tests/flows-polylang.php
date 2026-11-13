@@ -105,7 +105,7 @@ ok( ! $bad && isset( $tx['exhibition_type'], $tx['residency_type'], $tx['journal
 ok( 'en' === cemeti_lang_code( 'en-US' ) && 'en' === cemeti_lang_code( 'en_GB' ) && 'id' === cemeti_lang_code( 'in' ) && 'id' === cemeti_lang_code( 'id_ID' ) && 'fr' === cemeti_lang_code( 'fr' ), 'language slugs such as en-us, in, id_ID map to en / id' );
 
 // ---- admin: which menus still lack a language selector
-$GLOBALS['pll']['translated'] = array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'person', 'page' );
+$GLOBALS['pll']['translated'] = array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'archive_item', 'person', 'page' );
 function pll_is_translated_post_type( $t ) { return in_array( $t, $GLOBALS['pll']['translated'], true ); }
 ok( array() === cemeti_language_issues(), 'Polylang ready: no language warnings' );
 $GLOBALS['pll']['translated'] = array( 'page', 'exhibition' );

@@ -173,7 +173,16 @@ ok( false !== strpos( $h, 'Mella Jaarsma' ) && false !== strpos( $h, 'Dito Yuwon
 $h = page( 'page-open-archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $ids['p_archive'], 'path' => '/open-archive/' ) );
 ok( false !== strpos( $h, 'cemeti-az__letter' ) && false === strpos( $h, 'cemeti-archive' ), 'open archive: the A-Z design with letter groups (as designed)' );
 ok( false !== strpos( $h, '“Rangkaian Perayaan #37thCemeti”' ) && false !== strpos( $h, 'booklet-901.pdf' ) && false !== strpos( $h, 'residency.pdf' ), 'open archive: the News posts and the booklets of the entries are listed, each title links to its file or post' );
+ok( false !== strpos( $h, '“Katalog Pameran 2024”' ) && false !== strpos( $h, '“Zine Residensi”' ) && false !== strpos( $h, '“Tulisan Tanpa File”' ), 'open archive: the Archive items are listed' );
+ok( false !== strpos( $h, '“TAKAR-TELUSUR”' ), 'open archive: other content ticked "Show in the Open Archive" is listed' );
+ok( false !== strpos( $h, get_permalink( $ids['ai_catalog'] ) ), 'open archive: an Archive item links to its own page' );
 ok( 1 === preg_match( '#<h2 class="cemeti-az__letter">R</h2>#', $h ) && 1 === preg_match( '#<h2 class="cemeti-az__letter">H</h2>#', $h ), 'open archive: grouped by first letter' );
+$h = page( 'single-archive-item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_catalog'], 'path' => '/archive/katalog/' ) );
+ok( 1 === preg_match( '#<a class="cemeti-btn cemeti-btn--inline cemeti-btn--download" href="[^"]*booklet-901\.pdf" download[^>]*>Download Booklet</a>#', $h ) && false !== strpos( $h, 'Tim Cemeti · 2024' ) && false !== strpos( $h, 'Katalog pameran tahun 2024.' ), 'archive item: title, authors and year, the text and the Download Booklet button for its file' );
+$h = page( 'single-archive-item-link', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_link'], 'path' => '/archive/zine/' ) );
+ok( false !== strpos( $h, 'href="https://example.org/zine.pdf"' ) && false !== strpos( $h, 'Download Booklet' ), 'archive item: a link to a file elsewhere works too' );
+$h = page( 'single-archive-item-nofile', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_nofile'], 'path' => '/archive/tulisan/' ) );
+ok( false === strpos( $h, 'cemeti-btn--download' ) && false !== strpos( $h, 'Hanya teks.' ), 'archive item: without a file there is no button' );
 $h = page( 'page-history', 'page-history.php', array( 'singular' => true ), array( 'post' => $ids['p_history'], 'path' => '/history/' ) );
 ok( 39 <= substr_count( $h, '<details class="cemeti-accordion__row">' ) && false !== strpos( $h, 'cemeti-single--history' ) && false !== strpos( $h, 'Kronologi kegiatan Cemeti.' ), 'history: its own page with the description and one dropdown row per year' );
 $h = page( 'page-support-us', 'page-support-us.php', array( 'singular' => true ), array( 'post' => $ids['p_support'], 'path' => '/support-us/' ) );

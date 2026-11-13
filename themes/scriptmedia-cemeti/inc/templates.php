@@ -25,6 +25,9 @@ function cemeti_multiline( $text ) {
  * @return string
  */
 function cemeti_back_url() {
+	if ( is_singular( 'archive_item' ) ) {
+		return cemeti_menu_url( 'open-archive' ); // The Open Archive page is the list of these.
+	}
 	if ( is_singular() ) {
 		$archive = get_post_type_archive_link( get_post_type() );
 		if ( $archive ) {

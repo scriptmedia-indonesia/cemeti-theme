@@ -45,6 +45,14 @@ return array(
 		'hierarchical' => false,
 		'terms'        => array( 'News', 'Essay', 'Curatorial Essay' ),
 	),
+	'archive_kind'     => array(
+		'singular'     => 'Archive kind',
+		'plural'       => 'Archive kinds',
+		'slug'         => 'archive-kind',
+		'post_types'   => array( 'archive_item' ),
+		'hierarchical' => false,
+		'terms'        => array( 'Writing', 'Booklet', 'Catalog' ),
+	),
 	'project'          => array(
 		'singular'     => 'Project',
 		'plural'       => 'Projects',

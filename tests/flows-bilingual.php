@@ -69,6 +69,8 @@ $id_pp   = $twin( $ids['pp_past'], 'Wicara Publik: Kekuatan, Politik dan Jalanan
 $id_os   = $twin( $ids['os_current'], 'Studio Terbuka: Angki Purbandono' );
 $id_j    = $twin( $ids['j_essay'], 'Esai Menuju Konstelasi Persahabatan' );
 $id_oc   = $twin( $ids['oc_open'], 'Program Residensi Seniman Asia Tenggara' );
+$id_ai   = $twin( $ids['ai_catalog'], 'Katalog Pameran 2024 (ID)' );
+foreach ( array( $ids['ai_catalog'], $ids['ai_link'], $ids['ai_nofile'] ) as $ai_en ) { $GLOBALS['pll']['lang'][ $ai_en ] = 'en'; }
 $id_page = array();
 foreach ( array( 'about' => array( 'Tentang', 'tentang', $ids['p_about'] ), 'history' => array( 'Kronologi', 'kronologi', $ids['p_history'] ), 'open-archive' => array( 'Arsip Terbuka', 'arsip-terbuka', $ids['p_archive'] ), 'support-us' => array( 'Dukung Kami', 'dukung-kami', $ids['p_support'] ), 'contact-us' => array( 'Kontak Kami', 'kontak-kami', $ids['p_contact'] ) ) as $key => $def ) {
 	$pid = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => $def[0], 'post_name' => $def[1], 'post_content' => 'Teks Indonesia untuk ' . $def[0] ) );
@@ -277,5 +279,14 @@ foreach ( array( 'en', 'id' ) as $lang ) {
 	$oa = $render( $lang, 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => 'en' === $lang ? $ids['p_archive'] : $id_page['open-archive'], 'path' => '/oa/' ) );
 	ok( false !== strpos( $oa, 'Rangkaian Perayaan #37thCemeti' ) && false !== strpos( $oa, 'cemeti-az__letter' ), "[$lang] Open Archive: the News post and the booklets are listed A-Z" );
 }
+// Open Archive items: the button says Download Booklet / Unduh Booklet; the list holds them in both languages.
+$ai_en = $render( 'en', 'single archive item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $ids['ai_catalog'], 'path' => '/archive/katalog/' ) );
+$ai_id = $render( 'id', 'single archive item', 'single-archive_item.php', array( 'singular' => true ), array( 'post' => $id_ai, 'path' => '/id/archive/katalog/' ) );
+ok( false !== strpos( $ai_en, '>Download Booklet<' ) && false === strpos( $ai_en, 'Unduh Booklet' ), '[en] archive item: the button says Download Booklet' );
+ok( false !== strpos( $ai_id, '>Unduh Booklet<' ) && false === strpos( $ai_id, 'Download Booklet' ) && false !== strpos( $ai_id, 'booklet-901.pdf' ), '[id] archive item: the button says Unduh Booklet and opens the same file (the Indonesian copy shows the English one\'s file)' );
+$oa_en = $render( 'en', 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $ids['p_archive'], 'path' => '/oa/' ) );
+$oa_id = $render( 'id', 'open archive', 'page-open-archive.php', array( 'singular' => true ), array( 'post' => $id_page['open-archive'], 'path' => '/oa/' ) );
+ok( false !== strpos( $oa_en, '“Katalog Pameran 2024”' ) && false === strpos( $oa_en, 'Katalog Pameran 2024 (ID)' ), '[en] Open Archive: the English item only' );
+ok( false !== strpos( $oa_id, '“Katalog Pameran 2024 (ID)”' ) && false === strpos( $oa_id, '“Katalog Pameran 2024”' ), '[id] Open Archive: the Indonesian item, not the English twin twice' );
 if ( getenv( "QA_DUMP" ) ) { file_put_contents( "/tmp/id-home.html", $home_id ); file_put_contents( "/tmp/id-single.html", $render( "id", "x", "single.php", array( "singular" => true ), array( "post" => $id_ex, "path" => "/x/" ) ) ); }
 qa_done();

@@ -129,6 +129,12 @@ mutate "compat: logo without a PNG fallback"          $T/header.php "<img src=\"
 mutate "compat: margin-inline without left/right"     $T/assets/css/layout.css "margin-left: auto; margin-right: auto; margin-inline: auto;" "margin-inline: auto;" static-checks
 mutate "compat: no clamp() fallback for the tokens"   $T/assets/css/tokens.css "@supports not (font-size: clamp(1rem, 1vw, 2rem)) {" "@supports (font-size: clamp(1rem, 1vw, 2rem)) and (display: none) {" static-checks
 mutate "booklets: PDFs in post text ignored"         $T/inc/media.php "return array_values( array_unique( array_merge( \$urls, cemeti_media_pdf_links( \$html ) ) ) );" "return \$urls;" flows-media
+mutate "archive: ticked content not listed"          $T/inc/archive.php "	foreach ( cemeti_archive_flagged_ids() as \$id ) {
+		\$flagged[ \$id ] = 'flag';
+	}" "" render-pages
+mutate "archive: item without its download button"    $T/single-archive_item.php "<?php if ( '' !== \$cemeti_file ) : ?>" "<?php if ( false ) : ?>" render-pages
+mutate "archive: Indonesian button in English"        $T/inc/i18n.php "'download_booklet'   => array( 'id' => 'Unduh Booklet'," "'download_booklet'   => array( 'id' => 'Download Booklet'," flows-bilingual
+mutate "archive: tick saved without the nonce"        $T/inc/archive.php "! isset( \$_POST['cemeti_archive_flag_nonce'] ) ||" "false ||" flows-content
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser

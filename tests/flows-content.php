@@ -316,6 +316,32 @@ ok( false !== strpos( $rhtml, '1 Oktober 2025 | 16.00 WIB' ) && false !== strpos
 ob_start(); cemeti_render_meta_box( CemetiWP::obj( $rinfo ) ); $rbox = ob_get_clean();
 ok( false !== strpos( $rbox, 'cemeti_fields[venue_info]' ) && false !== strpos( $rbox, 'cemeti_fields[public_program_info]' ), 'residency: the Details box has the fields' );
 
+/* ---- Open Archive: Archive items and the "Show in the Open Archive" tick */
+$arch = cemeti_archive_items();
+$titles = array_column( $arch, 'title' );
+ok( in_array( 'Katalog Pameran 2024', $titles, true ) && in_array( 'Zine Residensi', $titles, true ) && in_array( 'TAKAR-TELUSUR', $titles, true ), 'open archive: Archive items and ticked content are in the list' );
+$flag_post = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Ticked exhibition', 'meta' => array( 'cemeti_booklet_url' => 'https://example.org/b.pdf' ) ) );
+CemetiWP::$caps = true;
+$_POST = array( 'cemeti_archive_flag_nonce' => 'valid', 'cemeti_in_archive' => '1' );
+do_action( 'save_post', $flag_post );
+$after = cemeti_archive_items();
+$mine  = array_values( array_filter( $after, static function ( $i ) { return 'Ticked exhibition' === $i['title']; } ) );
+ok( '1' === get_post_meta( $flag_post, 'cemeti_in_archive', true ) && 1 === count( $mine ) && 'flag' === $mine[0]['type'] && false !== strpos( $mine[0]['url'], '/exhibition/' ), 'open archive: ticking the box lists the page (once, with a link to the page and not to its booklet)' );
+$_POST = array( 'cemeti_archive_flag_nonce' => 'valid' );
+do_action( 'save_post', $flag_post );
+ok( ! get_post_meta( $flag_post, 'cemeti_in_archive', true ) && 'booklet' === array_values( array_filter( cemeti_archive_items(), static function ( $i ) { return 'Ticked exhibition' === $i['title']; } ) )[0]['type'], 'open archive: unticking removes the tick (its booklet is listed by itself again)' );
+$_POST = array( 'cemeti_in_archive' => '1' );
+do_action( 'save_post', $flag_post );
+ok( ! get_post_meta( $flag_post, 'cemeti_in_archive', true ), 'open archive: without the nonce nothing is saved' );
+$_POST = array();
+ob_start(); cemeti_archive_flag_render( CemetiWP::obj( $flag_post ) ); $flag_box = ob_get_clean();
+ok( false !== strpos( $flag_box, 'name="cemeti_in_archive"' ) && false !== strpos( $flag_box, 'Show in the Open Archive' ), 'open archive: the side box has the tick' );
+CemetiWP::$meta_boxes = array();
+do_action( 'add_meta_boxes' );
+ok( isset( CemetiWP::$meta_boxes['journal']['cemeti_archive_flag'], CemetiWP::$meta_boxes['exhibition']['cemeti_archive_flag'] ) && ! isset( CemetiWP::$meta_boxes['archive_item']['cemeti_archive_flag'] ), 'open archive: the box is on the other content, not on Archive items (those are always listed)' );
+ob_start(); cemeti_render_meta_box( CemetiWP::obj( $ids['ai_catalog'] ) ); $ai_box = ob_get_clean();
+ok( false !== strpos( $ai_box, 'cemeti_fields[file]' ) && false !== strpos( $ai_box, 'cemeti_fields[file_url]' ) && false !== strpos( $ai_box, 'cemeti_fields[authors]' ), 'archive item: the editor has the file, link, authors and year fields' );
+
 /* ---- one field that cannot be shown must not blank the whole editing box */
 $bad = CemetiWP::post( array( 'post_type' => 'residency', 'post_title' => 'Odd data', 'meta' => array( 'cemeti_gallery' => array( array( 'x' ), 'y' ), 'cemeti_artists' => "A\nB" ) ) );
 set_error_handler( static function ( $no, $str ) { throw new ErrorException( $str, 0, $no ); } );

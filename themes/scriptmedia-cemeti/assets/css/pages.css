@@ -197,6 +197,10 @@
 .cemeti-history__item strong { display: block; font-weight: 500; }
 .cemeti-history__item span { display: block; overflow-wrap: anywhere; }
 
+/* ---- Open Archive item: the download button under the text ---- */
+.cemeti-single__download { margin: 2rem auto 0; max-width: var(--col, 53rem); }
+.cemeti-btn--download { min-width: 17rem; text-align: center; padding: 0.875rem 1.25rem; line-height: 1; }
+
 /* ---- Contact, 404 ---- */
 .cemeti-contact { font-style: normal; max-width: var(--col, 83.333%); margin: 1.5rem auto 0; font-size: var(--fs-single); font-weight: 500; line-height: 1.4167; }
 .cemeti-contact p { margin: 0 0 1.4167em; }

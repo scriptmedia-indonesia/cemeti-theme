@@ -332,7 +332,7 @@ foreach ( array_unique( array_map( static function ( $p ) { return trim( $p, '/'
 	}
 }
 foreach ( $slugs as $slug => $type ) {
-	if ( ( ! isset( $types[ $type ]['public'] ) || $types[ $type ]['public'] ) && false === strpos( $nav, "'$slug'" ) && ! in_array( $type, array( 'open_call' ), true ) ) {
+	if ( ( ! isset( $types[ $type ]['public'] ) || $types[ $type ]['public'] ) && false === strpos( $nav, "'$slug'" ) && ! in_array( $type, array( 'open_call' ), true ) && ( ! isset( $types[ $type ]['has_archive'] ) || false !== $types[ $type ]['has_archive'] ) ) {
 		$wrn( "public type $type ($slug) has no menu entry" );
 	}
 }

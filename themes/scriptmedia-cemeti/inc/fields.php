@@ -56,7 +56,7 @@ function cemeti_get_field( $key, $post_id = null ) {
 	// Pictures and the booklet are the same in every language: an entry that has none of its own (an Indonesian
 	// copy made before the pictures were added, or imported without them) shows the other language's, so its
 	// contents bar and sections are not missing.
-	if ( cemeti_field_is_empty( $value ) && in_array( $key, array( 'gallery', 'documentation', 'booklet', 'booklet_url' ), true ) && ! is_admin() && function_exists( 'pll_get_post_translations' ) ) {
+	if ( cemeti_field_is_empty( $value ) && in_array( $key, array( 'gallery', 'documentation', 'booklet', 'booklet_url', 'file', 'file_url' ), true ) && ! is_admin() && function_exists( 'pll_get_post_translations' ) ) {
 		foreach ( (array) pll_get_post_translations( $post_id ) as $other ) {
 			$theirs = (int) $other !== $post_id && 'publish' === get_post_status( (int) $other ) ? get_post_meta( (int) $other, 'cemeti_' . $key, true ) : '';
 			if ( ! cemeti_field_is_empty( $theirs ) ) {

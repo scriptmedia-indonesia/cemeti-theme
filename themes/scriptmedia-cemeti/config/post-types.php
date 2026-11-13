@@ -50,6 +50,14 @@ return array(
 		'icon'       => 'dashicons-edit-page',
 		'taxonomies' => array( 'journal_category' ),
 	),
+	'archive_item'   => array(
+		'singular'     => 'Archive item',
+		'plural'       => 'Open Archive',
+		'slug'         => 'archive',
+		'icon'         => 'dashicons-download',
+		'taxonomies'   => array( 'archive_kind' ),
+		'has_archive'  => false, // The list is the Open Archive page; each item has its own page with the download button.
+	),
 	'person'         => array(
 		'singular'   => 'Person',
 		'plural'     => 'People',

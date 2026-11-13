@@ -187,10 +187,13 @@ PY
 
 - **Journal** is the collection of writings and essays to read on the web: Essay and Curatorial Essay. Entries of the
   Journal category **News** are not listed in Journal (nor on Home); they appear in the Open Archive.
-- **Open Archive** keeps its design (A–Z, two columns). Its content is what can be read or downloaded freely, made by
-  itself: every entry (Exhibition, Residency, Public Program, Open Studio) that has a **Booklet (PDF)** or a booklet link,
-  and every News post. Add a booklet in the entry's editor (section Booklet) and it appears here; each title links to its
-  file or post.
+- **Open Archive** keeps its design (A–Z, two columns); each title opens its page. It lists, by itself and by choice:
+  - **Archive items** (admin menu **Open Archive**): a page with the title, text, authors / year and a **Download Booklet**
+    ("Unduh Booklet" in Indonesian) button for its PDF (chosen in the Media Library, or a link elsewhere). Kind (Writing,
+    Booklet, Catalog) is a label for the team. Add the Indonesian copy with "Create ID version (copy)".
+  - **Any other content** (Exhibition, Residency, Public Program, Open Studio, Open Call, Journal) with the side box
+    **Open Archive → "Show in the Open Archive"** ticked.
+  - By itself: the booklets of the entries (title links to the file) and the News posts.
 - **Booklets from the old site:** Tools → Cemeti Converter → "0. Media" → **3. Fetch booklets** downloads the PDFs that
   entries still link to on the old site into this Media Library and sets them as the entry's Booklet (PDF), so they stay
   downloadable after the old site is replaced (like the pictures; needs the same outgoing connection to the old site).

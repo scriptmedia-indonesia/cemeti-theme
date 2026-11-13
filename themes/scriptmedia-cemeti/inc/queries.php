@@ -89,7 +89,7 @@ function cemeti_pre_get_posts( $query ) {
 	}
 
 	if ( $query->is_search() ) {
-		$query->set( 'post_type', array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'page' ) );
+		$query->set( 'post_type', array( 'exhibition', 'residency', 'public_program', 'open_studio', 'open_call', 'journal', 'archive_item', 'page' ) );
 		$query->set( 'posts_per_page', 20 );
 	}
 }

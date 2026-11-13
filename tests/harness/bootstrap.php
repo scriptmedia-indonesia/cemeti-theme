@@ -130,6 +130,10 @@ function qa_seed() {
 	update_post_meta( $ids['ex_current'], 'cemeti_related', array( $ids['j_essay'] ) );
 	wp_set_object_terms( $ids['ex_current'], array( 'Maintenance Works' ), 'project' );
 
+	$ids['ai_catalog'] = CemetiWP::post( array( 'post_type' => 'archive_item', 'post_title' => 'Katalog Pameran 2024', 'post_content' => 'Katalog pameran tahun 2024.', 'post_date' => '2024-11-01 10:00:00', 'meta' => array( 'cemeti_file' => 901, 'cemeti_authors' => 'Tim Cemeti', 'cemeti_year' => '2024' ) ) );
+	$ids['ai_link']    = CemetiWP::post( array( 'post_type' => 'archive_item', 'post_title' => 'Zine Residensi', 'post_content' => 'Zine.', 'post_date' => '2023-05-01 10:00:00', 'meta' => array( 'cemeti_file_url' => 'https://example.org/zine.pdf' ) ) );
+	$ids['ai_nofile']  = CemetiWP::post( array( 'post_type' => 'archive_item', 'post_title' => 'Tulisan Tanpa File', 'post_content' => 'Hanya teks.', 'post_date' => '2022-05-01 10:00:00' ) );
+	update_post_meta( $ids['j_cur'], 'cemeti_in_archive', '1' ); // A Journal post the team put in the Open Archive.
 	$ids['p_about']   = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'About', 'post_name' => 'about', 'thumb' => 507, 'post_content' => "Cemeti adalah platform seni kontemporer.\n\nDidirikan 1988." ) );
 	$ids['p_history'] = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'History', 'post_name' => 'history', 'post_content' => 'Kronologi kegiatan Cemeti.' ) );
 	$ids['p_archive'] = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Open Archive', 'post_name' => 'open-archive', 'post_content' => 'Daftar karya dan program.' ) );

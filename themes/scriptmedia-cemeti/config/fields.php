@@ -117,6 +117,12 @@ $fields = array(
 		array( 'key' => 'documentation_caption', 'label' => 'Documentation caption', 'type' => 'text' ),
 		$related,
 	),
+	'archive_item'   => array(
+		array( 'key' => 'file', 'label' => 'File to download (PDF)', 'type' => 'file', 'section' => 'Download', 'help' => 'Upload or choose a PDF from the media library: the booklet, catalogue or writing. The page shows a "Download Booklet" ("Unduh Booklet") button for it.' ),
+		array( 'key' => 'file_url', 'label' => 'or link to the file elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+		array( 'key' => 'authors', 'label' => 'Authors / editors', 'type' => 'text', 'section' => 'About the item' ),
+		array( 'key' => 'year', 'label' => 'Year', 'type' => 'text', 'help' => 'For example 2024.' ),
+	),
 	'person'         => array(
 		array( 'key' => 'role', 'label' => 'Title / role', 'type' => 'text', 'section' => 'Shown on the About page' ),
 		array( 'key' => 'quote', 'label' => 'Short quote', 'type' => 'textarea', 'help' => 'Shown under the title of an Advisory Board member. The photo is the Featured image (square).' ),

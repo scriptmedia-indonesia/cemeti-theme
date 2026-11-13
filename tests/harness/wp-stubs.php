@@ -1086,8 +1086,8 @@ function get_search_query( $escaped = true ) {
 function is_front_page() {
 	return ! empty( CemetiWP::$ctx['front'] );
 }
-function is_singular() {
-	return ! empty( CemetiWP::$ctx['singular'] );
+function is_singular( $type = '' ) {
+	return ! empty( CemetiWP::$ctx['singular'] ) && ( '' === $type || ( is_array( $type ) ? in_array( get_post_type(), $type, true ) : get_post_type() === $type ) );
 }
 function is_page() {
 	return ! empty( CemetiWP::$ctx['singular'] ) && 'page' === get_post_type();

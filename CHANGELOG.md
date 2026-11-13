@@ -3,6 +3,20 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.54
+
+- **Open Archive: editor pages with a download button, and a tick for other content.** The front (A–Z, two columns) is
+  unchanged.
+  - New content type **Open Archive** in the admin menu (**Archive item**): title, the text in the editor, featured image,
+    authors, year, a kind (Writing / Booklet / Catalog) and the **file to download** (a PDF from the Media Library, or a
+    link). Its page has the **Download Booklet** button — **Unduh Booklet** in Indonesian — and the Open Archive lists it
+    by title with a link to that page. Translate with "Create ID version (copy)" (the Indonesian copy shows the English one's
+    file until it has its own).
+  - New side box **Open Archive → "Show in the Open Archive"** on Exhibition, Residency, Public Program, Open Studio, Open
+    Call and Journal: tick it and that page is listed in the Open Archive, whatever its kind.
+  - The booklets of the entries and the News posts are still added by themselves; a page that is ticked is listed once, with
+    its page (not its booklet file).
+
 ## 0.9.53
 
 - **"3. Fetch booklets" finished at once with 0.** It only looked at the booklet link of the Exhibition / Residency / Public
