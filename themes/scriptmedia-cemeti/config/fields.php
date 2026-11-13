@@ -67,6 +67,7 @@ $fields = array(
 			$biographies,
 			array( 'key' => 'booklet', 'label' => 'Booklet (PDF)', 'type' => 'file', 'section' => 'Booklet', 'help' => 'Upload or choose a PDF from the media library. Shown as "Buklet" on the page.' ),
 			array( 'key' => 'booklet_url', 'label' => 'or link to a booklet elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+			array( 'key' => 'show_reader', 'label' => 'Show the booklet on the page (reader)', 'type' => 'checkbox', 'help' => 'Tick to show the PDF as a reader in the Booklet section, besides the button.' ),
 			$related,
 		)
 	),
@@ -85,6 +86,7 @@ $fields = array(
 			$biographies,
 			array( 'key' => 'booklet', 'label' => 'Booklet (PDF)', 'type' => 'file', 'section' => 'Booklet', 'help' => 'Upload or choose a PDF from the media library.' ),
 			array( 'key' => 'booklet_url', 'label' => 'or link to a booklet elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+			array( 'key' => 'show_reader', 'label' => 'Show the booklet on the page (reader)', 'type' => 'checkbox', 'help' => 'Tick to show the PDF as a reader in the Booklet section, besides the button.' ),
 			$related,
 		)
 	),
@@ -120,6 +122,7 @@ $fields = array(
 	'archive_item'   => array_merge( array(
 		array( 'key' => 'file', 'label' => 'File to download (PDF)', 'type' => 'file', 'section' => 'Download', 'help' => 'Upload or choose a PDF from the media library: the booklet, catalogue or writing. The page shows a "Download Booklet" ("Unduh Booklet") button for it.' ),
 		array( 'key' => 'file_url', 'label' => 'or link to the file elsewhere', 'type' => 'url', 'help' => 'Only used when no PDF is chosen above.' ),
+		array( 'key' => 'show_reader', 'label' => 'Show the PDF on the page (reader)', 'type' => 'checkbox', 'help' => 'Tick to show the PDF as a reader under the text, like a book, besides the download button. Phones that cannot show a PDF inside the page get the button only.' ),
 		array( 'key' => 'authors', 'label' => 'Authors / editors', 'type' => 'text', 'section' => 'About the item' ),
 		array( 'key' => 'year', 'label' => 'Year', 'type' => 'text', 'help' => 'For example 2024.' ),
 		array( 'key' => 'gallery', 'label' => 'Gallery (photos)', 'type' => 'images', 'section' => 'Gallery', 'help' => 'Shown as "Galeri" on the page, two photos per row.' ),

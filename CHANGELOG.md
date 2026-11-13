@@ -3,6 +3,13 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.59
+
+PDF reader inside the page, like the existing website: a tick "Show the PDF on the page (reader)" on Archive items
+and "Show the booklet on the page (reader)" on Exhibition / Residency. The PDF opens in the browser's own reader
+under the text (with a download/open link inside it for phones that cannot show a PDF in a page). Off until ticked;
+per language. Only for files ending in .pdf.
+
 ## 0.9.58
 
 Open Archive items get Gallery, Documentation and Profile fields (photos, captions, one block per person with photo,

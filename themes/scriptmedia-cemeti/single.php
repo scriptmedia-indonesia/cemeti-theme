@@ -149,6 +149,9 @@ $cemeti_has_back = count( $cemeti_toc ) > 1;
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'booklet' ), 'booklet' ); ?>
 				<p><a class="cemeti-btn cemeti-btn--inline" href="<?php echo esc_url( $cemeti_booklet ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( cemeti_t( 'booklet' ) ); ?> (PDF)</a></p>
+				<?php if ( '1' === (string) cemeti_get_field( 'show_reader', $cemeti_id ) ) : ?>
+					<?php cemeti_render_pdf_reader( $cemeti_booklet, cemeti_title() ); ?>
+				<?php endif; ?>
 				<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 			</section>
 		<?php endif; ?>

@@ -280,7 +280,7 @@ function cemeti_render_meta_box( $post ) {
 		$id    = 'cemeti_field_' . $key;
 		$value = cemeti_get_field( $key, $post->ID );
 		if ( 'checkbox' === $def['type'] && '' === $value ) {
-			$value = 'active' === $key && 'open_call' === $post->post_type && 'previous' === cemeti_get_status( $post->ID ) ? '0' : '1'; // Never touched: ticked unless its deadline has passed.
+			$value = ( 'active' === $key && 'open_call' === $post->post_type && 'previous' === cemeti_get_status( $post->ID ) ) || 'show_reader' === $key ? '0' : '1'; // Never touched: ticked unless its deadline has passed (the reader is off until chosen).
 		}
 		// One field that cannot be shown (unexpected stored data) must not blank the whole box: say which one and go on.
 		ob_start();

@@ -39,7 +39,7 @@ function cemeti_translatable_types() {
 function cemeti_polylang_copy_metas( $keys, $sync = false ) {
 	// Per-language fields: copied once when a translation is made, but never kept in sync afterwards,
 	// so each language can hold its own PDF, text and credits.
-	$per_language = array( 'file', 'file_url', 'booklet', 'booklet_url', 'seo_description', 'opening', 'public_program_info', 'venue_info', 'time_text', 'gallery_caption', 'documentation_caption', 'biographies', 'authors', 'year', 'role', 'quote' );
+	$per_language = array( 'file', 'file_url', 'show_reader', 'booklet', 'booklet_url', 'seo_description', 'opening', 'public_program_info', 'venue_info', 'time_text', 'gallery_caption', 'documentation_caption', 'biographies', 'authors', 'year', 'role', 'quote' );
 	$extra        = array( '_thumbnail_id' );
 	foreach ( cemeti_config( 'fields' ) as $defs ) {
 		foreach ( (array) $defs as $def ) {

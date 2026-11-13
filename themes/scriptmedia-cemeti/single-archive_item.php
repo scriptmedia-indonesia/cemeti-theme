@@ -74,6 +74,10 @@ $cemeti_has_back = $cemeti_has_toc;
 			<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 		<?php endif; ?>
 
+		<?php if ( '' !== $cemeti_file && '1' === (string) cemeti_get_field( 'show_reader', $cemeti_id ) ) : ?>
+			<?php cemeti_render_pdf_reader( $cemeti_file, cemeti_title() ); ?>
+		<?php endif; ?>
+
 		<?php if ( $cemeti_gallery ) : ?>
 			<section class="cemeti-single__section">
 				<?php cemeti_section_heading( cemeti_t( 'gallery' ), 'gallery' ); ?>
