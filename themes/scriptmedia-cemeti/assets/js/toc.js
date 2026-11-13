@@ -45,9 +45,11 @@
 				}
 			} );
 		}
-		if ( chosen > -1 && atBottom && targets[ chosen ] ) {
+		// A link the visitor just clicked stays marked while its section is on screen: the jump may still be gliding
+		// (smooth scrolling) or stop a few pixels short at the end of the page, and the mark must not jump back.
+		if ( chosen > -1 && targets[ chosen ] ) {
 			var chosenTop = targets[ chosen ].getBoundingClientRect().top;
-			if ( chosenTop >= 0 && chosenTop < window.innerHeight ) {
+			if ( chosenTop >= -4 && chosenTop < window.innerHeight ) {
 				current = chosen;
 			}
 		}

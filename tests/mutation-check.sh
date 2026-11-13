@@ -135,6 +135,7 @@ if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
   mutate "js: residency list is not swapped"        $T/assets/js/residency-filter.js "results.innerHTML = newResults.innerHTML;" "" browser
   mutate "js: pinned titles do not follow"           $T/assets/js/pin-heading.js "head.style.transform = move > 0 ?" "head.style.transform = false ?" browser
+  mutate "js: clicked contents link not marked"     $T/assets/js/toc.js "if ( chosenTop >= -4 && chosenTop < window.innerHeight ) {" "if ( false ) {" browser
   mutate "js: Escape no longer closes panels"      $T/assets/js/navigation.js "if ( event.key === 'Escape' ) {" "if ( event.key === 'F13' ) {" browser
 else
   echo "  (browser mutations skipped: Playwright not installed)"

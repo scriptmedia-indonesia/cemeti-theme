@@ -3,6 +3,19 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.56
+
+Full QA round on both languages and across browsers.
+
+- **Contents bar on a detail page (large screens):** the link just clicked could lose its mark to the section above while
+  the smooth jump was still gliding, or when the jump stopped a few pixels short at the end of the page. The clicked link
+  now stays marked until the visitor scrolls themselves.
+- Checked again at this version: every page of the site in **English and Indonesian** (2898 checks: markup, interface text
+  left in the other language, links that keep the language, the EN/ID switch, menus, pictures, messy imported entries),
+  **421 browser checks**, the **sweep** of 124 pages at 18 screen sizes plus six touch and desktop profiles, and the
+  compatibility of the CSS and scripts with Safari 14.1 / iOS 14.5 / Chrome and Edge 84 / Firefox 78 (and the graceful
+  fallbacks below that). Scripts are ES2017 (Safari 11+).
+
 ## 0.9.55
 
 - **Open Archive starts empty.** The booklets of the entries and the News posts are no longer added by themselves: the page

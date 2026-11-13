@@ -448,6 +448,24 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 7e6. Contents bar: the link just clicked stays marked, also while the smooth jump is still gliding. */
+	{
+		const { page, ctx } = await open( browser, 'single-exhibition', 2560, 1440, { reducedMotion: 'no-preference' } );
+		const marked = () => page.evaluate( () => { const a = document.querySelector( '.cemeti-toc__links a[aria-current]' ); return a ? a.getAttribute( 'href' ) : ''; } );
+		await page.locator( '.cemeti-toc__links a[href="#biography"]' ).first().click();
+		const seen = [];
+		for ( let i = 0; i < 12; i++ ) {
+			await page.waitForTimeout( 90 ); // While the smooth jump glides.
+			seen.push( await marked() );
+		}
+		const after = await marked();
+		ok( after === '#biography' && ! seen.some( ( h ) => h && h !== '#biography' ), `contents: the clicked link is the only one marked, while the jump glides and when it lands (${ seen.join( ',' ) })` );
+		await page.evaluate( () => window.scrollTo( 0, 0 ) );
+		await page.waitForTimeout( 300 );
+		ok( await marked() !== '#biography', 'contents: scrolling away marks another section again' );
+		await ctx.close();
+	}
+
 	/* ---- 7f. Figma values for the shared chrome and the archive cards (1440 px frames). */
 	{
 		const { page, ctx } = await open( browser, 'archive-exhibition', 1440, 900, { reducedMotion: 'reduce' } );
