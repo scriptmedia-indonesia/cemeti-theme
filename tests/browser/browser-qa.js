@@ -28,6 +28,9 @@ const url = ( name ) => 'http://127.0.0.1:8765/build/qa/' + name + '.html';
 
 async function open( browser, name, width, height, extra = {} ) {
 	const ctx = await browser.newContext( { viewport: { width, height: height || 800 }, reducedMotion: extra.reducedMotion || 'no-preference' } );
+	if ( ! extra.splash ) {
+		await ctx.addInitScript( () => { try { window.sessionStorage.setItem( 'cemetiSplash', '1' ); } catch ( e ) {} } ); // The opening splash has its own test below.
+	}
 	const page = await ctx.newPage();
 	const errors = [];
 	page.on( 'pageerror', ( e ) => errors.push( 'pageerror: ' + e.message ) );
@@ -158,6 +161,32 @@ async function open( browser, name, width, height, extra = {} ) {
 		await page.waitForTimeout( 450 );
 		ok( await dlg.isHidden() && await page.evaluate( () => ! document.body.classList.contains( 'cemeti-scroll-locked' ) ), "what's on: ESC closes it and unlocks the page" );
 		ok( await page.evaluate( () => document.activeElement.id === 'test-trigger' ), "what's on: focus returns to the trigger" );
+		await ctx.close();
+	}
+
+	/* ---- 4b. Opening splash: opens by itself once per visit, the logogram stays while the text scrolls, Close turns white. */
+	{
+		const { page, ctx } = await open( browser, 'home', 1280, 700, { splash: true } );
+		await page.waitForTimeout( 500 );
+		const dlg = page.locator( '#cemeti-whats-on' );
+		ok( await dlg.isVisible(), 'splash: opens by itself on the first visit' );
+		const pos = async () => page.evaluate( () => { const r = document.querySelector( '.cemeti-whats-on__bg img' ).getBoundingClientRect(); return Math.round( r.top ) + ',' + Math.round( r.left ); } );
+		const before = await pos();
+		await page.evaluate( () => { const d = document.getElementById( 'cemeti-whats-on' ); d.scrollTop = 300; } );
+		await page.waitForTimeout( 200 );
+		const scrolled = await page.evaluate( () => document.getElementById( 'cemeti-whats-on' ).scrollTop );
+		ok( scrolled > 0 ? before === await pos() : true, 'splash: the logogram does not move when the text scrolls (' + before + ' → ' + await pos() + ', scrolled ' + scrolled + ')' );
+		const closeTop = await page.evaluate( () => Math.round( document.querySelector( '.cemeti-whats-on__close' ).getBoundingClientRect().top ) );
+		ok( scrolled === 0 || closeTop < 120, 'splash: Close stays at the top while scrolling (top ' + closeTop + ')' );
+		await page.locator( '.cemeti-whats-on__close' ).hover();
+		await page.waitForTimeout( 150 );
+		ok( 'rgb(255, 255, 255)' === await page.evaluate( () => getComputedStyle( document.querySelector( '.cemeti-whats-on__close' ) ).color ), 'splash: Close turns white on hover' );
+		await page.locator( '.cemeti-whats-on__close' ).click();
+		await page.waitForTimeout( 450 );
+		ok( await dlg.isHidden(), 'splash: Close closes it' );
+		await page.reload();
+		await page.waitForTimeout( 500 );
+		ok( await dlg.isHidden(), 'splash: not shown again in the same visit' );
 		await ctx.close();
 	}
 

@@ -19,6 +19,7 @@ const add = ( k, m ) => { ( issues[ k ] = issues[ k ] || [] ).push( m ); };
 	const browser = await chromium.launch();
 	for ( const [ w, h ] of sizes ) {
 		const ctx = await browser.newContext( { viewport: { width: w, height: h }, hasTouch: w < 1024 } );
+		await ctx.addInitScript( () => { try { window.sessionStorage.setItem( 'cemetiSplash', '1' ); } catch ( e ) {} } );
 		const page = await ctx.newPage();
 		const errors = [];
 		page.on( 'pageerror', ( e ) => errors.push( e.message ) );
@@ -61,6 +62,7 @@ const add = ( k, m ) => { ( issues[ k ] = issues[ k ] || [] ).push( m ); };
 	const profiles = { iphone: devices[ 'iPhone 13' ], pixel: devices[ 'Pixel 7' ], ipad: devices[ 'iPad (gen 7)' ], 'ipad-land': devices[ 'iPad (gen 7) landscape' ], laptop: { viewport: { width: 1280, height: 720 } }, big: { viewport: { width: 2560, height: 1440 } } };
 	for ( const [ pn, opt ] of Object.entries( profiles ) ) {
 		const ctx = await browser.newContext( opt );
+		await ctx.addInitScript( () => { try { window.sessionStorage.setItem( 'cemetiSplash', '1' ); } catch ( e ) {} } );
 		const p = await ctx.newPage();
 		const hit = async ( sel ) => { const l = p.locator( sel ).first(); return opt.hasTouch ? l.tap() : l.click(); };
 		await p.goto( 'http://127.0.0.1:8765/build/qa/home.html' );

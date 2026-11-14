@@ -30,6 +30,12 @@ ok( false !== strpos( $h, 'Open Studio: Angki Purbandono' ), 'home: open studio 
 ok( false !== strpos( $h, 'Previous Journal' ) && 2 === substr_count( $h, 'class="cemeti-row"' ) && false === strpos( $h, 'Rangkaian Perayaan #37thCemeti' ), 'home: the journal rows are the essays only (News is in the Open Archive) and the Previous Journal button' );
 ok( false !== strpos( $h, '>Previous Exhibition<' ), 'home: "Previous Exhibition" button' );
 
+ok( false !== strpos( $h, 'data-cemeti-splash="1"' ) && false !== strpos( $h, 'assets/img/logogram.png' ) && false !== strpos( $h, 'cemeti-whats-on__close' ) && false !== strpos( $h, 'Residence:' ), 'home: the opening splash is in the page (logogram background, Close, the current entries)' );
+update_option( 'cemeti_settings_en', array( 'hide_splash' => '1' ) );
+$h2 = qa_render( 'front-page.php', array( 'front' => true ) );
+ok( false === strpos( $h2, 'data-cemeti-splash' ), 'home: the splash can be switched off in Settings' );
+update_option( 'cemeti_settings_en', array() );
+
 // ---- Archives
 $h  = page( 'archive-exhibition', 'archive.php', array( 'pta' => 'exhibition' ), array( 'path' => '/exhibition/', 'query' => array( 'post_type' => 'exhibition' ), 'flags' => array( 'pta' => 'exhibition' ) ) );
 ok( 4 === substr_count( $h, 'class="cemeti-card"' ), 'archive exhibition: four cards (current, past, future, undated)' );

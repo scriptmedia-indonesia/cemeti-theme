@@ -15,12 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array<string, string>
  */
-function cemeti_option_defaults() {
+function cemeti_option_defaults( $lang = '' ) {
+	$english = 'en' === $lang;
 	return array(
-		'institution_name' => 'Cemeti – Institut untuk Seni dan Masyarakat',
+		'institution_name' => $english ? 'Cemeti – Institute for Art and Society' : 'Cemeti – Institut untuk Seni dan Masyarakat',
 		'site_description' => '',
-		'address'          => "Jl. DI Panjaitan No.41, Mantrijeron, Kec. Mantrijeron\nKota Yogyakarta, Daerah Istimewa Yogyakarta 55143",
-		'opening_hours'    => "Selasa – Sabtu\n10:00 – 17:00",
+		'address'          => $english ? "Jl. DI Panjaitan No.41, Mantrijeron, Mantrijeron District\nYogyakarta City, Special Region of Yogyakarta 55143" : "Jl. DI Panjaitan No.41, Mantrijeron, Kec. Mantrijeron\nKota Yogyakarta, Daerah Istimewa Yogyakarta 55143",
+		'opening_hours'    => $english ? "Tuesday – Saturday\n10:00 – 17:00" : "Selasa – Sabtu\n10:00 – 17:00",
 		'email'            => 'info@cemeti.art',
 		'notify_email'     => '',
 		'instagram_url'    => 'https://www.instagram.com/cemeti.institute/',
@@ -42,6 +43,11 @@ function cemeti_option_defaults() {
  */
 function cemeti_option( $key ) {
 	$langs = array_unique( array( cemeti_current_lang(), cemeti_default_lang() ) );
+	// Words that belong to one language (name, address, hours) never borrow the other language's text: an empty
+	// field shows the built-in text of the language being viewed.
+	if ( in_array( $key, array( 'institution_name', 'address', 'opening_hours' ), true ) ) {
+		$langs = array( cemeti_current_lang() );
+	}
 
 	foreach ( $langs as $lang ) {
 		$stored = get_option( 'cemeti_settings_' . $lang, array() );
@@ -55,6 +61,6 @@ function cemeti_option( $key ) {
 		}
 	}
 
-	$defaults = cemeti_option_defaults();
+	$defaults = cemeti_option_defaults( cemeti_current_lang() );
 	return $defaults[ $key ] ?? '';
 }

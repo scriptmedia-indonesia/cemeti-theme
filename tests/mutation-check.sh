@@ -132,8 +132,11 @@ mutate "archive: tick saved without the nonce"        $T/inc/archive.php "! isse
 mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_ajax_referer( 'cemeti_media_run', 'nonce' );" "" flows-media
 mutate "translate: sync overwrites each language PDF"  $T/inc/translate.php "if ( \$sync && in_array( \$def['key'], \$per_language, true ) ) {" "if ( false ) {" flows-polylang
 mutate "archive item: profile section missing"       $T/single-archive_item.php "cemeti_render_biographies( \$cemeti_bios );" "" render-pages
+mutate "footer: language borrows the other one"      $T/inc/options.php "\$langs = array( cemeti_current_lang() );" "" flows-polylang
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
+  mutate "splash: shown again at every page"           $T/assets/js/navigation.js "window.sessionStorage.setItem( 'cemetiSplash', '1' );" "" browser
+  mutate "splash: logogram scrolls away"              $T/assets/css/layout.css "height: 100vh; height: 100dvh; margin-bottom: -100vh;" "height: 100vh; height: 100dvh; margin-bottom: -100vh; position: absolute;" browser
   mutate "js: media runner does not retry errors"   $T/assets/js/admin-media.js "if ( tries > MAX_RETRY ) {" "if ( true ) {" browser
   mutate "js: residency list is not swapped"        $T/assets/js/residency-filter.js "results.innerHTML = newResults.innerHTML;" "" browser
   mutate "js: pinned titles do not follow"           $T/assets/js/pin-heading.js "head.style.transform = move > 0 ?" "head.style.transform = false ?" browser

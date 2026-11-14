@@ -27,6 +27,7 @@ function cemeti_settings_fields() {
 		'youtube_url'      => array( __( 'Youtube URL', 'scriptmedia-cemeti' ), 'url' ),
 		'facebook_url'     => array( __( 'Facebook URL', 'scriptmedia-cemeti' ), 'url' ),
 		'route_url'        => array( __( 'Google Maps route URL', 'scriptmedia-cemeti' ), 'url' ),
+		'hide_splash'      => array( __( 'Opening splash (What\'s on)', 'scriptmedia-cemeti' ), 'checkbox' ),
 	);
 }
 
@@ -44,6 +45,9 @@ function cemeti_sanitize_settings( $input ) {
 		switch ( $field[1] ) {
 			case 'textarea':
 				$clean[ $key ] = sanitize_textarea_field( $raw );
+				break;
+			case 'checkbox':
+				$clean[ $key ] = '1' === $raw ? '1' : '';
 				break;
 			case 'email':
 				$clean[ $key ] = sanitize_email( $raw );
@@ -104,7 +108,7 @@ function cemeti_render_settings_page() {
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html__( 'Cemeti Settings', 'scriptmedia-cemeti' ); ?></h1>
-		<p><?php echo esc_html__( 'Empty fields fall back to the default language, then to built-in values.', 'scriptmedia-cemeti' ); ?></p>
+		<p><?php echo esc_html__( 'Empty fields fall back to the default language, then to built-in values. Institution name, address and opening hours never borrow the other language: empty shows the built-in text of that language (grey text in the box).', 'scriptmedia-cemeti' ); ?></p>
 		<?php if ( isset( $_GET['cemeti_types_filled'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( sprintf( /* translators: %d: number of exhibitions */ _n( 'Solo/Group set on %d exhibition.', 'Solo/Group set on %d exhibitions.', (int) $_GET['cemeti_types_filled'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_types_filled'] ) ); // phpcs:ignore WordPress.Security.NonceVerification ?></p></div>
 		<?php endif; ?>
@@ -138,10 +142,13 @@ function cemeti_render_settings_page() {
 						<tr>
 							<th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field[0] ); ?></label></th>
 							<td>
-								<?php if ( 'textarea' === $field[1] ) : ?>
-									<textarea class="large-text" rows="3" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+								<?php if ( 'checkbox' === $field[1] ) : ?>
+									<label><input type="checkbox" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( '1', $value ); ?>> <?php echo esc_html__( 'Do not show the opening splash on the home page', 'scriptmedia-cemeti' ); ?></label>
+									<p class="description"><?php echo esc_html__( 'By default the home page opens with the yellow "What\'s on" splash once per visit (when an Exhibition, Open Studio or Residency is current). It lists the current Exhibition, Open Studio and Residency.', 'scriptmedia-cemeti' ); ?></p>
+								<?php elseif ( 'textarea' === $field[1] ) : ?>
+									<textarea class="large-text" rows="3" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" placeholder="<?php echo esc_attr( (string) ( cemeti_option_defaults( $lang )[ $key ] ?? '' ) ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
 								<?php else : ?>
-									<input class="regular-text" type="<?php echo esc_attr( $field[1] ); ?>" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>">
+									<input class="regular-text" type="<?php echo esc_attr( $field[1] ); ?>" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" placeholder="<?php echo esc_attr( 'institution_name' === $key ? (string) cemeti_option_defaults( $lang )['institution_name'] : '' ); ?>">
 								<?php endif; ?>
 							</td>
 						</tr>

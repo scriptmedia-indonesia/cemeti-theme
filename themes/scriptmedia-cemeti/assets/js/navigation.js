@@ -100,6 +100,26 @@
 		}
 	}
 
+	// Opening splash: the "What's on" panel opens by itself once per visit on the home page (marked by the template).
+	( function () {
+		var panel = panels[ 'whats-on' ];
+		if ( ! panel || ! panel.el || ! panel.el.hasAttribute( 'data-cemeti-splash' ) ) {
+			return;
+		}
+		try {
+			if ( window.sessionStorage.getItem( 'cemetiSplash' ) ) {
+				return;
+			}
+			window.sessionStorage.setItem( 'cemetiSplash', '1' );
+		} catch ( e ) {
+			return; // Storage blocked: never show it (it could not be remembered, so it would come back at every page).
+		}
+		if ( window.location.hash ) {
+			return;
+		}
+		open( 'whats-on', null );
+	}() );
+
 	doc.addEventListener( 'click', function ( event ) {
 		var toggle = event.target.closest( '[data-cemeti-toggle]' );
 		if ( toggle ) {

@@ -3,6 +3,21 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.61
+
+Opening splash (Figma "SPLASH") and a footer that follows the language.
+
+- The yellow "What's on" panel is now the opening splash: it opens by itself once per visit on the home page (when
+  something is current), lists the current Exhibition (title, artists, dates), Open Studio and Residence (names,
+  dates), and scrolls. The cream logogram stays in place behind the text while it scrolls; "Close" stays at the top
+  right and turns white on hover. ESC also closes it. Switch it off per language in Settings → Cemeti ("Opening
+  splash"). If the browser blocks storage it is not shown at all (it could not be remembered).
+- Footer name, address and opening hours follow the language: an empty field shows the built-in text of that
+  language ("Cemeti – Institute for Art and Society", "Tuesday – Saturday" … / "Cemeti – Institut untuk Seni dan
+  Masyarakat", "Selasa – Sabtu" …) instead of the other language's text. The Settings page shows them as grey hints.
+- Includes 0.9.58 (Gallery / Documentation / Profile on Open Archive items; per-language PDF 0.9.57). The
+  in-page PDF reader stays removed (0.9.60).
+
 ## 0.9.60
 
 The in-page PDF reader (0.9.59) is removed again: the "Show the PDF on the page" ticks, the reader markup and its

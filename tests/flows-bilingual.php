@@ -204,8 +204,10 @@ $GLOBALS['pll']['current'] = 'id';
 $home_id = $render( 'id', 'home', 'front-page.php', array( 'front' => true ), array( 'path' => '/id/' ) );
 ok( 1 === preg_match( '#<a[^>]*hreflang="id"[^>]*aria-current="true"#', $home_id ) || 1 === preg_match( '#<a[^>]*aria-current="true"[^>]*hreflang="id"#', $home_id ), '[id] header: Indonesian is the marked language' );
 ok( false !== strpos( $home_id, cemeti_t( 'search' ) ) && 'Cari' === cemeti_t( 'search' ), '[id] header: the search button is in Indonesian' );
+ok( false !== strpos( $home_id, 'Cemeti – Institut untuk Seni dan Masyarakat' ) && false !== strpos( $home_id, 'Kota Yogyakarta' ) && false !== strpos( $home_id, 'Selasa – Sabtu' ), '[id] footer: name, address and opening days in Indonesian' );
 $GLOBALS['pll']['current'] = 'en';
 $home_en = $render( 'en', 'home', 'front-page.php', array( 'front' => true ), array( 'path' => '/' ) );
+ok( false !== strpos( $home_en, 'Cemeti – Institute for Art and Society' ) && false !== strpos( $home_en, 'Yogyakarta City' ) && false !== strpos( $home_en, 'Tuesday – Saturday' ) && false === strpos( $home_en, 'Selasa – Sabtu' ), '[en] footer: name, address and opening days in English' );
 ok( false === strpos( $home_en, '>Cari<' ) && 'Search' === cemeti_t( 'search' ), '[en] header: the search button is in English' );
 // The Indonesian entry shows its own title, the English one its own; neither leaks into the other language's list.
 $arch_id = $render( 'id', 'archive exhibition', 'archive.php', array( 'pta' => 'exhibition' ), array( 'path' => '/id/exhibition/', 'query' => array( 'post_type' => 'exhibition', 'lang' => 'id' ), 'flags' => array( 'pta' => 'exhibition' ) ) );

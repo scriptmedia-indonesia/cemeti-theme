@@ -149,6 +149,7 @@ $items = apply_filters( 'cemeti_whats_on_items', array() );
 $titles = array_column( $items, 'title' );
 ok( array( 'Harta yang Paling Berharga adalah Keluarga', 'Open Studio: Angki Purbandono', 'Residency Program 2026' ) === $titles, "What's on: current exhibition, open studio, residency: " . implode( ' | ', $titles ) );
 ok( 'Exhibition' === $items[0]['label'] && '' !== $items[0]['meta'] && 0 === strpos( $items[0]['url'], 'http' ), "What's on: label, dates and url" );
+ok( 'Residence' === $items[2]['label'] && 'exhibition' === $items[0]['type'] && isset( $items[0]['people'] ), "What's on: the residency is labelled Residence; each entry carries its type and the artists' names" );
 CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Baru', 'meta' => array( 'cemeti_start_date' => '20260301', 'cemeti_end_date' => '20260401' ) ) );
 ok( 'Harta yang Paling Berharga adalah Keluarga' === apply_filters( 'cemeti_whats_on_items', array() )[0]['title'], "What's on: served from the cache until content changes" );
 do_action( 'save_post', $ids['ex_current'] );
@@ -393,7 +394,7 @@ $page = CemetiWP::post( array( 'post_type' => 'page', 'post_title' => 'Plain pag
 ok( ! has_post_thumbnail( $page ), 'pages are left alone' );
 
 /* ------------------------------------------------------------ settings */
-ok( 'Cemeti – Institut untuk Seni dan Masyarakat' === cemeti_option( 'institution_name' ), 'option: built-in default' );
+ok( 'Cemeti – Institute for Art and Society' === cemeti_option( 'institution_name' ), 'option: built-in default (English main language)' );
 update_option( 'cemeti_settings_id', array( 'institution_name' => 'Nama ID', 'address' => '' ) );
 update_option( 'cemeti_settings_en', array( 'institution_name' => 'Name EN' ) );
 ok( 'Name EN' === cemeti_option( 'institution_name' ), 'option: the active language wins (English is the main language)' );
@@ -459,7 +460,7 @@ ok( false !== strpos( apply_filters( 'robots_txt', "User-agent: *\nDisallow: /wp
 ok( false === apply_filters( 'wp_sitemaps_add_provider', 'x', 'users' ) && 'x' === apply_filters( 'wp_sitemaps_add_provider', 'x', 'posts' ), 'sitemap: no user list' );
 CemetiWP::request( '/', array( 'singular' => true ) );
 $GLOBALS['post'] = CemetiWP::obj( $ids['ex_current'] );
-ok( 'Harta yang Paling Berharga adalah Keluarga – Cemeti – Institut untuk Seni dan Masyarakat' === wp_get_document_title(), 'title: "Page – Institution": ' . wp_get_document_title() );
+ok( 'Harta yang Paling Berharga adalah Keluarga – Cemeti – Institute for Art and Society' === wp_get_document_title(), 'title: "Page – Institution": ' . wp_get_document_title() );
 
 /* ------------------------------------------------------------- security */
 ok( false === apply_filters( 'xmlrpc_enabled', true ), 'security: XML-RPC off' );

@@ -52,8 +52,13 @@ update_option( 'cemeti_settings_id', array( 'institution_name' => 'Cemeti ID', '
 update_option( 'cemeti_settings_en', array( 'institution_name' => 'Cemeti EN' ) );
 $GLOBALS['pll']['current'] = 'en';
 ok( 'Cemeti EN' === cemeti_option( 'institution_name' ), 'settings: English value when present' );
-ok( 'Selasa – Sabtu' === cemeti_option( 'opening_hours' ), 'settings: empty English value falls back to Indonesian' );
+ok( "Tuesday – Saturday\n10:00 – 17:00" === cemeti_option( 'opening_hours' ) && false !== strpos( cemeti_option( 'address' ), 'Mantrijeron District' ), 'settings: footer words never borrow the other language: empty English shows the built-in English' );
+update_option( 'cemeti_settings_id', array( 'institution_name' => 'Cemeti ID', 'opening_hours' => 'Selasa – Sabtu' ) );
 $GLOBALS['pll']['current'] = 'id';
+ok( 'Selasa – Sabtu' === cemeti_option( 'opening_hours' ) && 0 === strpos( cemeti_option( 'address' ), 'Jl. DI Panjaitan No.41, Mantrijeron, Kec.' ), 'settings: Indonesian shows its own hours and the built-in Indonesian address' );
+update_option( 'cemeti_settings_id', array() );
+ok( 'Cemeti – Institut untuk Seni dan Masyarakat' === cemeti_option( 'institution_name' ), 'settings: nothing saved: the footer name is Indonesian in Indonesian' );
+update_option( 'cemeti_settings_id', array( 'institution_name' => 'Cemeti ID', 'opening_hours' => 'Selasa – Sabtu' ) );
 
 // ---- dates follow the language
 $GLOBALS['pll']['current'] = 'en';

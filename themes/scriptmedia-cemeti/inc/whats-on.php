@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return array<int, array{label:string,title:string,meta:string,url:string}>
  */
 function cemeti_whats_on_items( $items ) {
-	$cache_key = 'cemeti_whats_on_' . cemeti_current_lang() . '_' . cemeti_today() . '_' . (int) get_option( 'cemeti_content_version', 0 );
+	$cache_key = 'cemeti_whats_on_v2_' . cemeti_current_lang() . '_' . cemeti_today() . '_' . (int) get_option( 'cemeti_content_version', 0 );
 	$cached    = get_transient( $cache_key );
 	if ( is_array( $cached ) ) {
 		return array_merge( $items, $cached );
@@ -27,13 +27,15 @@ function cemeti_whats_on_items( $items ) {
 	$labels = array(
 		'exhibition'  => 'Exhibition',
 		'open_studio' => 'Open Studio',
-		'residency'   => 'Residency',
+		'residency'   => 'Residence',
 	);
 	foreach ( $labels as $post_type => $label ) {
 		$query = cemeti_status_query( $post_type, 'current', array( 'posts_per_page' => 1, 'no_found_rows' => true ) );
 		foreach ( $query->posts as $post ) {
 			$found[] = array(
-				'label' => $label,
+				'label'  => $label,
+				'type'   => $post_type,
+				'people' => trim( str_replace( array( "\r\n", "\n" ), ', ', (string) cemeti_get_field( 'artists', $post->ID ) ) ),
 				'title' => get_the_title( $post ),
 				'meta'  => cemeti_get_date_range( $post->ID ),
 				'url'   => get_permalink( $post ),
