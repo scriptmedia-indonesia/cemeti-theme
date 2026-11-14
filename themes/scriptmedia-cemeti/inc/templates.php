@@ -410,17 +410,17 @@ function cemeti_fallback_thumbnail_id( $thumbnail_id, $post = null ) {
 		$theirs = cemeti_translation_thumbnail_id( $post->ID );
 		return $theirs ? $theirs : ( $broken ? false : $thumbnail_id );
 	}
-	static $cache = array();
-	if ( ! isset( $cache[ $post->ID ] ) ) {
-		// Remembered for an hour (also "none"): a list of entries does not repeat the search at every visit.
-		$remembered = get_transient( 'cemeti_pic_' . $post->ID );
-		if ( false === $remembered ) {
-			$remembered = cemeti_find_entry_picture( $post );
-			set_transient( 'cemeti_pic_' . $post->ID, (int) $remembered, HOUR_IN_SECONDS );
-		}
-		$cache[ $post->ID ] = (int) $remembered;
+	// Remembered in the entry's own meta ("picture:time"), which a list loads together with its entries: no extra
+	// query per card. A picture found stays; "none" is looked for again after an hour. Saving the entry forgets it.
+	$remembered = explode( ':', (string) get_post_meta( $post->ID, '_cemeti_pic', true ) );
+	$found      = (int) $remembered[0];
+	$when       = isset( $remembered[1] ) ? (int) $remembered[1] : 0;
+	$usable     = $found ? 'attachment' === get_post_type( $found ) : ( $when && time() - $when < HOUR_IN_SECONDS );
+	if ( ! $usable ) {
+		$found = (int) cemeti_find_entry_picture( $post );
+		update_post_meta( $post->ID, '_cemeti_pic', $found . ':' . time() );
 	}
-	return $cache[ $post->ID ] ? $cache[ $post->ID ] : ( $broken ? false : $thumbnail_id );
+	return $found ? $found : ( $broken ? false : $thumbnail_id );
 }
 
 /**
@@ -596,3 +596,4 @@ function cemeti_find_entry_picture( $post ) {
 	return $attached ? (int) $attached[0] : 0;
 }
 add_filter( 'post_thumbnail_id', 'cemeti_fallback_thumbnail_id', 10, 2 );
+

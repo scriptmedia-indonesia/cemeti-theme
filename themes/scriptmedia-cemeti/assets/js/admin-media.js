@@ -5,10 +5,7 @@
  */
 ( function () {
 	'use strict';
-	var box = document.getElementById( 'cemeti-media-runner' );
-	if ( ! box || ! window.fetch ) {
-		return;
-	}
+	function init( box ) {
 	var ajax = box.getAttribute( 'data-ajax' );
 	var nonce = box.getAttribute( 'data-nonce' );
 	var action = box.getAttribute( 'data-action' ) || 'cemeti_media_step';
@@ -55,6 +52,9 @@
 		} );
 	}
 	function counts( r ) {
+		if ( r.sized !== undefined ) {
+			return ' — sizes made for ' + r.sized + ' pictures' + ( r.failed ? ', ' + r.failed + ' could not be made (file missing or too big for the server)' : '' );
+		}
 		if ( r.filled !== undefined ) {
 			return ' — featured image set on ' + r.filled + ' entries' + ( r.nothing ? ', ' + r.nothing + ' have no picture to use' : '' );
 		}
@@ -66,8 +66,8 @@
 		}
 		stopped = false;
 		lock( true );
-		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : ( 'thumbs' === phase ? 'Setting featured images' : ( 'booklets' === phase ? 'Fetching booklets' : 'Working' ) ) );
-		var fresh = 'posts' === phase || 'thumbs' === phase || 'booklets' === phase;
+		var label = 'posts' === phase ? 'Fixing posts' : ( 'files' === phase ? 'Restoring files' : ( 'sizes' === phase ? 'Making picture sizes' : 'thumbs' === phase ? 'Setting featured images' : ( 'booklets' === phase ? 'Fetching booklets' : 'Working' ) ) );
+		var fresh = 'posts' === phase || 'thumbs' === phase || 'booklets' === phase || 'sizes' === phase;
 		var tries = 0;
 		while ( ! stopped ) {
 			try {
@@ -118,4 +118,11 @@
 		} );
 	} );
 	stopBtn.addEventListener( 'click', function () { stopped = true; } );
+	}
+	[ 'cemeti-media-runner', 'cemeti-sizes-runner' ].forEach( function ( id ) {
+		var box = document.getElementById( id );
+		if ( box && window.fetch ) {
+			init( box );
+		}
+	} );
 }() );

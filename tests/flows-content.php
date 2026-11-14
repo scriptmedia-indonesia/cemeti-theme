@@ -411,6 +411,7 @@ ob_start();
 cemeti_render_settings_page();
 $html = ob_get_clean();
 ok( false !== strpos( $html, 'cemeti_settings_id[institution_name]' ) && false !== strpos( $html, 'cemeti_settings_en[notify_email]' ) && false !== strpos( $html, 'option_page' ), 'settings page renders both languages' );
+ok( false !== strpos( $html, 'id="cemeti-sizes-runner"' ) && false !== strpos( $html, 'action=cemeti_cache_clear' ) && false !== strpos( $html, 'Make missing picture sizes' ), 'settings page: the picture sizes button and "Clear cached pages"' );
 update_option( 'cemeti_settings_id', array() );
 update_option( 'cemeti_settings_en', array() );
 

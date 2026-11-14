@@ -33,7 +33,7 @@ $snap = static function () use ( $ids ) {
 	$out = array();
 	foreach ( $ids as $id ) {
 		$meta = isset( CemetiWP::$meta[ $id ] ) ? CemetiWP::$meta[ $id ] : array();
-		unset( $meta['_cemeti_converted_at'] );
+		unset( $meta['_cemeti_converted_at'], $meta['_cemeti_pic'] ); // The remembered stand-in picture (a cache) is not part of the import.
 		ksort( $meta );
 		$rel = isset( CemetiWP::$rel[ $id ] ) ? CemetiWP::$rel[ $id ] : array();
 		$rel = array_filter( $rel ); // An emptied list and no list are the same.

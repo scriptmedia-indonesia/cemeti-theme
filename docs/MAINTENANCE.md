@@ -200,6 +200,18 @@ PY
 - **History** is its own page, below About in the menu. The years are edited in Pages → History → "History (chronology)"
   (Add Year each year). Text that was saved on the About page earlier is used until the History page has its own.
 
+## Speed (pictures and caches)
+
+- **Pictures**: after an import run Settings → Cemeti → *Make missing picture sizes* once (and again after a new
+  import). Until then, old pictures without the theme's sizes are served from the nearest smaller size.
+- **Caches** (visitors only): the home sections and the Open Archive list are kept for six hours (`inc/performance.php`,
+  `cemeti_cached_fragment` / `cemeti_cached_data`). They are rebuilt after any save, featured-image change or settings
+  save. *Clear cached pages* (Settings → Cemeti) forgets them at once; use it after editing Polylang string
+  translations.
+- **Outside the theme** (biggest effect): a persistent object cache (Redis/Memcached), PHP 8.2+, and in Cloudflare a
+  cache rule for HTML of logged-out visitors (bypass when the `wordpress_logged_in` cookie is present). Do not cache
+  the Open Call page (its form carries a one-time code).
+
 ## Browser support
 
 **Fully supported:** the current and previous versions of Chrome, Edge, Firefox and Safari (macOS and iOS) and what has

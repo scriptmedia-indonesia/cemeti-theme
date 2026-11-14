@@ -356,7 +356,7 @@ function cemeti_revert_post( $post_id ) {
 		wp_update_post( array( 'ID' => $post_id, 'post_content' => $original ) );
 	}
 	set_post_type( $post_id, 'post' );
-	foreach ( array( '_cemeti_original_content', '_cemeti_converted_at', '_cemeti_converted_meta', '_cemeti_old_path', '_cemeti_old_cats', '_cemeti_old_slug', '_cemeti_head_slugs', '_cemeti_lang' ) as $key ) {
+	foreach ( array( '_cemeti_original_content', '_cemeti_converted_at', '_cemeti_converted_meta', '_cemeti_old_path', '_cemeti_old_cats', '_cemeti_old_slug', '_cemeti_head_slugs', '_cemeti_lang', '_cemeti_pic' ) as $key ) {
 		delete_post_meta( $post_id, $key );
 	}
 }

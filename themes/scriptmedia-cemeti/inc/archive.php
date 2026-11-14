@@ -42,6 +42,15 @@ function cemeti_archive_entry_ids( array $types ) {
  * @return array<int, array{type:string,title:string,url:string,action:string,date:string,year:string,from:string}>
  */
 function cemeti_archive_items() {
+	return cemeti_cached_data( 'archive_items', 'cemeti_archive_items_build' );
+}
+
+/**
+ * Build the list of the Open Archive (see cemeti_archive_items, which remembers it).
+ *
+ * @return array
+ */
+function cemeti_archive_items_build() {
 	$items = array();
 	// Only what the team put there on purpose: Archive items (they have their own page with the download button) and any
 	// other content with "Show in the Open Archive" ticked (listed with a link to its page). Nothing is added by itself.

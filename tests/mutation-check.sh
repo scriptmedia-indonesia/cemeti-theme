@@ -133,6 +133,11 @@ mutate "media: ajax step skips the nonce"            $T/inc/media.php "check_aja
 mutate "translate: sync overwrites each language PDF"  $T/inc/translate.php "if ( \$sync && in_array( \$def['key'], \$per_language, true ) ) {" "if ( false ) {" flows-polylang
 mutate "archive item: profile section missing"       $T/single-archive_item.php "cemeti_render_biographies( \$cemeti_bios );" "" render-pages
 mutate "footer: language borrows the other one"      $T/inc/options.php "\$langs = array( cemeti_current_lang() );" "" flows-polylang
+mutate "speed: sizes fallback off"                    $T/inc/performance.php "if ( ! is_array( \$image ) || ! is_string( \$size ) || ! isset( \$widths[ \$size ] ) || ! empty( \$image[3] ) ) {" "if ( true ) {" flows-performance
+mutate "speed: editors get the kept page"             $T/inc/performance.php "if ( is_user_logged_in() || ( function_exists( 'is_preview' ) && is_preview() )" "if ( ( function_exists( 'is_preview' ) && is_preview() )" flows-performance
+mutate "speed: saving keeps the old stand-in picture" $T/inc/performance.php "delete_post_meta( \$post_id, '_cemeti_pic' );" "" flows-performance
+mutate "speed: bulk featured image keeps old pages" $T/inc/performance.php "if ( '_thumbnail_id' === \$key ) {" "if ( false ) {" flows-performance
+mutate "speed: every card lazy"                       $T/inc/performance.php "if ( \$on_page && (int) \$index < \$eager ) {" "if ( false ) {" flows-performance
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "splash: shown again at every page"           $T/assets/js/navigation.js "window.sessionStorage.setItem( 'cemetiSplash', '1' );" "" browser

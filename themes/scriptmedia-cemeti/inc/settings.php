@@ -109,6 +109,9 @@ function cemeti_render_settings_page() {
 	<div class="wrap">
 		<h1><?php echo esc_html__( 'Cemeti Settings', 'scriptmedia-cemeti' ); ?></h1>
 		<p><?php echo esc_html__( 'Empty fields fall back to the default language, then to built-in values. Institution name, address and opening hours never borrow the other language: empty shows the built-in text of that language (grey text in the box).', 'scriptmedia-cemeti' ); ?></p>
+		<?php if ( isset( $_GET['cemeti_cache_cleared'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
+			<div class="notice notice-success is-dismissible"><p><?php echo esc_html__( 'Cached pages cleared.', 'scriptmedia-cemeti' ); ?></p></div>
+		<?php endif; ?>
 		<?php if ( isset( $_GET['cemeti_types_filled'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 			<div class="notice notice-success is-dismissible"><p><?php echo esc_html( sprintf( /* translators: %d: number of exhibitions */ _n( 'Solo/Group set on %d exhibition.', 'Solo/Group set on %d exhibitions.', (int) $_GET['cemeti_types_filled'], 'scriptmedia-cemeti' ), (int) $_GET['cemeti_types_filled'] ) ); // phpcs:ignore WordPress.Security.NonceVerification ?></p></div>
 		<?php endif; ?>
@@ -125,6 +128,15 @@ function cemeti_render_settings_page() {
 				<span class="cemeti-media-status notice inline" hidden style="display:block;margin-top:8px"></span>
 			</span>
 		</p>
+		<p>
+			<span id="cemeti-sizes-runner" data-action="cemeti_sizes_step" data-ajax="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-nonce="<?php echo esc_attr( wp_create_nonce( 'cemeti_sizes' ) ); ?>">
+				<a class="button" data-phase="sizes" href="#"><?php echo esc_html__( 'Make missing picture sizes (speeds up the site)', 'scriptmedia-cemeti' ); ?></a>
+				<button type="button" class="button cemeti-media-stop" hidden>Stop</button>
+				<span class="cemeti-media-status notice inline" hidden style="display:block;margin-top:8px"></span>
+			</span>
+			<a class="button" href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=cemeti_cache_clear' ), 'cemeti_cache_clear' ) ); ?>"><?php echo esc_html__( 'Clear cached pages', 'scriptmedia-cemeti' ); ?></a>
+		</p>
+		<p class="description"><?php echo esc_html__( 'Pictures that came with the import often lack the smaller sizes the pages use, so visitors download the full original (several MB). "Make missing picture sizes" makes them (in steps, safe to repeat). Lists and the home page are kept for visitors who are not logged in; they refresh by themselves when content is saved. "Clear cached pages" forgets them at once.', 'scriptmedia-cemeti' ); ?></p>
 		<p class="description"><?php echo esc_html__( 'Missing featured images: the entry gets the picture of its other-language copy, else the first picture of its Gallery / Documentation, else of its text. Nothing already set is changed.', 'scriptmedia-cemeti' ); ?></p>
 		<?php cemeti_render_page_pairs_box(); ?>
 		<form method="post" action="options.php">

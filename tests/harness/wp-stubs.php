@@ -150,6 +150,7 @@ class WP_Query {
 	public $found_posts = 0;
 	public $post_count = 0;
 	public $flags = array();
+	public $current_post = -1; // WordPress' own property: index of the post being shown.
 	private $i = -1;
 
 	public function __construct( $args = array() ) {
@@ -181,6 +182,7 @@ class WP_Query {
 	}
 	public function the_post() {
 		++$this->i;
+		$this->current_post = $this->i;
 		$GLOBALS['post'] = $this->posts[ $this->i ];
 		if ( is_int( $GLOBALS['post'] ) ) {
 			$GLOBALS['post'] = CemetiWP::obj( $GLOBALS['post'] );
@@ -188,6 +190,7 @@ class WP_Query {
 	}
 	public function rewind_posts() {
 		$this->i = -1;
+		$this->current_post = -1;
 	}
 
 	/** Meta clause matcher (supports nested relation groups). */
@@ -611,6 +614,9 @@ function check_admin_referer( $action = -1 ) {
 }
 function current_user_can( $cap, ...$args ) {
 	return CemetiWP::$caps;
+}
+function is_paged() {
+	return ! empty( CemetiWP::$ctx['paged'] );
 }
 function is_user_logged_in() {
 	return CemetiWP::$logged_in;

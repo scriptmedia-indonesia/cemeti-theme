@@ -28,6 +28,7 @@ $cemeti_includes = array(
 	'relations',
 	'status',
 	'whats-on',
+	'performance',
 	'templates',
 	'pages',
 	'language-admin',

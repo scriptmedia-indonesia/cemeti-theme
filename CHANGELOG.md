@@ -3,6 +3,21 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.63
+
+Speed: pictures and caches (analysis in the conversation of 14 November 2026).
+
+- Pictures: when an old picture has no file for one of the theme's sizes, the smallest existing size that is big
+  enough is sent instead of the multi-megabyte original. New: Settings → Cemeti → "Make missing picture sizes" makes
+  the real sizes (in steps, safe to repeat). Poster and hero pictures say how wide they are shown (`sizes`), all
+  pictures decode asynchronously, the first cards are not lazy (the first with priority) so the first screen is not
+  held back, the rest stay lazy.
+- Caches (visitors only; editors always see the live page): the home page sections, and the Open Archive list, are
+  kept for six hours and rebuilt after any content save, featured-image change, settings save or "Clear cached
+  pages". The stand-in picture of an entry without a featured image is remembered in the entry's own meta
+  (`_cemeti_pic`, loaded together with the list) instead of one database lookup per card.
+- Tests and mutations added (flows-performance).
+
 ## 0.9.62
 
 The opening splash was empty (so it did not open) whenever nothing was current. It now lists, per type, what is on
