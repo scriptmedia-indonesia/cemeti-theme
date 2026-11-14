@@ -3,6 +3,12 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.62
+
+The opening splash was empty (so it did not open) whenever nothing was current. It now lists, per type, what is on
+now; else the next one that starts; else the latest one that ended, like the home page does. Only a site with no
+Exhibition, Open Studio or Residency at all has no splash.
+
 ## 0.9.61
 
 Opening splash (Figma "SPLASH") and a footer that follows the language.

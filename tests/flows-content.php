@@ -156,7 +156,12 @@ do_action( 'save_post', $ids['ex_current'] );
 ok( 'Baru' === apply_filters( 'cemeti_whats_on_items', array() )[0]['title'], "What's on: refreshed after a save (the exhibition ending first is shown)" );
 CemetiWP::$today = '20250101';
 do_action( 'save_post', $ids['ex_current'] );
-ok( array() === apply_filters( 'cemeti_whats_on_items', array() ), "What's on: nothing is on in 2025" );
+$early = apply_filters( 'cemeti_whats_on_items', array() );
+ok( 3 === count( $early ) && 'Exhibition' === $early[0]['label'] && 'Open Studio' === $early[1]['label'] && 'Residence' === $early[2]['label'], "What's on: nothing current in 2025: the next one that starts is shown" );
+CemetiWP::$today = '20271201';
+do_action( 'save_post', $ids['ex_current'] );
+$late = apply_filters( 'cemeti_whats_on_items', array() );
+ok( $late && 'Exhibition' === $late[0]['label'], "What's on: everything over: the latest entry is shown, never an empty splash" );
 CemetiWP::$today = '20260315';
 do_action( 'save_post', $ids['ex_current'] );
 
