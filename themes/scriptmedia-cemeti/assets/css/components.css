@@ -1,0 +1,109 @@
+/* Reusable components. Page templates arrive in M3. */
+.cemeti-heading {
+	margin: 0 0 clamp(1rem, 0.5rem + 2vw, 2rem);
+	text-align: center;
+	font-family: var(--font-script);
+	font-weight: 400;
+	font-size: var(--fs-script-xl);
+	line-height: 0.85;
+	color: var(--heading-color);
+}
+
+.cemeti-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--fs-body);   /* 18 */
+	text-decoration: none;
+}
+.cemeti-back:hover { color: var(--c-salmon); text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* Script buttons: green "Previous …" and blue "Application Submission". */
+.cemeti-btn {
+	display: block;
+	padding: 0.625rem;           /* Figma: 272 x 31, Vampiro 16, cream text */
+	border: 0;
+	background: var(--c-green);
+	color: var(--c-cream);
+	font-family: var(--font-script);
+	font-size: 1rem;
+	line-height: 0.7;            /* box 272 x 31 */
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.cemeti-btn:hover { background: var(--c-salmon); color: var(--c-ink); }
+.cemeti-btn:focus-visible { background: var(--c-salmon); color: var(--c-ink); }
+.cemeti-btn--blue { background: var(--c-blue); }
+.cemeti-btn--blue:not(.cemeti-btn--inline) { width: min(100%, 17rem); }
+.cemeti-btn--blue:hover { background: var(--c-blue); color: var(--c-yellow); }
+.cemeti-btn--blue:focus-visible { background: var(--c-blue); color: var(--c-yellow); }
+
+/* Archive card (Figma): 308 x 386 poster (4:5); the title block sits over the bottom of the poster,
+   panel #f2e8db, padding 12, gap 24; title 18 salmon, date 16, both Medium. Four per row, 16 px apart. */
+.cemeti-card-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 1.25rem var(--gap);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.cemeti-card { position: relative; }
+.cemeti-card a { display: block; position: relative; aspect-ratio: 308 / 386; overflow: hidden; text-decoration: none; }
+/* Browsers without aspect-ratio (Safari before 15): the same 308 x 386 box from a padding. */
+@supports not (aspect-ratio: 1) { .cemeti-card a::before { content: ""; display: block; padding-top: 125.32%; } }
+.cemeti-card__image { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center top; background: var(--c-panel); } /* the whole picture, same box; landscape ones sit at the top, clear of the title panel */
+.cemeti-card__body {
+	position: absolute;
+	top: auto; right: 0; bottom: 0; left: 0;
+	inset: auto 0 0 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+	padding: 0.75rem;
+	background: var(--c-panel);
+	font-weight: 500;
+}
+.cemeti-card__title {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	color: var(--c-salmon);
+	font-size: var(--fs-card-title);
+	line-height: 1.2;
+}
+.cemeti-card__date { font-size: var(--fs-card-date); line-height: 1.2; }
+.cemeti-card a:hover .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
+.cemeti-card a:focus-visible .cemeti-card__title { text-decoration: underline; text-underline-offset: 0.18em; }
+.cemeti-card a:hover .cemeti-card__image { opacity: 0.92; }
+
+/* Two cards per row from a small phone up: one giant card per screen is hard to browse. */
+@media (min-width: 352px) { .cemeti-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; } .cemeti-card__body { gap: 0.75rem; padding: 0.5rem; } .cemeti-card__title { font-size: 0.9375rem; } .cemeti-card__date { font-size: 0.8125rem; } }
+@media (min-width: 768px) { .cemeti-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem var(--gap); } .cemeti-card__body { gap: 1.5rem; padding: 0.75rem; } .cemeti-card__title { font-size: var(--fs-card-title); } .cemeti-card__date { font-size: var(--fs-card-date); } }
+@media (min-width: 1024px) { .cemeti-card-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* Journal-style row list (Home, Journal archive, Search). */
+.cemeti-row-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule); }
+.cemeti-row { border-bottom: var(--rule); }
+.cemeti-row a { display: block; padding: calc(0.625rem - 6px) var(--gutter) calc(0.875rem - 7px); text-decoration: none; }   /* ink-to-ink spacing: date top 10 px under the rule, 14 px above the next one */
+/* Figma: date 24, title 40 Medium, category 24, 10 px between them. */
+.cemeti-row__date { display: block; font-size: var(--fs-single); line-height: 1.2; }
+.cemeti-row__title { display: block; margin: 0; font-size: var(--fs-title); font-weight: 500; line-height: 0.94; }
+.cemeti-row__cat { display: block; font-size: var(--fs-single); font-weight: 500; line-height: 1.2; }
+.cemeti-row a:hover .cemeti-row__title { color: var(--c-salmon); }
+
+/* Browsers without flex `gap` (Safari 14.0 and older, Chrome 83 and older): compat.js adds this class and the spacing
+   comes from margins instead. */
+.cemeti-no-flex-gap .cemeti-card__body > * + * { margin-top: 1.5rem; }
+.cemeti-no-flex-gap .cemeti-search__form > * + * { margin-left: 0.9rem; }
+.cemeti-no-flex-gap .cemeti-whats-on__bar > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .pagination .nav-links > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .cemeti-single__nav > * + * { margin-left: 1rem; }
+.cemeti-no-flex-gap .cemeti-related > * + * { margin-left: 0.9375rem; }
+.cemeti-no-flex-gap .cemeti-related a > * + * { margin-top: 1rem; }
+.cemeti-no-flex-gap .cemeti-share > * + * { margin-left: 0.5rem; }
+.cemeti-no-flex-gap .cemeti-share__btn > * + * { margin-left: 0.4em; }
+.cemeti-no-flex-gap .cemeti-single__body .wp-block-file > * + * { margin-left: 1rem; }
