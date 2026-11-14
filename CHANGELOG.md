@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.64
+
+Entry pages no longer show the poster twice. Entries moved from the old site often start their text with the same
+picture that is now the featured image (or the stand-in picture taken from the text), so the page showed it as the
+poster and again in the text. The first picture of the text is now left out of the page when it is the featured
+one (same attachment, or the same file at another size/address), with its figure, link and caption. Only a picture
+at the very start counts; a picture after words stays. A text that was only the poster leaves no empty "Foreword"
+in the contents bar. The stored text is not changed.
+
 ## 0.9.63
 
 Speed: pictures and caches (analysis in the conversation of 14 November 2026).

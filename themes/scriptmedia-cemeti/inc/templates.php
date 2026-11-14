@@ -597,3 +597,80 @@ function cemeti_find_entry_picture( $post ) {
 }
 add_filter( 'post_thumbnail_id', 'cemeti_fallback_thumbnail_id', 10, 2 );
 
+
+/**
+ * Entries moved from the old site often start their text with the same picture that is now the featured image, so the
+ * page showed it twice (once as the poster, once in the text). Leave the first picture out of the text when it is the
+ * featured one. Only a picture at the very start counts (no words before it); its figure / link / paragraph goes too.
+ *
+ * @param string $html     Text.
+ * @param int    $thumb_id Featured image.
+ * @return string
+ */
+function cemeti_strip_lead_image( $html, $thumb_id ) {
+	$html     = (string) $html;
+	$thumb_id = (int) $thumb_id;
+	if ( ! $thumb_id || false === stripos( $html, '<img' ) || ! preg_match( '/<img\b[^>]*>/i', $html, $m, PREG_OFFSET_CAPTURE ) ) {
+		return $html;
+	}
+	$tag    = $m[0][0];
+	$pos    = (int) $m[0][1];
+	$before = substr( $html, 0, $pos );
+	if ( '' !== trim( wp_strip_all_tags( preg_replace( '/<!--.*?-->/s', '', $before ) ) ) ) {
+		return $html; // Words come first: this picture belongs to the text.
+	}
+	$src   = preg_match( '/\bsrc=["\']([^"\']+)["\']/i', $tag, $s ) ? html_entity_decode( $s[1] ) : '';
+	$class = preg_match( '/\bclass=["\']([^"\']+)["\']/i', $tag, $c ) ? $c[1] : '';
+	$id    = cemeti_media_img_id( $src, $class );
+	$same  = $id && $id === $thumb_id;
+	if ( ! $same && '' !== $src ) {
+		$file = (string) get_post_meta( $thumb_id, '_wp_attached_file', true );
+		$same = '' !== $file && cemeti_media_basename_key( $file ) === cemeti_media_basename_key( $src );
+	}
+	if ( ! $same ) {
+		return $html;
+	}
+	$start = $pos;
+	$end   = $pos + strlen( $tag );
+	if ( preg_match( '#<a\b[^>]*>\s*$#i', substr( $html, 0, $start ), $a ) && preg_match( '#^\s*</a>#i', substr( $html, $end ), $ac ) ) {
+		$start -= strlen( $a[0] );
+		$end   += strlen( $ac[0] );
+	}
+	foreach ( array( 'figure', 'p' ) as $wrap ) {
+		if ( preg_match( '#<' . $wrap . '\b[^>]*>\s*$#i', substr( $html, 0, $start ), $w ) && preg_match( '#^\s*(?:<figcaption\b.*?</figcaption>\s*)?</' . $wrap . '>#is', substr( $html, $end ), $wc ) ) {
+			$start -= strlen( $w[0] );
+			$end   += strlen( $wc[0] );
+			break;
+		}
+	}
+	return substr( $html, 0, $start ) . substr( $html, $end );
+}
+
+/**
+ * Does some text still say something (words or media), apart from comments and empty wrappers?
+ *
+ * @param string $html Text.
+ * @return bool
+ */
+function cemeti_body_has_content( $html ) {
+	$html = preg_replace( '/<!--.*?-->/s', '', (string) $html );
+	return '' !== trim( wp_strip_all_tags( $html ) ) || (bool) preg_match( '/<(img|iframe|video|audio|embed|object)\b/i', $html );
+}
+
+/**
+ * The text of an entry page without the picture that the page shows as its poster.
+ *
+ * @param string $html Text.
+ * @return string
+ */
+function cemeti_the_content_lead_image( $html ) {
+	if ( is_admin() || ! is_singular() || ! in_the_loop() || ! is_main_query() ) {
+		return $html;
+	}
+	$type = get_post_type();
+	if ( 'page' === $type || 'application' === $type || ! array_key_exists( (string) $type, cemeti_config( 'post-types' ) ) ) {
+		return $html;
+	}
+	return cemeti_strip_lead_image( $html, get_post_thumbnail_id() );
+}
+add_filter( 'the_content', 'cemeti_the_content_lead_image', 20 );

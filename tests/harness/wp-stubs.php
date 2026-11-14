@@ -615,6 +615,12 @@ function check_admin_referer( $action = -1 ) {
 function current_user_can( $cap, ...$args ) {
 	return CemetiWP::$caps;
 }
+function in_the_loop() {
+	return true;
+}
+function is_main_query() {
+	return true;
+}
 function is_paged() {
 	return ! empty( CemetiWP::$ctx['paged'] );
 }

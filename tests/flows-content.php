@@ -165,6 +165,21 @@ ok( $late && 'Exhibition' === $late[0]['label'], "What's on: everything over: th
 CemetiWP::$today = '20260315';
 do_action( 'save_post', $ids['ex_current'] );
 
+/* ------------------------------------------------------------ the poster is not repeated in the text */
+$img = static function ( $n, $extra = '' ) { return '<img class="wp-image-' . $n . '" src="http://cemeti.test/uploads/photo-' . $n . '.jpg"' . $extra . '>'; };
+$fig = '<figure class="wp-block-image">' . $img( 501 ) . '</figure>';
+ok( '<p>Teks</p>' === trim( cemeti_strip_lead_image( $fig . '<p>Teks</p>', 501 ) ), 'lead picture: the featured picture at the start of the text is left out (with its figure)' );
+ok( '<p>Teks</p>' === trim( cemeti_strip_lead_image( '<figure>' . $img( 501 ) . '<figcaption>Poster</figcaption></figure><p>Teks</p>', 501 ) ), 'lead picture: with its caption' );
+ok( '<p>Teks</p>' === trim( cemeti_strip_lead_image( '<p><a href="/x/">' . $img( 501 ) . '</a></p><p>Teks</p>', 501 ) ), 'lead picture: a linked picture in a paragraph goes whole' );
+ok( '<p>Teks</p>' === trim( cemeti_strip_lead_image( '<!-- wp:image --><figure>' . $img( 501 ) . '</figure><!-- /wp:image --><p>Teks</p>', 501 ) ) || false !== strpos( cemeti_strip_lead_image( '<!-- wp:image --><figure>' . $img( 501 ) . '</figure><!-- /wp:image --><p>Teks</p>', 501 ), '<p>Teks</p>' ), 'lead picture: block comments around it do not stop it' );
+ok( ( '<p>Teks</p>' . $fig ) === cemeti_strip_lead_image( '<p>Teks</p>' . $fig, 501 ), 'lead picture: a picture after words is part of the text and stays' );
+ok( ( $fig . '<p>Teks</p>' ) === cemeti_strip_lead_image( $fig . '<p>Teks</p>', 502 ), 'lead picture: a different picture stays' );
+ok( ( $fig . '<p>Teks</p>' ) === cemeti_strip_lead_image( $fig . '<p>Teks</p>', 0 ), 'lead picture: no featured picture, nothing is left out' );
+CemetiWP::$meta[ 507 ]['_wp_attached_file'] = '2023/10/lucas.jpg';
+$by_name = '<figure><img src="https://old.example/wp-content/uploads/2023/10/lucas-768x512.jpg"></figure><p>Teks</p>';
+ok( '<p>Teks</p>' === trim( cemeti_strip_lead_image( $by_name, 507 ) ), 'lead picture: the same file at another size or address is the same picture' );
+ok( ! cemeti_body_has_content( '<!-- wp:image --><!-- /wp:image -->  <p> </p>' ) && cemeti_body_has_content( '<p>Teks</p>' ) && cemeti_body_has_content( '<figure><img src="x"></figure>' ), 'lead picture: an emptied text counts as empty (no empty Foreword in the contents bar)' );
+
 /* ------------------------------------------------------ main-query rules */
 $run = static function ( array $vars, array $flags, array $get = array() ) {
 	$_GET = $get;

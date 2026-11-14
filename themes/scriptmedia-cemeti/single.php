@@ -22,11 +22,11 @@ $cemeti_docs    = cemeti_get_field( 'documentation', $cemeti_id );
 $cemeti_bios    = cemeti_get_field( 'biographies', $cemeti_id );
 $cemeti_booklet = cemeti_booklet_url( $cemeti_id );
 $cemeti_related = cemeti_get_related( $cemeti_id );
-$cemeti_content = trim( get_the_content() );
+$cemeti_content = cemeti_strip_lead_image( trim( get_the_content() ), get_post_thumbnail_id() ); // The poster is not repeated in the text.
 
 // Table of contents: only sections that exist.
 $cemeti_toc = array();
-if ( '' !== $cemeti_content ) {
+if ( cemeti_body_has_content( $cemeti_content ) ) {
 	$cemeti_toc['foreword'] = 'foreword';
 }
 if ( $cemeti_gallery ) {
@@ -116,7 +116,7 @@ $cemeti_has_back = count( $cemeti_toc ) > 1;
 			</div>
 		<?php endif; ?>
 
-		<?php if ( '' !== $cemeti_content ) : ?>
+		<?php if ( cemeti_body_has_content( $cemeti_content ) ) : ?>
 			<div class="cemeti-single__body" id="foreword"><?php the_content(); ?></div>
 			<?php cemeti_back_to_toc( $cemeti_has_back ); ?>
 		<?php endif; ?>
