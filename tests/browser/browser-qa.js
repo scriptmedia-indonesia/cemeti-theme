@@ -218,6 +218,27 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 4d. An old text's "photo beside text" block (a biography) is laid out like the Biographies section. */
+	for ( const [ w, mode ] of [ [ 1280, 'wide' ], [ 390, 'phone' ] ] ) {
+		const { page, ctx } = await open( browser, 'single-journal-legacy-bio', w, 900 );
+		await page.waitForTimeout( 400 );
+		const m = await page.evaluate( () => {
+			const box = document.querySelector( '.wp-block-media-text' );
+			const fig = box.querySelector( '.wp-block-media-text__media' ).getBoundingClientRect();
+			const img = box.querySelector( 'img' ).getBoundingClientRect();
+			const txt = box.querySelector( '.wp-block-media-text__content' ).getBoundingClientRect();
+			const b = box.getBoundingClientRect();
+			return { bw: b.width, fl: fig.left - b.left, fw: fig.width, iw: img.width, ih: img.height, tl: txt.left - b.left, tt: txt.top - b.top, radius: getComputedStyle( box.querySelector( 'img' ) ).borderRadius, over: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+		} );
+		if ( 'wide' === mode ) {
+			ok( m.fl < 2 && Math.abs( m.fw / m.bw - 0.2895 ) < 0.02 && m.tl > m.fw && m.tt < 2, 'legacy bio (wide): photo in the left 29 % column, text beside it, both start at the top (' + JSON.stringify( m ) + ')' );
+			ok( Math.abs( m.iw - m.ih ) < 2 && '0px' === m.radius, 'legacy bio (wide): the photo is square, not a circle' );
+		} else {
+			ok( m.tl < 2 && m.tt >= m.ih && m.over <= 0, 'legacy bio (phone): photo above the text, nothing wider than the screen (' + JSON.stringify( m ) + ')' );
+		}
+		await ctx.close();
+	}
+
 	/* ---- 5. Reduced motion: panels close at once. */
 	{
 		const { page, ctx } = await open( browser, 'home', 1280, 800, { reducedMotion: 'reduce' } );

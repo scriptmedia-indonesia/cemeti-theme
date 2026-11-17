@@ -3,6 +3,15 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.66
+
+Entry pages with an old text (typically a Journal or entry whose biography is written in the text): headings, the
+rule and the "photo beside text" block now follow the page's own style. The photo sits in the left column (the same
+29 % column as the Biographies section), square instead of a circle, the text starts beside it at the same height, and
+on phones the photo is above the text. Headings in the text get a consistent size and spacing. (Before, the photo was
+centred in half of the width with a gap, and the text started far to the right.) For a proper biography block use the
+Biographies field ("Split the old text" moves it there).
+
 ## 0.9.65
 
 Lightbox for the featured image. On Exhibition, Residency, Public Program, Open Studio, Journal, Archive item and

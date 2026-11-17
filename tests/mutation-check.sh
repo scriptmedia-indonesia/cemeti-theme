@@ -142,6 +142,7 @@ mutate "lead picture: a different picture is left out too" $T/inc/templates.php 
 mutate "lightbox: poster not a link"                 $T/inc/templates.php "return '<a class=\"cemeti-lightbox-link\"" "return '<span class=\"cemeti-lightbox-link\"" render-pages
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
+  mutate "legacy bio: photo column lost"              $T/assets/css/pages.css "grid-template-columns: minmax(8rem, 28.95%) minmax(0, 1fr) !important;" "grid-template-columns: 50% auto !important;" browser
   mutate "lightbox: ESC does not close"                 $T/assets/js/lightbox.js "event.key === 'Escape' || event.key === 'Esc'" "false" browser
   mutate "lightbox: page scrolls behind it"             $T/assets/js/lightbox.js "doc.body.classList.add( 'cemeti-scroll-locked' );" "" browser
   mutate "splash: shown again at every page"           $T/assets/js/navigation.js "window.sessionStorage.setItem( 'cemetiSplash', '1' );" "" browser

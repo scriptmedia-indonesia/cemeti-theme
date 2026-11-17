@@ -435,3 +435,28 @@ html, body { overflow-x: clip; }
 }
 
 .cemeti-section-heading + .cemeti-related { margin-top: -0.625rem; }   /* cards start 75 px under the title (Figma), the photos 85 */
+
+/* ---- Texts that came from the old site: headings, rules and the "photo beside text" block (a biography written in the
+   text) follow the page's own style: photo left (the same column as the Biographies section), text right, square ---- */
+.cemeti-single .cemeti-single__body h2 { margin: 2.5rem 0 1rem; font-size: 1.5em; font-weight: 500; line-height: 1.2; }
+.cemeti-single .cemeti-single__body h3 { margin: 2rem 0 1rem; font-size: 1.25em; font-weight: 500; line-height: 1.2; }
+.cemeti-single .cemeti-single__body h4 { margin: 1.5rem 0 0.5rem; font-size: 1.05em; font-weight: 500; line-height: 1.25; }
+.cemeti-single .cemeti-single__body h2 + h3 { margin-top: 0; }
+.cemeti-single .cemeti-single__body hr,
+.cemeti-single .cemeti-single__body .wp-block-separator { margin: 2.5rem 0; border: 0; border-top: var(--rule); background: none; height: 0; }
+.cemeti-single .cemeti-single__body .wp-block-media-text {
+	display: grid; grid-template-areas: none !important; grid-template-columns: minmax(8rem, 28.95%) minmax(0, 1fr) !important;
+	gap: 1rem clamp(1rem, 0.5rem + 2vw, 2rem); align-items: start; max-width: none; margin: 0 0 clamp(2rem, 1.5rem + 2vw, 3.5rem);
+}
+.cemeti-single .cemeti-single__body .wp-block-media-text.has-media-on-the-right { grid-template-columns: minmax(0, 1fr) minmax(8rem, 28.95%) !important; }
+.cemeti-single .cemeti-single__body .wp-block-media-text > * { grid-area: auto !important; }
+.cemeti-single .cemeti-single__body figure.wp-block-media-text__media { max-width: none; margin: 0; }
+.cemeti-single .cemeti-single__body .wp-block-media-text__media img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; margin: 0; border-radius: 0 !important; }
+.cemeti-single .cemeti-single__body .wp-block-media-text__content { min-width: 0; padding: 0 !important; }
+.cemeti-single .cemeti-single__body .wp-block-media-text__content > :first-child { margin-top: 0; }
+.cemeti-single .cemeti-single__body .wp-block-media-text__content > :last-child { margin-bottom: 0; }
+@media (max-width: 40rem) {
+	.cemeti-single .cemeti-single__body .wp-block-media-text,
+	.cemeti-single .cemeti-single__body .wp-block-media-text.has-media-on-the-right { grid-template-columns: minmax(0, 1fr) !important; }
+	.cemeti-single .cemeti-single__body .wp-block-media-text__media img { width: min(100%, 19.25rem); }
+}
