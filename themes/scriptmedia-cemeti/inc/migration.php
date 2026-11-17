@@ -619,6 +619,13 @@ function cemeti_convert_page() {
 			<input type="hidden" name="action" value="cemeti_convert_save">
 			<?php wp_nonce_field( 'cemeti_convert_save' ); ?>
 
+			<?php $cemeti_guard = get_option( 'cemeti_import_guard_report', array() ); ?>
+			<h2>Importing a newer export of the old site</h2>
+			<p>Tools → Import → WordPress (install the "WordPress Importer" plugin if asked). The <strong>import guard</strong> of the theme runs by itself: a post that is already on the site (even when it was converted to an Exhibition, Journal… or sits in the trash) is left out, never imported twice and never overwritten; twin posts with the same title and time are both kept. Afterwards press <strong>Convert</strong> below (it only handles the new posts) and <strong>Link translations</strong>.</p>
+			<?php if ( is_array( $cemeti_guard ) && ! empty( $cemeti_guard['time'] ) ) : ?>
+				<p class="description">Last import: <?php echo (int) $cemeti_guard['skipped']; ?> already on the site (left out), <?php echo (int) $cemeti_guard['shifted']; ?> twin(s) kept apart<?php echo ! empty( $cemeti_guard['titles'] ) ? ' — ' . esc_html( implode( ' · ', array_map( 'strval', $cemeti_guard['titles'] ) ) ) : ''; ?>.</p>
+			<?php endif; ?>
+
 			<h2>1. How to sort the posts</h2>
 			<p>
 				<label><input type="radio" name="mode" value="rules" <?php checked( $rules_on ); ?>> <strong>Cemeti rules</strong> (recommended): built for the old cemeti.art site. Exhibition, Open Studio, Public Program, Residency and Open Call are recognised from their categories and titles; everything else becomes Journal (News, Essay or Curatorial Essay). Dates are read from the post text, tags become artists, other categories become Projects, and Indonesian/English language is detected.</label><br>

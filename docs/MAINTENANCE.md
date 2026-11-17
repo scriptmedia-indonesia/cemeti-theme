@@ -200,6 +200,19 @@ PY
 - **History** is its own page, below About in the menu. The years are edited in Pages → History → "History (chronology)"
   (Add Year each year). Text that was saved on the About page earlier is used until the History page has its own.
 
+## Importing a newer export of the old site
+
+1. Install the theme (0.9.67 or later: it holds the import guard) and make a backup.
+2. Import **before** the DNS of cemeti.art points to the new server (new pictures are downloaded from the old address).
+3. Tools → Import → WordPress, choose the file, map the authors to an existing user, tick "Download and import file
+   attachments".
+4. Tools → Cemeti Converter: **Convert** (only the new posts are handled), then **Link translations**.
+5. Settings → Cemeti → **Clear cached pages**.
+
+The guard (`inc/import-guard.php`) leaves out posts that are already on the site (even converted ones or ones in the
+trash), keeps same-title twins apart (one second) and never overwrites anything. Posts that changed on the old site after
+the first import are *not* updated: edit them by hand.
+
 ## Speed (pictures and caches)
 
 - **Pictures**: after an import run Settings → Cemeti → *Make missing picture sizes* once (and again after a new

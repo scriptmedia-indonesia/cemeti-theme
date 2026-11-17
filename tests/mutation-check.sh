@@ -140,6 +140,8 @@ mutate "speed: bulk featured image keeps old pages" $T/inc/performance.php "if (
 mutate "speed: every card lazy"                       $T/inc/performance.php "if ( \$on_page && (int) \$index < \$eager ) {" "if ( false ) {" flows-performance
 mutate "lead picture: a different picture is left out too" $T/inc/templates.php "\$same  = \$id && \$id === \$thumb_id;" "\$same  = true;" flows-content
 mutate "lightbox: poster not a link"                 $T/inc/templates.php "return '<a class=\"cemeti-lightbox-link\"" "return '<span class=\"cemeti-lightbox-link\"" render-pages
+mutate "import: an existing post is imported again"    $T/inc/import-guard.php "if ( '' !== \$slug && cemeti_import_post_exists( \$slug ) ) {" "if ( false ) {" flows-migration
+mutate "import: twin posts not told apart"            $T/inc/import-guard.php "\$date = cemeti_import_shift_date( \$date, 1 );" "" flows-migration
 if node -e "require('playwright')" >/dev/null 2>&1; then
   mutate "css: menu panel full width"              $T/assets/css/layout.css "width: min(31.5rem, 100% - 2 * var(--gutter));" "width: 100%;" browser
   mutate "legacy bio: photo column lost"              $T/assets/css/pages.css "grid-template-columns: minmax(8rem, 28.95%) minmax(0, 1fr) !important;" "grid-template-columns: 50% auto !important;" browser

@@ -181,4 +181,46 @@ CemetiWP::$caps = true;
 $_POST = $_GET = array();
 $legacy = get_option( 'cemeti_legacy_category_paths' );
 ok( isset( $legacy['category/esai'] ) && 'journal' === $legacy['category/esai']['type'], 'settings: old category URLs recorded for redirects' );
+
+/* ------------------------------------------------------------ import guard (a newer export is imported without duplicates) */
+if ( ! function_exists( 'post_exists' ) ) {
+	function post_exists( $title, $content = '', $date = '' ) {
+		foreach ( CemetiWP::$posts as $id => $p ) {
+			if ( $p['post_title'] === $title && $p['post_date'] === $date ) { return (int) $id; }
+		}
+		return 0;
+	}
+}
+$conv = CemetiWP::post( array( 'post_type' => 'exhibition', 'post_title' => 'Pameran Lama', 'post_name' => 'pameran-lama-id', 'post_date' => '2026-03-01 10:00:00' ) );
+update_post_meta( $conv, '_cemeti_old_slug', 'pameran-lama' );
+$plain = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Belum Diubah', 'post_name' => 'belum-diubah', 'post_date' => '2026-03-02 10:00:00' ) );
+$trashed = CemetiWP::post( array( 'post_type' => 'journal', 'post_title' => 'Dibuang', 'post_name' => 'dibuang', 'post_status' => 'trash', 'post_date' => '2026-03-03 10:00:00' ) );
+update_post_meta( $trashed, '_cemeti_old_slug', 'dibuang-lama' );
+$item = static function ( $slug, $title, $date, $type = 'post' ) { return array( 'post_type' => $type, 'post_name' => $slug, 'post_title' => $title, 'post_date' => $date, 'post_date_gmt' => $date, 'post_id' => crc32( $slug ) ); };
+$before = count( CemetiWP::$posts );
+$in = array(
+	$item( 'pameran-lama', 'Pameran Lama', '2026-03-01 10:00:00' ),            // converted already: left out
+	$item( 'belum-diubah', 'Belum Diubah', '2026-03-02 10:00:00' ),            // plain post: left out
+	$item( 'dibuang-lama', 'Dibuang', '2026-03-03 10:00:00' ),                 // in the trash: stays there, not brought back
+	$item( 'benar-baru', 'Benar Baru', '2026-11-01 09:00:00' ),                // new: kept
+	$item( 'kembar', 'Open Studio: Kembar', '2026-11-06 12:25:00' ),           // twins: the same title and the same minute
+	$item( 'kembar-2', 'Open Studio: Kembar', '2026-11-06 12:25:00' ),
+	$item( 'mirip', 'Pameran Lama', '2026-03-01 10:00:00' ),                   // looks like the converted one to the importer but is another post
+	$item( 'foto-1', 'Foto', '2026-03-01 10:00:00', 'attachment' ),            // pictures are the importer's business
+);
+ob_start();
+$out = cemeti_import_guard_posts( $in );
+$said = ob_get_clean();
+$slugs = array_map( static function ( $p ) { return $p['post_name']; }, $out );
+ok( array( 'benar-baru', 'kembar', 'kembar-2', 'mirip', 'foto-1' ) === $slugs, 'import guard: posts already on the site (converted, plain, in the trash) are left out; the rest stays: ' . implode( ',', $slugs ) );
+$by = array(); foreach ( $out as $p ) { $by[ $p['post_name'] ] = $p; }
+ok( '2026-11-06 12:25:00' === $by['kembar']['post_date'] && '2026-11-06 12:25:01' === $by['kembar-2']['post_date'] && '2026-11-06 12:25:01' === $by['kembar-2']['post_date_gmt'], 'import guard: twin posts (same title and minute) are told apart by one second, so the importer keeps both' );
+ok( '2026-03-01 10:00:01' === $by['mirip']['post_date'] && '2026-03-01 10:00:00' === $by['foto-1']['post_date'], 'import guard: a different post that looks like an existing one is kept (one second apart); a picture is untouched' );
+ok( $before === count( CemetiWP::$posts ) && 'Pameran Lama' === get_post( $conv )->post_title && 'exhibition' === get_post( $conv )->post_type, 'import guard: nothing on the site is created, changed or deleted by the guard' );
+$rep = get_option( 'cemeti_import_guard_report', array() );
+ok( 3 === $rep['skipped'] && 2 === $rep['shifted'] && false !== strpos( $said, 'left out' ), 'import guard: the counts are reported (on the page and for the converter screen)' );
+ob_start(); $again = cemeti_import_guard_posts( $in ); ob_end_clean();
+ok( count( $again ) === count( $out ), 'import guard: the same file twice gives the same result' );
+ok( 1 === count( cemeti_import_guard_posts( array( $item( 'x', 'X', '2026-01-01 00:00:00' ) ) ) ) && array() === cemeti_import_guard_posts( array() ), 'import guard: small and empty lists work' );
+
 qa_done();

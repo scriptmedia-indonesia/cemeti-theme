@@ -3,6 +3,17 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.67
+
+Import guard for newer exports of the old site (`inc/import-guard.php`, on the importer's own filter
+`wp_import_posts`). WordPress' importer decides "already there" by title + exact date + the same post type, which fails
+here twice: a post the converter turned into an Exhibition / Journal… has another type, so it would be imported again
+(a duplicate), and two posts with the same title and the same minute (the Indonesian / English twins) look like one, so
+the second is skipped (a lost post). The guard leaves out every post that is already on the site (found by the
+converter's "_cemeti_old_slug", or by the slug of a post that was never converted; the trash counts too), tells twins
+apart by one second, never changes or deletes anything, and reports what it did on the import page and on Tools →
+Cemeti Converter. Importing the same file twice gives the same result. Tests added (flows-migration).
+
 ## 0.9.66
 
 Entry pages with an old text (typically a Journal or entry whose biography is written in the text): headings, the
