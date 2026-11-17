@@ -117,6 +117,18 @@ $dl = count( $GLOBALS['qa_downloads'] );
 $four = cemeti_media_repair_post( $p5 );
 ok( count( $GLOBALS['qa_downloads'] ) === $dl && 1 === $four['missing'], 'repair post: pictures of other websites are never downloaded' );
 
+/* ---- an import file without pictures: the post remembers its featured image's address; the file is already in uploads */
+file_put_contents( $uploads . '/2021/06/lead.jpg', $png );
+$p8 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Eight', 'post_content' => '<img src="https://cemeti.art/wp-content/uploads/2021/06/a.jpg">', 'meta' => array( '_cemeti_source_thumb' => 'https://cemeti.art/wp-content/uploads/2021/06/lead.jpg' ) ) );
+$dl = count( $GLOBALS['qa_downloads'] );
+$eight = cemeti_media_repair_post( $p8 );
+$thumb8 = (int) get_post_meta( $p8, '_thumbnail_id', true );
+ok( 1 === $eight['thumb'] && $thumb8 && $thumb8 !== $att && 'lead.jpg' === basename( (string) get_post_meta( $thumb8, '_wp_attached_file', true ) ), 'repair post: the featured image the post had at the source is used, not the first picture of the text' );
+ok( count( $GLOBALS['qa_downloads'] ) === $dl && '' === (string) get_post_meta( $p8, '_cemeti_source_thumb', true ), 'repair post: that file was already in uploads (nothing downloaded) and the note is cleared' );
+$p9 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Nine', 'post_content' => '<p>x</p>', 'meta' => array( '_cemeti_source_thumb' => 'https://cemeti.art/wp-content/uploads/2021/06/a.jpg', '_thumbnail_id' => $att ) ) );
+cemeti_media_repair_post( $p9 );
+ok( $att === (int) get_post_meta( $p9, '_thumbnail_id', true ), 'repair post: a valid featured image is never replaced by the remembered one' );
+
 /* ---- a text whose address was replaced by THIS site's (search-and-replace / importer): the file is still fetched from the old site */
 $p7 = CemetiWP::post( array( 'post_type' => 'post', 'post_title' => 'Seven', 'post_content' => '<img src="http://cemeti.test/cemeti/wp-content/uploads/2021/06/moved.jpg">' ) );
 $seven = cemeti_media_repair_post( $p7 );

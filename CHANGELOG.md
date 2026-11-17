@@ -3,6 +3,18 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.68
+
+Importing posts when the picture files are already in wp-content/uploads (copied over by hand).
+
+- An import file may carry no pictures and name the featured image of each post (`_cemeti_source_thumb`, an address).
+  Tools → Cemeti Converter → "0. Media" → "Fix posts" now makes the Media Library item from the file that is already
+  in uploads (nothing is downloaded) and sets it as the featured image, ahead of "the first picture of the text". A
+  valid featured image is never replaced. The note is removed once used (and on Revert).
+- A picture whose file is already in uploads is registered without any download attempt (before, a useless request
+  for the "-scaled" name was made first).
+- Tests added (flows-media).
+
 ## 0.9.67
 
 Import guard for newer exports of the old site (`inc/import-guard.php`, on the importer's own filter

@@ -317,17 +317,30 @@ function cemeti_media_create_from_url( $url, $parent ) {
 	if ( '' === $rel || ! cemeti_media_is_old_site( $url ) ) {
 		return 'Not a picture of the old site: ' . $url;
 	}
-	// A size copy ("photo-300x200.jpg") is not kept in the old site's library: ask for the original.
-	$original = cemeti_media_rel_candidates( $rel )[1];
-	$file     = cemeti_media_fetch( $original );
-	if ( is_wp_error( $file ) && $original !== $rel ) {
-		$original = $rel;
+	$uploads  = wp_get_upload_dir();
+	$cands    = cemeti_media_rel_candidates( $rel );
+	$original = '';
+	$file     = '';
+	// The file may already be in the uploads folder (copied over by hand): then nothing is downloaded.
+	foreach ( array_unique( array_merge( array( $cands[1] ?? $cands[0] ), $cands ) ) as $cand ) {
+		if ( is_file( trailingslashit( $uploads['basedir'] ) . $cand ) ) {
+			$original = $cand;
+			$file     = trailingslashit( $uploads['basedir'] ) . $cand;
+			break;
+		}
+	}
+	if ( '' === $original ) {
+		// A size copy ("photo-300x200.jpg") is not kept in the old site's library: ask for the original.
+		$original = $cands[1] ?? $cands[0];
 		$file     = cemeti_media_fetch( $original );
+		if ( is_wp_error( $file ) && $original !== $rel ) {
+			$original = $rel;
+			$file     = cemeti_media_fetch( $original );
+		}
+		if ( is_wp_error( $file ) ) {
+			return $file->get_error_message();
+		}
 	}
-	if ( is_wp_error( $file ) ) {
-		return $file->get_error_message();
-	}
-	$uploads = wp_get_upload_dir();
 	$type    = wp_check_filetype( basename( $file ) );
 	$id      = wp_insert_attachment(
 		array(
@@ -412,6 +425,28 @@ function cemeti_media_repair_post( $post_id ) {
 				$result['failed'][] = $state;
 				$valid              = false;
 			}
+		}
+	}
+	// An import file without pictures carries the address of the featured image the post had ("_cemeti_source_thumb"):
+	// its file is already in the uploads folder, so the library item is made from it (no download), and it is the
+	// post's featured image, ahead of "the first picture of the text".
+	$source = (string) get_post_meta( $post_id, '_cemeti_source_thumb', true );
+	if ( ! $valid && '' !== $source ) {
+		$found = cemeti_media_find_by_url( $source );
+		if ( ! $found && cemeti_media_is_old_site( $source ) ) {
+			$made = cemeti_media_create_from_url( $source, $post_id );
+			if ( is_int( $made ) ) {
+				$found = $made;
+				++$result['created'];
+			} else {
+				$result['failed'][] = $made;
+			}
+		}
+		if ( $found ) {
+			update_post_meta( $post_id, '_thumbnail_id', (int) $found );
+			delete_post_meta( $post_id, '_cemeti_source_thumb' );
+			$result['thumb'] = 1;
+			$valid           = true;
 		}
 	}
 	if ( ! $valid && $ids ) {

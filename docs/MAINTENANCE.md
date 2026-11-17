@@ -204,10 +204,13 @@ PY
 
 1. Install the theme (0.9.67 or later: it holds the import guard) and make a backup.
 2. Import **before** the DNS of cemeti.art points to the new server (new pictures are downloaded from the old address).
-3. Tools → Import → WordPress, choose the file, map the authors to an existing user, tick "Download and import file
+3. Tools → Import → WordPress, choose the file, map the authors to an existing user. If the import file has no
+   pictures (the files were copied into wp-content/uploads by hand), do **not** tick "Download and import file
    attachments".
-4. Tools → Cemeti Converter: **Convert** (only the new posts are handled), then **Link translations**.
-5. Settings → Cemeti → **Clear cached pages**.
+4. Tools → Cemeti Converter → "0. Media" → **Fix posts**: makes the Media Library items from the files already in
+   uploads (no download) and sets each post's featured image (`_cemeti_source_thumb`).
+5. Tools → Cemeti Converter: **Convert** (only the new posts are handled), then **Link translations**.
+6. Settings → Cemeti → **Make missing picture sizes**, then **Clear cached pages**.
 
 The guard (`inc/import-guard.php`) leaves out posts that are already on the site (even converted ones or ones in the
 trash), keeps same-title twins apart (one second) and never overwrites anything. Posts that changed on the old site after
