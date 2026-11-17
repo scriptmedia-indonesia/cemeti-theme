@@ -107,3 +107,23 @@
 .cemeti-no-flex-gap .cemeti-share > * + * { margin-left: 0.5rem; }
 .cemeti-no-flex-gap .cemeti-share__btn > * + * { margin-left: 0.4em; }
 .cemeti-no-flex-gap .cemeti-single__body .wp-block-file > * + * { margin-left: 1rem; }
+
+/* ---- Lightbox: the featured image of an entry page opens large (assets/js/lightbox.js) ---- */
+.cemeti-lightbox-link { display: block; cursor: -webkit-zoom-in; cursor: zoom-in; }
+.cemeti-lightbox {
+	position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0; z-index: 300;
+	display: flex; align-items: center; justify-content: center;
+	padding: clamp(1rem, 4vw, 3rem);
+	background: rgba(20, 20, 20, 0.92);
+	opacity: 0; transition: opacity var(--dur) var(--ease);
+}
+.cemeti-lightbox[hidden] { display: none; }
+.cemeti-lightbox.is-open { opacity: 1; }
+.cemeti-lightbox__img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; cursor: -webkit-zoom-out; cursor: zoom-out; }
+.cemeti-lightbox__close {
+	position: absolute; top: clamp(0.75rem, 2vw, 1.5rem); right: clamp(0.75rem, 2vw, 1.5rem);
+	appearance: none; background: none; border: 0; padding: 0.25rem 0.5rem; cursor: pointer;
+	color: var(--c-white); font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+}
+.cemeti-lightbox__close:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+.cemeti-lightbox__close:focus { outline: 2px solid var(--c-white); outline-offset: 2px; }

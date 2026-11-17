@@ -87,6 +87,7 @@ function cemeti_ui_strings() {
 	return array(
 		'menu'               => array( 'id' => 'Menu', 'en' => 'Menu' ),
 		'close'              => array( 'id' => 'Tutup', 'en' => 'Close' ),
+		'enlarge'            => array( 'id' => 'Perbesar gambar', 'en' => 'Enlarge image' ),
 		'back'               => array( 'id' => 'Kembali', 'en' => 'Back' ),
 		'search'             => array( 'id' => 'Cari', 'en' => 'Search' ),
 		'search_placeholder' => array( 'id' => 'Ketik untuk mencari…', 'en' => 'Type to search…' ),

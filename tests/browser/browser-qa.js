@@ -190,6 +190,34 @@ async function open( browser, name, width, height, extra = {} ) {
 		await ctx.close();
 	}
 
+	/* ---- 4c. Lightbox: the featured image opens large; ESC, the dark area and Close shut it; the focus goes back. */
+	{
+		const { page, ctx } = await open( browser, 'single-exhibition-lightbox', 1280, 800 );
+		const link = page.locator( 'a[data-cemeti-lightbox]' ).first();
+		ok( await link.count() === 1, 'lightbox: the poster is a link' );
+		await link.click();
+		await page.waitForTimeout( 350 );
+		const box = page.locator( '.cemeti-lightbox' );
+		ok( await box.isVisible() && /cemeti-hero\.jpg$/.test( await page.locator( '.cemeti-lightbox__img' ).getAttribute( 'src' ) ), 'lightbox: opens with the large picture' );
+		ok( await page.evaluate( () => document.body.classList.contains( 'cemeti-scroll-locked' ) && 'hidden' === getComputedStyle( document.body ).overflow ), 'lightbox: the page does not scroll behind it' );
+		const cover = await box.boundingBox();
+		ok( cover.width >= 1279 && cover.height >= 799, 'lightbox: covers the screen' );
+		ok( await page.evaluate( () => document.activeElement.className === 'cemeti-lightbox__close' ), 'lightbox: the focus is on Close' );
+		await page.keyboard.press( 'Tab' );
+		ok( await page.evaluate( () => document.activeElement.className === 'cemeti-lightbox__close' ), 'lightbox: Tab does not leave it' );
+		await page.keyboard.press( 'Escape' );
+		await page.waitForTimeout( 400 );
+		ok( await box.isHidden() && await page.evaluate( () => ! document.body.classList.contains( 'cemeti-scroll-locked' ) && document.activeElement.hasAttribute( 'data-cemeti-lightbox' ) ), 'lightbox: ESC closes it, the page scrolls again and the focus returns to the picture' );
+		await link.click();
+		await page.waitForTimeout( 350 );
+		await page.mouse.click( 20, 20 );
+		await page.waitForTimeout( 400 );
+		ok( await box.isHidden(), 'lightbox: a click on the dark area closes it' );
+		const kept = await page.evaluate( () => { const a = document.querySelector( 'a[data-cemeti-lightbox]' ); const ev = new MouseEvent( 'click', { bubbles: true, cancelable: true, ctrlKey: true, button: 0 } ); a.dispatchEvent( ev ); return ev.defaultPrevented; } );
+		ok( false === kept, 'lightbox: Ctrl+click is left to the browser (new tab)' );
+		await ctx.close();
+	}
+
 	/* ---- 5. Reduced motion: panels close at once. */
 	{
 		const { page, ctx } = await open( browser, 'home', 1280, 800, { reducedMotion: 'reduce' } );

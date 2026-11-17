@@ -3,6 +3,14 @@
 Versions follow `themes/scriptmedia-cemeti/style.css`. Bump it there (and nowhere else), add a line here, run
 `bash scripts/build-zip.sh`.
 
+## 0.9.65
+
+Lightbox for the featured image. On Exhibition, Residency, Public Program, Open Studio, Journal, Archive item and
+Open Call pages a click on the main picture opens the large version over the page (dark background, "Close" /
+"Tutup"). ESC, a click on the dark area or on the picture, or Close shut it; the page does not scroll behind it and the
+focus returns to the picture. Without JavaScript, or with Ctrl/Cmd/Shift/middle click, the link opens the picture
+itself. The large picture is the theme's 1600 px size, never the multi-megabyte original. Tests and mutations added.
+
 ## 0.9.64
 
 Entry pages no longer show the poster twice. Entries moved from the old site often start their text with the same

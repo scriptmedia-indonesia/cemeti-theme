@@ -65,7 +65,7 @@ $cemeti_has_back = count( $cemeti_toc ) > 1;
 
 		<header class="cemeti-single__head">
 			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'cemeti-poster', array( 'class' => 'cemeti-single__poster' ) ); ?>
+				<?php echo cemeti_featured_image_html( 'cemeti-poster', array( 'class' => 'cemeti-single__poster' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<?php endif; ?>
 			<h1 class="cemeti-single__title"><?php echo esc_html( cemeti_title() ); ?></h1>
 			<?php

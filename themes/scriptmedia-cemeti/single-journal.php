@@ -23,7 +23,7 @@ $cemeti_author  = (string) cemeti_get_field( 'author', get_the_ID() );
 		<?php if ( has_post_thumbnail() ) : ?>
 			<?php $cemeti_caption = trim( wp_strip_all_tags( (string) wp_get_attachment_caption( get_post_thumbnail_id() ) ) ); ?>
 			<figure class="cemeti-single__figure">
-				<?php the_post_thumbnail( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); ?>
+				<?php echo cemeti_featured_image_html( 'cemeti-hero', array( 'class' => 'cemeti-single__hero' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<?php if ( '' !== $cemeti_caption ) : ?>
 					<figcaption><?php echo esc_html( $cemeti_caption ); ?></figcaption>
 				<?php endif; ?>

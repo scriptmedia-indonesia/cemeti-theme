@@ -2,7 +2,7 @@
 
 **Untuk pengelola konten (tanpa perlu bisa pemrograman)**
 
-Versi tema 0.9.64 · Bahasa Indonesia
+Versi tema 0.9.65 · Bahasa Indonesia
 
 ---
 
@@ -347,6 +347,7 @@ Buka **Settings → Cemeti**. Halaman ini punya dua bagian: **English** dan **Ba
 | **Beranda** | Memilih konten unggulan: yang sedang berlangsung, atau yang akan datang, atau yang terakhir. |
 | **Open Call** | Menutup sendiri setelah deadline. |
 | **Foto kosong** | Kalau konten tidak punya foto utama, tema memakai foto dari galeri atau teks. |
+| **Foto utama bisa diperbesar** | Pengunjung mengklik foto utama (poster) untuk melihatnya besar di atas halaman, lalu menutupnya dengan **Close**, tombol **Esc**, atau klik di area gelap. |
 | **Foto poster ganda** | Foto pertama di teks tidak diulang kalau sama dengan foto utama. |
 | **Pencarian** | Mencari di judul dan teks semua konten. |
 
@@ -437,9 +438,10 @@ Buka **Settings → Cemeti**. Halaman ini punya dua bagian: **English** dan **Ba
 | **Translation / versi bahasa** | Salinan konten dalam bahasa lain, yang saling terhubung. |
 | **Cache** | Salinan halaman yang disimpan sementara supaya website cepat. |
 | **Splash** | Panel kuning "What's on" saat pertama kali membuka beranda. |
+| **Lightbox** | Tampilan foto yang membesar di atas halaman saat diklik. |
 | **Slug** | Bagian akhir alamat halaman (misalnya `kerja-bakti-monumen`). |
 | **Permalinks** | Pengaturan bentuk alamat halaman. |
 
 ---
 
-*Buku panduan ini dibuat untuk tema Cemeti versi 0.9.64. Kalau tampilan di layar Anda sedikit berbeda dari penjelasan, itu bisa karena versi atau pengaturan. Hubungi pengembang untuk memastikan.*
+*Buku panduan ini dibuat untuk tema Cemeti versi 0.9.65. Kalau tampilan di layar Anda sedikit berbeda dari penjelasan, itu bisa karena versi atau pengaturan. Hubungi pengembang untuk memastikan.*

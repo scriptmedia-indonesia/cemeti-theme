@@ -22,7 +22,7 @@ $cemeti_target   = '' !== $cemeti_external ? $cemeti_external : '#apply';
 		<?php cemeti_page_head( 'Open Call', 'blue' ); ?>
 		<div class="cemeti-opencall">
 			<?php if ( has_post_thumbnail() ) : ?>
-				<div class="cemeti-opencall__poster"><?php the_post_thumbnail( 'cemeti-poster' ); ?></div>
+				<div class="cemeti-opencall__poster"><?php echo cemeti_featured_image_html( 'cemeti-poster' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
 			<?php endif; ?>
 			<div class="cemeti-opencall__text">
 				<h2 class="cemeti-single__title"><?php echo esc_html( cemeti_title() ); ?></h2>

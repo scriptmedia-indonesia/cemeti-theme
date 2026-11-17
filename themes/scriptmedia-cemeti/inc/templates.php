@@ -674,3 +674,24 @@ function cemeti_the_content_lead_image( $html ) {
 	return cemeti_strip_lead_image( $html, get_post_thumbnail_id() );
 }
 add_filter( 'the_content', 'cemeti_the_content_lead_image', 20 );
+
+/**
+ * The featured image of an entry page, as a link to the large picture that opens in a lightbox (assets/js/lightbox.js).
+ * Without JavaScript the link simply opens the picture.
+ *
+ * @param string $size Image size shown on the page.
+ * @param array  $attr Attributes of the <img>.
+ * @return string HTML, '' when the entry has no featured image.
+ */
+function cemeti_featured_image_html( $size, $attr = array() ) {
+	$html = get_the_post_thumbnail( null, $size, $attr );
+	if ( '' === $html ) {
+		return '';
+	}
+	$id  = (int) get_post_thumbnail_id();
+	$url = $id ? (string) wp_get_attachment_image_url( $id, 'cemeti-hero' ) : '';
+	if ( '' === $url ) {
+		return $html;
+	}
+	return '<a class="cemeti-lightbox-link" href="' . esc_url( $url ) . '" data-cemeti-lightbox data-close="' . esc_attr( cemeti_t( 'close' ) ) . '" aria-label="' . esc_attr( cemeti_t( 'enlarge' ) ) . '">' . $html . '</a>';
+}

@@ -1003,6 +1003,9 @@ function get_the_post_thumbnail_url( $id = 0, $size = 'full' ) {
 	$t = get_post_thumbnail_id( $id );
 	return $t ? 'http://cemeti.test/img/' . $t . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg' : false;
 }
+function wp_get_attachment_image_url( $id, $size = 'thumbnail' ) {
+	return $id > 0 ? 'http://cemeti.test/img/' . $id . '-' . ( is_array( $size ) ? 'x' : $size ) . '.jpg' : false;
+}
 function get_the_post_thumbnail( $post = null, $size = 'post-thumbnail', $attr = array() ) {
 	$id = is_object( $post ) ? $post->ID : ( $post ? $post : get_the_ID() );
 	return has_post_thumbnail( $id ) ? wp_get_attachment_image( get_post_thumbnail_id( $id ), $size, false, $attr ) : '';
